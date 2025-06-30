@@ -188,7 +188,13 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ duration: 0.3 }}
               >
-                <WhiteHeader showSearch={showSearch} />
+                <WhiteHeader
+                  showSearch={showSearch}
+                  items={items.length}
+                  loading={loading}
+                  user={user}
+                  customer={customer}
+                />
               </motion.header>
             )}
           </AnimatePresence>
