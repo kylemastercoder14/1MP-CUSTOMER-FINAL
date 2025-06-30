@@ -1,0 +1,517 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model User {
+  id              String    @id @default(cuid())
+  authId          String?   @unique // Supabase auth user ID
+  firstName       String?
+  lastName        String?
+  email           String    @unique
+  password        String?
+  isEmailVerified Boolean   @default(false)
+  otpCode         String?
+  otpExpiresAt    DateTime?
+  image           String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  order   Order[]
+  address Address[]
+}
+
+model Address {
+  id            String  @id @default(cuid())
+  firstName     String
+  lastName      String
+  contactNumber String
+  homeAddress   String
+  barangay      String
+  city          String
+  province      String
+  region        String
+  zipCode       String
+  isDefault     Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  order Order[]
+
+  @@index([userId])
+}
+
+model Vendor {
+  id                     String    @id @default(uuid())
+  authId                 String?   @unique // Supabase auth user ID
+  name                   String?
+  email                  String    @unique
+  image                  String?
+  password               String?
+  type                   String?
+  dti                    String?
+  bir                    String?
+  barangayBusinessPermit String?
+  identity               String?
+  identityType           String?
+  sec                    String?
+  givenName              String?
+  middleName             String?
+  familyName             String?
+  otpCode                String?
+  otpExpiresAt           DateTime?
+  isPremium              Boolean   @default(false)
+  adminApproval          String    @default("Pending") // Pending, Under Review, Approved, Rejected
+  isEmailVerified        Boolean   @default(false)
+
+  businessType String? // Food, NonFood, Service, Digital
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  categorySlug String?
+  category     Category? @relation(fields: [categorySlug], references: [slug], onDelete: Cascade)
+
+  product            Product[]
+  productDiscount    ProductDiscount[]
+  newArrivalDiscount NewArrivalDiscount[]
+  coupon             Coupon[]
+  promoCode          PromoCode[]
+  orderItem          OrderItem[]
+  transaction        Transaction[]
+  paymentAccount     PaymentAccount[]
+  subscription       Subscription[]
+  vendorAddress      VendorAddress[]
+  vendorPolicies     VendorPolicies[]
+  vendorFaqs         VendorFaqs[]
+  automatedResponse  AutomatedResponse[]
+}
+
+model VendorAddress {
+  id            String @id @default(uuid())
+  address       String
+  contactNumber String
+  status        String @default("Open") // Open, Closed
+  type          String // e.g., "Pickup Warehouse", "Return Warehouse"
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+}
+
+model VendorPolicies {
+  id                 String @id @default(uuid())
+  name               String
+  content            String
+  adminAprovalStatus String @default("Under Review") // Under Review, Approved, Rejected
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model VendorFaqs {
+  id        String   @id @default(uuid())
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+}
+
+model AutomatedResponse {
+  id             String   @id @default(cuid())
+  defaultEnabled Boolean  @default(false)
+  defaultMessage String?
+  offWorkEnabled Boolean  @default(false)
+  offWorkMessage String?
+  workingDays    String[] @default([])
+  // Store as JSON in the database
+  workingHours   Json     @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model Category {
+  id    String  @id @default(uuid())
+  name  String
+  slug  String  @unique
+  image String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  subCategories SubCategory[]
+  vendor        Vendor[]
+  product       Product[]
+}
+
+model SubCategory {
+  id        String   @id @default(uuid())
+  name      String
+  slug      String   @unique
+  image     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  category     Category @relation(fields: [categorySlug], references: [slug], onDelete: Cascade)
+  categorySlug String
+
+  product Product[]
+}
+
+model Product {
+  id                  String  @id @default(uuid())
+  name                String
+  slug                String  @unique
+  description         String
+  isThereVariants     Boolean @default(false)
+  adminApprovalStatus String  @default("Pending") // Pending, Approved, Rejected
+
+  // Media
+  images    String[]
+  video     String?
+  sizeChart String?
+
+  // Single product fields when no variants
+  sku   String?
+  price Float?
+  stock Int?
+
+  // Shipping
+  weight             Float?
+  weightUnit         String? // e.g. "kg", "g", "lbs"
+  dimensionUnit      String? // e.g. "cm", "inches"
+  length             Float?
+  width              Float?
+  height             Float?
+  isPerishable       Boolean @default(false)
+  isFragile          Boolean @default(false)
+  storageTemperature String? // e.g. "2-8°C", "Room Temperature"
+  shippingPolicy     String?
+
+  // SEO and marketing
+  metaTitle       String?
+  metaDescription String?
+  tags            String[]
+  seoKeywords     String[]
+  isFeatured      Boolean  @default(false)
+  brand           String?
+
+  // Policies
+  warrantyDuration String? // e.g. "1 year", "6 months"
+  warrantyContent  String?
+  returnPolicy     String?
+
+  // Food specific fields
+  ingredients         String?
+  allergens           String[]
+  storageInstructions String?
+  expirationDate      DateTime?
+  countryOfOrigin     String?
+
+  // Service specific fields
+  serviceDuration     String? // e.g., "1 hour", "2 days"
+  serviceLocationType String[] // "remote", "in-person", "both"
+  serviceAreas        String[] // For location-based services
+  schedulingRequired  Boolean  @default(false)
+
+  // Other fields
+  soldCount          Int      @default(0)
+  popularityScore    Float    @default(0.0)
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  categorySlug String
+  category     Category @relation(fields: [categorySlug], references: [slug], onDelete: Cascade)
+
+  subCategorySlug String
+  subCategory     SubCategory @relation(fields: [subCategorySlug], references: [slug], onDelete: Cascade)
+
+  productDiscountId String?
+  productDiscount   ProductDiscount? @relation(fields: [productDiscountId], references: [id], onDelete: Cascade)
+
+  newArrivalDiscount   NewArrivalDiscount? @relation(fields: [newArrivalDiscountId], references: [id], onDelete: Cascade)
+  newArrivalDiscountId String?
+
+  specifications   Specification[]
+  variants         ProductVariant[]
+  nutritionalFacts NutritionalFact[]
+  orderItem        OrderItem[]
+}
+
+model NutritionalFact {
+  id                   String  @id @default(uuid())
+  servingSize          String?
+  servingsPerContainer String?
+  calories             String?
+  totalFat             String?
+  saturatedFat         String?
+  transFat             String?
+  cholesterol          String?
+  sodium               String?
+  totalCarbohydrates   String?
+  dietaryFiber         String?
+  totalSugars          String?
+  addedSugars          String?
+  protein              String?
+  vitaminD             String?
+  calcium              String?
+  iron                 String?
+  potassium            String?
+
+  // Optional additional nutrients
+  vitaminA        String?
+  vitaminC        String?
+  vitaminE        String?
+  vitaminK        String?
+  thiamine        String?
+  riboflavin      String?
+  niacin          String?
+  vitaminB6       String?
+  folate          String?
+  vitaminB12      String?
+  biotin          String?
+  pantothenicAcid String?
+  phosphorus      String?
+  iodine          String?
+  magnesium       String?
+  zinc            String?
+  selenium        String?
+  copper          String?
+  manganese       String?
+  chromium        String?
+  molybdenum      String?
+  chloride        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  productId String  @unique
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Specification {
+  id        String   @id @default(uuid())
+  attribute String // e.g., "color", "size", "material"
+  values    String[] // e.g., ["red", "blue", "green"]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, attribute])
+}
+
+model ProductVariant {
+  id       String  @id @default(uuid())
+  sku      String?
+  price    Float
+  quantity Int
+  image    String?
+
+  // Variant attributes (JSON for flexibility)
+  attributes Json // e.g., {"color": "red", "size": "L"}
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model ProductDiscount {
+  id        String   @id @default(uuid())
+  discount  String
+  startDate String
+  endDate   String
+  type      String
+  value     Float
+  status    String   @default("Active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  products Product[]
+
+  @@index([vendorId])
+}
+
+model NewArrivalDiscount {
+  id        String   @id @default(uuid())
+  discount  String
+  startDate String
+  endDate   String
+  type      String
+  value     Float
+  status    String   @default("Active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  products Product[]
+
+  @@index([vendorId])
+}
+
+model Coupon {
+  id                String   @id @default(uuid())
+  name              String
+  startDate         DateTime
+  endDate           DateTime
+  type              String
+  discountAmount    Float?
+  minimumSpend      Float?
+  claimableQuantity Int
+  status            String   @default("Active")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+}
+
+model PromoCode {
+  id                String   @id @default(uuid())
+  name              String
+  code              String   @unique
+  startDate         DateTime
+  endDate           DateTime
+  type              String
+  discountAmount    Float?
+  minimumSpend      Float?
+  claimableQuantity Int
+  status            String   @default("Active")
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  @@index([vendorId])
+}
+
+model Order {
+  id            String   @id @default(uuid())
+  orderNumber   String   @unique
+  status        String   @default("Pending") // Pending, Processing, Out For Delivery, Delivered, Cancelled, Rejected
+  paymentStatus String   @default("Pending")
+  paymentMethod String
+  vehicleType   String?
+  deliveryFee   Float?
+  totalAmount   Float
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  addressId String
+  address   Address @relation(fields: [addressId], references: [id], onDelete: Cascade)
+
+  orderItem OrderItem[]
+}
+
+model OrderItem {
+  id        String   @id @default(cuid())
+  quantity  Int
+  price     Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id          String @id @default(uuid())
+  referenceNo String @unique
+  amount      Float
+  status      String @default("To Settle") // Settled, Transferred, Declined, To Settle
+  type        String // Withdrawal, Earnings, Refund, etc.
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model PaymentAccount {
+  id              String  @id @default(uuid())
+  paymentType     String // e.g., "Bank", "E-Wallet"
+  accountName     String
+  accountNumber   String
+  paymentProvider String // e.g., "GCash", "PayMaya", "Paypal", "Coins.PH"
+  expirationDate  String?
+  cvc             String?
+  isDefault       Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model Subscription {
+  id            String  @id @default(uuid())
+  invoiceNumber String  @unique
+  name          String
+  description   String?
+  price         Float
+  status        String  @default("Active") // Active, Inactive
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
