@@ -46,7 +46,7 @@ import Footer from "@/components/globals/footer";
 
 const Client = () => {
   const searchParams = useSearchParams();
-  const { addItem } = useCart();
+  const { addItem, applyVendorVoucher } = useCart();
   const slug = searchParams.get("slug") || "";
   const categories = searchParams.get("categories") || "";
   const subcategories = searchParams.get("subcategories") || "";
@@ -125,6 +125,15 @@ const Client = () => {
       originalPrice: price,
       discountedPrice: discountPrice,
       vendorId: product.vendorId,
+      vendorName: product.vendor.name || "",
+      vendorImage: product.vendor.image || "",
+      vendor: {
+        id: product.vendorId,
+        name: product.vendor.name || "",
+        image: product.vendor.image || "",
+        coupon: product.vendor.coupon || [],
+        promoCode: product.vendor.promoCode || [],
+      },
       quantity: quantity,
       variant: selectedVariant
         ? {
@@ -133,6 +142,20 @@ const Client = () => {
           }
         : undefined,
     });
+
+    // Apply any auto-applicable promo codes
+    if (product.vendor.promoCode && product.vendor.promoCode.length > 0) {
+      const autoPromo = product.vendor.promoCode.find(
+        (pc) => pc.status === "Ongoing"
+      );
+      if (autoPromo) {
+        applyVendorVoucher(product.vendorId, {
+          code: autoPromo.code,
+          discountAmount: autoPromo.discountAmount ?? 0,
+          discountType: autoPromo.type as "Percentage Off" | "Fixed Price",
+        });
+      }
+    }
   };
 
   if (loading) {

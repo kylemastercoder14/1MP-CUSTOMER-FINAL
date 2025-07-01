@@ -431,7 +431,6 @@ model PromoCode {
 
   @@index([vendorId])
 }
-
 model Order {
   id            String   @id @default(uuid())
   orderNumber   String   @unique

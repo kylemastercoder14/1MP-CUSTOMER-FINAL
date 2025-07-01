@@ -21,7 +21,12 @@ export async function GET(
         adminApprovalStatus: "Approved",
       },
       include: {
-        vendor: true,
+        vendor: {
+          include: {
+            promoCode: true,
+            coupon: true,
+          },
+        },
         specifications: true,
         variants: true,
         newArrivalDiscount: true,

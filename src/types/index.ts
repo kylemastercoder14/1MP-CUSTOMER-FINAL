@@ -9,6 +9,8 @@ import {
   Vendor,
   ProductDiscount,
   NutritionalFact,
+  PromoCode,
+  Coupon,
 } from "@prisma/client";
 import {} from "@prisma/client";
 import { TabItemType } from "@/components/globals/tabs-component";
@@ -33,8 +35,13 @@ export interface GroupedSpecifications {
   [attribute: string]: SpecificationWithProps[];
 }
 
+export interface VendorWithPromotions extends Vendor {
+  promoCode: PromoCode[];
+  coupon: Coupon[];
+}
+
 export interface ProductWithProps extends Product {
-  vendor: Vendor;
+  vendor: VendorWithPromotions;
   specifications: Specification[];
   variants: ProductVariant[];
   newArrivalDiscount?: NewArrivalDiscount | null;
