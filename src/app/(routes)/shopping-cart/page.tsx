@@ -209,33 +209,48 @@ const Page = () => {
                                 Available Coupons
                               </h4>
                               {vendorCouponsList.length > 0 ? (
-                                vendorCouponsList.map((coupon: { name: string; id: string; startDate: Date; endDate: Date; type: string; discountAmount: number | null; minimumSpend: number | null; claimableQuantity: number; status: string; createdAt: Date; updatedAt: Date; vendorId: string; }) => (
-                                  <div
-                                    key={coupon.id}
-                                    className="flex items-center justify-between p-2 text-xs border rounded-sm cursor-pointer hover:bg-gray-50"
-                                    onClick={() =>
-                                      handleCouponApply(vendorId, coupon)
-                                    }
-                                  >
-                                    <div>
-                                      <p className="font-medium">
-                                        {coupon.name}
-                                      </p>
-                                      <p className="text-muted-foreground">
-                                        {coupon.type === "Percentage Off"
-                                          ? `${coupon.discountAmount}% off`
-                                          : `₱${coupon.discountAmount} off`}
-                                      </p>
-                                    </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      className="h-6 text-xs"
+                                vendorCouponsList.map(
+                                  (coupon: {
+                                    name: string;
+                                    id: string;
+                                    startDate: Date;
+                                    endDate: Date;
+                                    type: string;
+                                    discountAmount: number | null;
+                                    minimumSpend: number | null;
+                                    claimableQuantity: number;
+                                    status: string;
+                                    createdAt: Date;
+                                    updatedAt: Date;
+                                    vendorId: string;
+                                  }) => (
+                                    <div
+                                      key={coupon.id}
+                                      className="flex items-center justify-between p-2 text-xs border rounded-sm cursor-pointer hover:bg-gray-50"
+                                      onClick={() =>
+                                        handleCouponApply(vendorId, coupon)
+                                      }
                                     >
-                                      Apply
-                                    </Button>
-                                  </div>
-                                ))
+                                      <div>
+                                        <p className="font-medium">
+                                          {coupon.name}
+                                        </p>
+                                        <p className="text-muted-foreground">
+                                          {coupon.type === "Percentage Off"
+                                            ? `${coupon.discountAmount}% off`
+                                            : `₱${coupon.discountAmount} off`}
+                                        </p>
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 text-xs"
+                                      >
+                                        Apply
+                                      </Button>
+                                    </div>
+                                  )
+                                )
                               ) : (
                                 <p className="text-xs text-muted-foreground">
                                   No coupons available
@@ -328,6 +343,7 @@ const Page = () => {
                             ₱{item.discountedPrice.toFixed(2)}
                           </p>
                           <div className="flex items-center gap-1">
+                            {/* TODO: Work with save item */}
                             <Button variant="ghost" size="sm">
                               <Heart className="w-4 h-4" />
                               Save Item
@@ -391,7 +407,7 @@ const Page = () => {
                 <div className="flex items-center gap-2 mt-2">
                   <MapPin className="size-4 text-muted-foreground" />
                   <span className="text-sm">
-                    Santa Lucia, Dasmarinas City, Cavite - 4114
+                    Block 123 Lot 90 Phase 02, Pasay City, Metro Manila
                   </span>
                 </div>
               </div>
