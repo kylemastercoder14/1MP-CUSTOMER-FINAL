@@ -36,8 +36,8 @@ export interface GroupedSpecifications {
 }
 
 export interface VendorWithPromotions extends Vendor {
-  promoCode: PromoCode[];
-  coupon: Coupon[];
+  promoCode?: PromoCode[];
+  coupon?: Coupon[];
 }
 
 export interface ProductWithProps extends Product {
