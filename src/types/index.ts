@@ -22,6 +22,10 @@ export type PasswordRequirements = {
   isValidLength: boolean;
 };
 
+export interface CategoryWithSubCategories extends Category {
+  subCategories: SubCategory[];
+}
+
 export interface ProductWithCategory extends Product {
   category: Category;
   subCategory: SubCategory;
@@ -64,6 +68,26 @@ export type ProductTabType =
   | "Description"
   | "Policy";
 
+export type ReportAbuseTabType =
+  | "Product Violations"
+  | "Order Disputes"
+  | "Other Violations";
+
+export type ReportAbuseTableTabType =
+  | "Product related violations"
+  | "Improper use of other people's information"
+  | "Content violations"
+  | "Order related violations"
+  | "I received complaints from other users";
+
+export type TabKey =
+  | "My Account"
+  | "Products"
+  | "Store Issue"
+  | "Order & Payment"
+  | "After-Sales"
+  | "Self-Service";
+
 export const productTabs: TabItemType<ProductTabType>[] = [
   {
     index: 0,
@@ -84,6 +108,52 @@ export const productTabs: TabItemType<ProductTabType>[] = [
     index: 3,
     label: "Policy",
     value: "Policy",
+  },
+];
+
+export const reportAbuseTabs: TabItemType<ReportAbuseTabType>[] = [
+  {
+    index: 0,
+    label: "Product Violations",
+    value: "Product Violations",
+  },
+  {
+    index: 1,
+    label: "Order Disputes",
+    value: "Order Disputes",
+  },
+  {
+    index: 2,
+    label: "Other Violations",
+    value: "Other Violations",
+  },
+];
+
+export const reportAbuseTableTabs: TabItemType<ReportAbuseTableTabType>[] = [
+  {
+    index: 0,
+    label: "Product related violations",
+    value: "Product related violations",
+  },
+  {
+    index: 1,
+    label: "Improper use of other people's information",
+    value: "Improper use of other people's information",
+  },
+  {
+    index: 2,
+    label: "Content violations",
+    value: "Content violations",
+  },
+  {
+    index: 3,
+    label: "Order related violations",
+    value: "Order related violations",
+  },
+  {
+    index: 4,
+    label: "I received complaints from other users",
+    value: "I received complaints from other users",
   },
 ];
 

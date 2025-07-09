@@ -1,3 +1,13 @@
+import { TabKey } from "@/types";
+import {
+  User,
+  CreditCard,
+  Headphones,
+  Settings,
+  ShoppingCart,
+  StoreIcon,
+} from "lucide-react";
+
 export const paymentMethods = [
   {
     name: "Visa",
@@ -82,40 +92,42 @@ export const footerSections = [
     title: "Get support",
     links: [
       { name: "Help Center", href: "/help-center" },
-      { name: "Live chat", href: "/chat" },
       { name: "Check order status", href: "/orders" },
       { name: "Refunds", href: "/refunds" },
-      { name: "Report abuse", href: "/report" },
+      { name: "Report abuse", href: "/report-abuse" },
     ],
   },
   {
     title: "Payments and protections",
     links: [
-      { name: "Safe and easy payments", href: "/payments" },
-      { name: "Money-back policy", href: "/money-back" },
-      { name: "On-time shipping", href: "/shipping" },
-      { name: "Purchase protections", href: "/purchase-protection" },
-      { name: "Product monitoring services", href: "/monitoring" },
+      { name: "Safe and easy payments", href: "/safe-and-easy-payments" },
+      { name: "Money-back policy", href: "/money-back-policy" },
+      { name: "On-time shipping", href: "/on-time-shipping" },
+      { name: "After-sales protections", href: "/after-sales-protection" },
     ],
   },
   {
     title: "Sell on 1 Market Philippines",
     links: [
-      { name: "Start selling", href: "/sell" },
-      { name: "Seller Central", href: "/seller-central" },
-      { name: "Become a Verified Seller", href: "/verification" },
-      { name: "Partnerships", href: "/partnerships" },
+      {
+        name: "Start selling",
+        href: "https://selleronemarketphilippines.vercel.app/sign-in",
+      },
+      {
+        name: "Seller Central",
+        href: "https://1-mp-educational-hub.vercel.app/en",
+      },
+      { name: "Become a Verified Seller", href: "/become-a-verified-seller" },
       { name: "Download the app for sellers", href: "/sellers-app" },
     ],
   },
   {
     title: "Quick Links",
     links: [
-      { name: "Frequently asked questions", href: "/faq" },
+      { name: "Frequently asked questions", href: "/faqs" },
       { name: "Sitemap", href: "/sitemap" },
       { name: "Campaign", href: "/campaign" },
       { name: "Product listings", href: "/product-listings" },
-      { name: "Report suspicious activity", href: "/report-suspicious" },
     ],
   },
   {
@@ -166,3 +178,53 @@ export const policies = [
   "Terms of Use",
   "Integrity Compliance",
 ];
+
+export const tabs: { id: TabKey; label: string; icon: React.ElementType }[] = [
+  { id: "My Account", label: "My Account", icon: User },
+  { id: "Products", label: "Products", icon: ShoppingCart },
+  { id: "Store Issue", label: "Store Issue", icon: StoreIcon },
+  { id: "Order & Payment", label: "Order & Payment", icon: CreditCard },
+  { id: "After-Sales", label: "After-Sales", icon: Headphones },
+  { id: "Self-Service", label: "Self-Service", icon: Settings },
+];
+
+export const tabContent: Record<TabKey, string[]> = {
+  "My Account": [
+    "What can I do if I forgot my password?",
+    "Why cannot I receive the SMS verification code?",
+    "How can I register an account on Alibaba.com?",
+    "What can I do if my account was deactivated?",
+    "Why cannot I receive the Email verification code?",
+    "Complaint reporting portal for Thailand users",
+  ],
+  Products: [
+    "How to search for products effectively?",
+    "Understanding supplier verification",
+    "How to contact suppliers?",
+    "Product customization options",
+  ],
+  "Store Issue": [
+    "Best practices for price negotiation",
+    "How to communicate with suppliers",
+    "Sample ordering process",
+    "Understanding MOQ requirements",
+  ],
+  "Order & Payment": [
+    "Available payment methods",
+    "How to place an order",
+    "Payment security and protection",
+    "Order tracking and management",
+  ],
+  "After-Sales": [
+    "Return and refund policy",
+    "How to file a dispute",
+    "Quality assurance process",
+    "Customer support contact",
+  ],
+  "Self-Service": [
+    "Account settings management",
+    "Notification preferences",
+    "Privacy settings",
+    "Download invoices and receipts",
+  ],
+};

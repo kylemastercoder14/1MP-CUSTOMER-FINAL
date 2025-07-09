@@ -34,6 +34,12 @@ import Footer from "@/components/globals/footer";
 
 export default function Homepage() {
   const [categories, setCategories] = React.useState<Category[]>([]);
+  const [counts, setCounts] = React.useState({
+    products: 0,
+    vendors: 0,
+    users: 0,
+    productCategories: 0,
+  });
 
   React.useEffect(() => {
     const fetchCategories = async () => {
@@ -53,6 +59,26 @@ export default function Homepage() {
       }
     };
     fetchCategories();
+  }, []);
+
+  React.useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const response = await fetch("/api/v1/counts");
+        if (!response.ok) {
+          throw new Error("Failed to fetch counts");
+        }
+        const data = await response.json();
+        if (data.success) {
+          setCounts(data.data);
+        } else {
+          console.error("Error fetching counts:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching counts:", error);
+      }
+    };
+    fetchCounts();
   }, []);
   return (
     <div className="min-h-screen">
@@ -175,28 +201,28 @@ export default function Homepage() {
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-y-10">
                 <div className="border-l-[4px] border-zinc-300 pl-3">
                   <NumberTicker
-                    value={5949}
+                    value={counts.products}
                     className="whitespace-pre-wrap text-4xl text-[#800020] font-medium tracking-tighter"
                   />
                   <p className="text-xl text-[#3a190b]">products</p>
                 </div>
                 <div className="border-l-[4px] border-zinc-300 pl-3">
                   <NumberTicker
-                    value={402}
+                    value={counts.vendors}
                     className="whitespace-pre-wrap text-4xl text-[#800020] font-medium tracking-tighter"
                   />
                   <p className="text-xl text-[#3a190b]">businesses</p>
                 </div>
                 <div className="border-l-[4px] border-zinc-300 pl-3">
                   <NumberTicker
-                    value={23}
+                    value={counts.productCategories}
                     className="whitespace-pre-wrap text-4xl text-[#800020] font-medium tracking-tighter"
                   />
                   <p className="text-xl text-[#3a190b]">product categories</p>
                 </div>
                 <div className="border-l-[4px] border-zinc-300 pl-3">
                   <NumberTicker
-                    value={30}
+                    value={counts.users}
                     className="whitespace-pre-wrap text-4xl text-[#800020] font-medium tracking-tighter"
                   />
                   <p className="text-xl text-[#3a190b]">customers</p>

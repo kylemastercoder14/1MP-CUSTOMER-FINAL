@@ -17,6 +17,8 @@ const nextConfig: NextConfig = {
       "tse1.mm.bing.net",
       "www.businessnews.com.ph",
       "down-ph.img.susercontent.com",
+      "china-southnorth-01.oss-cn-zhangjiakou.aliyuncs.com",
+      "images.pexels.com",
     ],
   },
   eslint: {

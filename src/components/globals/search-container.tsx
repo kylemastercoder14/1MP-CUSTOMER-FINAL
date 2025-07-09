@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Category } from '@prisma/client';
+import { ClockIcon, Search } from 'lucide-react';
 
 const placeholders = [
   "camping tent for sale",
@@ -12,11 +13,26 @@ const placeholders = [
   "spanish latte near me",
 ];
 
+// Suggested keywords data
+const suggestedKeywords = {
+  recent: ["shein clothes wholesale"],
+  recommended: [
+    "shoes men",
+    "women's clothing",
+    "shein bales brand new",
+    "dresses",
+    "dresses women",
+    "shoes"
+  ]
+};
+
 const SearchContainer = () => {
   const [categories, setCategories] = React.useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
+  const [isSearchDropdownOpen, setIsSearchDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchDropdownRef = useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
     const fetchCategories = async () => {
@@ -44,7 +60,10 @@ const SearchContainer = () => {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsDropdownOpen(false);
+        setIsCategoryDropdownOpen(false);
+      }
+      if (searchDropdownRef.current && !searchDropdownRef.current.contains(event.target as Node)) {
+        setIsSearchDropdownOpen(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -60,6 +79,7 @@ const SearchContainer = () => {
       setCurrentPlaceholder((prev) => (prev + 1) % placeholders.length);
     }, 3000);
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placeholders.length]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -75,17 +95,27 @@ const SearchContainer = () => {
     });
   };
 
+  const handleSearchInputFocus = () => {
+    setIsSearchDropdownOpen(true);
+  };
+
+  const handleKeywordClick = (keyword: string) => {
+    setInputValue(keyword);
+    setIsSearchDropdownOpen(false);
+    inputRef.current?.focus();
+  };
+
   return (
     <form
       onSubmit={handleSubmit}
       className="flex bg-white rounded-full border border-gray-200 w-full max-w-7xl mx-auto relative"
-	  style={{ overflow: 'visible' }}
+      style={{ overflow: 'visible' }}
     >
       {/* Category dropdown */}
       <div className="relative h-full" style={{ overflow: 'visible' }} ref={dropdownRef}>
         <button
           type="button"
-          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
           className="flex items-center justify-between px-4 py-2 text-gray-700 border-r border-gray-200 h-full min-w-[200px] hover:bg-gray-50"
           disabled={categories.length === 0}
         >
@@ -93,7 +123,7 @@ const SearchContainer = () => {
             {selectedCategory?.name || (categories.length === 0 ? "Loading..." : "Select Category")}
           </span>
           <svg
-            className={`w-4 h-4 ml-2 transition-transform ${isDropdownOpen ? "rotate-180" : ""}`}
+            className={`w-4 h-4 ml-2 transition-transform ${isCategoryDropdownOpen ? "rotate-180" : ""}`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -103,7 +133,7 @@ const SearchContainer = () => {
           </svg>
         </button>
 
-        {isDropdownOpen && categories.length > 0 && (
+        {isCategoryDropdownOpen && categories.length > 0 && (
           <div className="absolute left-0 top-full mt-1 w-full bg-white rounded-md shadow-lg z-[1000] max-h-60 overflow-y-auto">
             <div className="py-1">
               {categories.map((category) => (
@@ -112,7 +142,7 @@ const SearchContainer = () => {
                   type="button"
                   onClick={() => {
                     setSelectedCategory(category);
-                    setIsDropdownOpen(false);
+                    setIsCategoryDropdownOpen(false);
                   }}
                   className={`block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 ${
                     selectedCategory?.id === category.id ? "bg-gray-100 font-medium" : ""
@@ -126,13 +156,14 @@ const SearchContainer = () => {
         )}
       </div>
 
-      {/* Search input */}
-      <div className="relative flex-1">
+      {/* Search input and dropdown */}
+      <div className="relative flex-1" ref={searchDropdownRef}>
         <input
           ref={inputRef}
           type="text"
           value={inputValue}
           onChange={handleChange}
+          onFocus={handleSearchInputFocus}
           className="flex-1 px-6 py-2 text-gray-700 outline-none min-w-[520px] bg-transparent relative z-10"
           placeholder=" "
         />
@@ -151,6 +182,53 @@ const SearchContainer = () => {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Search suggestions dropdown */}
+        {isSearchDropdownOpen && (
+          <div className="absolute left-0 top-full mt-1 w-full bg-white rounded-lg shadow-lg z-[1000] max-h-96 overflow-y-auto border border-gray-200">
+            <div className="py-2">
+              {/* Recent searches */}
+              {suggestedKeywords.recent.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="px-4 py-1 text-sm font-medium text-gray-500">Recent searches</h3>
+                  <div className="mt-1">
+                    {suggestedKeywords.recent.map((keyword, index) => (
+                      <button
+                        key={`recent-${index}`}
+                        type="button"
+                        onClick={() => handleKeywordClick(keyword)}
+                        className="flex items-center w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+                      >
+                        <ClockIcon className="w-4 h-4 mr-2 text-gray-400" />
+                        {keyword}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Recommended searches */}
+              {suggestedKeywords.recommended.length > 0 && (
+                <div>
+                  <h3 className="px-4 py-1 text-sm font-medium text-gray-500">Recommended for you</h3>
+                  <div className="mt-1">
+                    {suggestedKeywords.recommended.map((keyword, index) => (
+                      <button
+                        key={`recommended-${index}`}
+                        type="button"
+                        onClick={() => handleKeywordClick(keyword)}
+                        className="flex items-center w-full px-4 py-2 text-left text-gray-700 hover:bg-gray-100"
+                      >
+                        <Search className="w-4 h-4 mr-2 text-gray-400" />
+                        {keyword}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Search button */}
