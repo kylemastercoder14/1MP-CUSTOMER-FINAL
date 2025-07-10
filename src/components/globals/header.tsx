@@ -9,6 +9,7 @@ import WhiteHeader from "./white-header";
 import { useUser } from "@/hooks/use-user";
 import useCart from "@/hooks/use-cart";
 import { useRouter } from "next/navigation";
+import NavUser from './nav-user';
 
 const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
   const router = useRouter();
@@ -112,18 +113,15 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                           />
                         </div>
                       ) : user ? (
-                        <Link
-                          href="/my-account"
-                          className={`cursor-pointer flex ${isCategoriesOpen || !isHomepage ? "text-black" : "text-white"} hover:text-[#800020] items-center gap-2`}
-                        >
-                          <User className="w-6 h-6 inline-block mr-1" />
-                          Hi,{" "}
-                          {customer?.firstName ||
-                            customer?.lastName ||
-                            user.email?.split("@")[0] ||
-                            "User"}
-                          !
-                        </Link>
+                        <NavUser
+                          isCategoriesOpen={isCategoriesOpen}
+                          isHomepage={isHomepage}
+                          customer={{
+                            firstName: customer?.firstName ?? undefined,
+                            lastName: customer?.lastName ?? undefined,
+                          }}
+                          user={user}
+                        />
                       ) : (
                         <>
                           <Link
