@@ -16,6 +16,8 @@ const ProductCard = ({
   discountPrice,
   categories,
   subcategories,
+  newArrival,
+  rank,
 }: {
   product: ProductWithProps;
   price: number;
@@ -25,6 +27,8 @@ const ProductCard = ({
   viewMode: "grid4" | "grid2" | "grid1";
   categories: string;
   subcategories: string;
+  newArrival?: string;
+  rank?: number;
 }) => {
   const router = useRouter();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -36,7 +40,11 @@ const ProductCard = ({
 
   return (
     <Card
-      onClick={() => router.push(`/products?slug=${product.slug}&categories=${categories}&subcategories=${subcategories}`)}
+      onClick={() =>
+        router.push(
+          `/products?slug=${product.slug}&categories=${categories}&subcategories=${subcategories}`
+        )
+      }
       className={`bg-white p-0 cursor-pointer rounded-sm shadow-sm hover:shadow-md transition-shadow duration-200 ${
         viewMode === "grid1" ? "flex" : ""
       }`}
@@ -54,6 +62,22 @@ const ProductCard = ({
                 fill
                 className="object-cover transition-opacity duration-300"
               />
+            )}
+            {/* Top product badge */}
+            {rank && rank >= 1 && rank <= 3 && (
+              <div className="absolute top-2 left-2">
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-bold shadow-lg ${
+                    rank === 1
+                      ? "bg-gradient-to-br from-yellow-400 to-orange-500"
+                      : rank === 2
+                        ? "bg-gradient-to-br from-gray-300 to-gray-500"
+                        : "bg-gradient-to-br from-orange-400 to-red-500"
+                  }`}
+                >
+                  #{rank}
+                </div>
+              </div>
             )}
           </div>
         </Lens>
@@ -136,7 +160,6 @@ const ProductCard = ({
                       d.discountType === "Percentage Off" ? sum + d.value : sum,
                     0
                   )}%`}
-                <p className="text-muted-foreground">|</p>
                 {discounts &&
                   discounts.some((d) => d.discountType === "Fixed Price") &&
                   `Save ₱${discounts.reduce(
@@ -154,14 +177,17 @@ const ProductCard = ({
           <span className="font-medium">{product.soldCount} sold</span>
           <div className="flex items-center gap-1">
             <div className="flex text-yellow-400">{"★".repeat(5)}</div>
-            <span className="text-gray-500">
-              ({Math.floor(Math.random() * 200) + 10})
-            </span>
+            <span className="text-gray-500">(256)</span>
           </div>
         </div>
 
         {/* Location */}
         <p className="text-xs text-gray-500 truncate">{product.vendor.name}</p>
+        {newArrival && (
+          <p className="text-xs font-medium mt-1 text-[#800020] truncate">
+            {newArrival}
+          </p>
+        )}
       </CardContent>
     </Card>
   );

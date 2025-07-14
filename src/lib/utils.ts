@@ -181,3 +181,23 @@ export const getDiscountInfo = (product: ProductWithProps) => {
 
   return discounts;
 };
+
+export const formatTime = (time: number) => {
+  return time < 10 ? `0${time}` : time.toString();
+};
+
+export const getTimeSinceListing = (product: ProductWithProps) => {
+  if (!product.createdAt) return "";
+  const now = new Date();
+  const createdDate = new Date(product.createdAt);
+  const diffInDays = Math.floor(
+    (now.getTime() - createdDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  if (diffInDays === 0) return "Listed in last 24 hours";
+  if (diffInDays === 1) return "Listed yesterday";
+  if (diffInDays < 7) return `Listed in last ${diffInDays} days`;
+  if (diffInDays < 30)
+    return `Listed in last ${Math.floor(diffInDays / 7)} weeks`;
+  return `Listed in last ${Math.floor(diffInDays / 30)} months`;
+};

@@ -115,51 +115,6 @@ const CategoriesDropdown = ({ isOpen, setIsOpen }: CategoriesDropdownProps) => {
         }
       } catch (error) {
         console.error("Error fetching categories:", error);
-        // Fallback to mock data for demo
-        const mockCategories = [
-          { id: "1", name: "Categories for you", slug: "categories-for-you" },
-          {
-            id: "2",
-            name: "Sports & Entertainment",
-            slug: "sports-entertainment",
-          },
-          { id: "3", name: "MRO", slug: "mro" },
-          {
-            id: "4",
-            name: "Automotive Supplies & Tools",
-            slug: "automotive-supplies-tools",
-          },
-          { id: "5", name: "Raw Materials", slug: "raw-materials" },
-          {
-            id: "6",
-            name: "Industrial Machinery",
-            slug: "industrial-machinery",
-          },
-          {
-            id: "7",
-            name: "Consumer Electronics",
-            slug: "consumer-electronics",
-          },
-          {
-            id: "8",
-            name: "Jewelry, Eyewear & Watches",
-            slug: "jewelry-eyewear-watches",
-          },
-          {
-            id: "9",
-            name: "Apparel & Accessories",
-            slug: "apparel-accessories",
-          },
-          { id: "10", name: "Home & Garden", slug: "home-garden" },
-          { id: "11", name: "Beauty", slug: "beauty" },
-          {
-            id: "12",
-            name: "Packaging & Printing",
-            slug: "packaging-printing",
-          },
-        ];
-        setCategories(mockCategories);
-        setSelectedCategory(mockCategories[0]);
       }
     };
 
@@ -189,29 +144,6 @@ const CategoriesDropdown = ({ isOpen, setIsOpen }: CategoriesDropdownProps) => {
         }
       } catch (error) {
         console.error("Error fetching subcategories:", error);
-        // Fallback to mock data for demo
-        const mockSubCategories = [
-          { id: "1", name: "Solar Energy System", slug: "solar-energy-system" },
-          { id: "2", name: "Lithium Battery", slug: "lithium-battery" },
-          { id: "3", name: "Safety Helmets", slug: "safety-helmets" },
-          { id: "4", name: "Fat Bike", slug: "fat-bike" },
-          { id: "5", name: "Cars", slug: "cars" },
-          { id: "6", name: "Laptops", slug: "laptops" },
-          { id: "7", name: "Police Boots", slug: "police-boots" },
-          { id: "8", name: "Bullet Proof Vest", slug: "bullet-proof-vest" },
-          { id: "9", name: "Armor Vest", slug: "armor-vest" },
-          { id: "10", name: "Ballistic Helmet", slug: "ballistic-helmet" },
-          { id: "11", name: "Car Perfume", slug: "car-perfume" },
-          { id: "12", name: "Tactical Pouch", slug: "tactical-pouch" },
-          { id: "13", name: "Tactical Helmet", slug: "tactical-helmet" },
-          { id: "14", name: "Power Wrists", slug: "power-wrists" },
-          { id: "15", name: "Camping Tent", slug: "camping-tent" },
-          { id: "16", name: "Outdoor Tents", slug: "outdoor-tents" },
-          { id: "17", name: "Camping Mat", slug: "camping-mat" },
-          { id: "18", name: "Beach Tent", slug: "beach-tent" },
-          { id: "19", name: "Piano", slug: "piano" },
-        ];
-        setSubCategories(mockSubCategories);
       } finally {
         setLoading(false);
       }
