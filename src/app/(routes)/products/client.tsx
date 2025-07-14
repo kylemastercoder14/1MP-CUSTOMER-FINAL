@@ -171,7 +171,7 @@ const Client = () => {
       <div className="relative">
         <Header />
       </div>
-      <div className="px-60 pb-20 pt-[140px]">
+      <div className="px-20 pb-20 pt-[140px]">
         <div className="grid lg:grid-cols-10 grid-cols-1 gap-5">
           <div className="lg:col-span-6 bg-white p-5 rounded-md border">
             <Breadcrumb>

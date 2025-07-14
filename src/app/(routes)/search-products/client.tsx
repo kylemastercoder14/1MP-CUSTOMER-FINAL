@@ -201,7 +201,7 @@ const Client = () => {
       <div className="relative">
         <Header />
       </div>
-      <div className="px-60 pb-20 pt-[140px]">
+      <div className="px-20 pb-20 pt-[140px]">
         <Breadcrumb>
           <BreadcrumbList className="text-base">
             <BreadcrumbItem>
