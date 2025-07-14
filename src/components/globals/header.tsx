@@ -78,7 +78,7 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
               >
                 {/* Top bar */}
                 <div className="bg-transparent px-4 pb-2 pt-4">
-                  <div className="px-60 flex justify-between items-center text-sm">
+                  <div className="px-20 flex justify-between items-center text-sm">
                     <Link href="/" className="flex items-center gap-3">
                       <div className="relative w-12 h-12">
                         <Image
@@ -157,7 +157,7 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
 
                 {/* Main navigation */}
                 <div className="py-3">
-                  <div className="px-60 flex justify-between items-center">
+                  <div className="px-20 flex justify-between items-center">
                     <div className="flex items-center space-x-8">
                       <nav className="flex space-x-6 text-sm">
                         <CategoriesDropdown

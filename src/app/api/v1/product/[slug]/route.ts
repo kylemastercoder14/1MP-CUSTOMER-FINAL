@@ -7,6 +7,10 @@ export async function GET(
 ) {
   try {
     const slug = (await params).slug;
+    const ipAddress =
+      request.headers.get("x-forwarded-for") ||
+      request.headers.get("X-Real-IP") ||
+      "unknown";
 
     if (!slug) {
       return NextResponse.json(
@@ -15,11 +19,59 @@ export async function GET(
       );
     }
 
+    // First find the product outside transaction to minimize transaction duration
     const product = await db.product.findUnique({
       where: {
         slug,
         adminApprovalStatus: "Approved",
       },
+    });
+
+    if (!product) {
+      return NextResponse.json(
+        { success: false, message: "Product not found" },
+        { status: 404 }
+      );
+    }
+
+    // Then perform the view tracking in a separate transaction
+    try {
+      await db.$transaction(async (tx) => {
+        const existingView = await tx.productView.findUnique({
+          where: {
+            productId_ipAddress: {
+              productId: product.id,
+              ipAddress: ipAddress,
+            },
+          },
+        });
+
+        if (!existingView) {
+          await tx.product.update({
+            where: { id: product.id },
+            data: {
+              popularityScore: {
+                increment: 1,
+              },
+            },
+          });
+
+          await tx.productView.create({
+            data: {
+              productId: product.id,
+              ipAddress: ipAddress,
+            },
+          });
+        }
+      });
+    } catch (txError) {
+      console.error("Transaction error:", txError);
+      // Continue even if view tracking fails
+    }
+
+    // Finally fetch the full product data
+    const fullProduct = await db.product.findUnique({
+      where: { slug },
       include: {
         vendor: {
           include: {
@@ -37,16 +89,9 @@ export async function GET(
       },
     });
 
-    if (!product) {
-      return NextResponse.json(
-        { success: false, message: "Product not found" },
-        { status: 404 }
-      );
-    }
-
     return NextResponse.json({
       success: true,
-      data: product,
+      data: fullProduct,
       message: "Product retrieved successfully",
     });
   } catch (error) {

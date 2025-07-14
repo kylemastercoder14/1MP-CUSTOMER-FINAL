@@ -186,12 +186,12 @@ const Page = () => {
     }
 
     return (
-      <div className="w-full p-5 rounded-lg shadow-md mb-8 bg-white">
+      <div className='mb-10'>
         <h2 className="text-xl font-semibold text-gray-800 mb-6">
           {subCategory.name}
         </h2>
         {/* Products are displayed side-by-side in a 3-column grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {products.map((product, index) => {
             const price =
               product.variants.length > 0
@@ -356,7 +356,7 @@ const Page = () => {
           `}</style>
         </div>
 
-        <section className="container mx-auto py-16 px-4 lg:px-10">
+        <section className="py-16 px-20">
           {categoriesLoading ? (
             <CategorySkeleton />
           ) : (
