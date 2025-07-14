@@ -8,6 +8,17 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Admin {
+  id       String  @id @default(cuid())
+  authId   String? @unique
+  email    String
+  password String
+  image    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
 model User {
   id              String    @id @default(cuid())
   authId          String?   @unique // Supabase auth user ID
@@ -216,12 +227,15 @@ model Product {
   shippingPolicy     String?
 
   // SEO and marketing
-  metaTitle       String?
-  metaDescription String?
-  tags            String[]
-  seoKeywords     String[]
-  isFeatured      Boolean  @default(false)
-  brand           String?
+  metaTitle               String?
+  metaDescription         String?
+  tags                    String[]
+  seoKeywords             String[]
+  isFeatured              Boolean  @default(false)
+  brand                   String?
+  onTimeDeliveryGuarantee Boolean  @default(false)
+  onSiteServiceGuarantee  Boolean  @default(false)
+  freeReplacementParts    Boolean  @default(false)
 
   // Policies
   warrantyDuration String? // e.g. "1 year", "6 months"
@@ -242,8 +256,8 @@ model Product {
   schedulingRequired  Boolean  @default(false)
 
   // Other fields
-  soldCount          Int      @default(0)
-  popularityScore    Float    @default(0.0)
+  soldCount       Int   @default(0)
+  popularityScore Float @default(0.0)
 
   // Timestamps
   createdAt DateTime @default(now())
@@ -431,6 +445,7 @@ model PromoCode {
 
   @@index([vendorId])
 }
+
 model Order {
   id            String   @id @default(uuid())
   orderNumber   String   @unique
@@ -513,4 +528,26 @@ model Subscription {
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model Announcement {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  images    String[]
+  status    String   @default("Active")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Policies {
+  id                             String   @id @default(cuid())
+  legalNotice                    String?
+  productListingPolicy           String?
+  intellectualPropertyProtection String?
+  privacyPolicy                  String?
+  termsOfUse                     String?
+  integrityCompliance            String?
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
 }
