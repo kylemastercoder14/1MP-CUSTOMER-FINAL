@@ -126,7 +126,7 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                         </div>
                       ) : user ? (
                         <NavUser
-                          isCategoriesOpen={openDropdown === "categories"}
+                          isCategoriesOpen={openDropdown === "categories" || openDropdown === "featured" || openDropdown === "purchaseProtection"}
                           isHomepage={isHomepage}
                           customer={{
                             firstName: customer?.firstName ?? undefined,

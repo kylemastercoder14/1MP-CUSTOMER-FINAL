@@ -290,7 +290,7 @@ const Page = () => {
           </div>
 
           <div className="absolute inset-0 flex items-center">
-            <div className="container mt-28 mx-auto px-14 w-full">
+            <div className="px-20 mt-28 w-full">
               <div className="flex items-center justify-between">
                 {/* Left side - Title and description */}
                 <div className="flex-1">
@@ -383,7 +383,7 @@ const Page = () => {
           </div>
         </div>
 
-        <section className="container mx-auto py-10 px-4 lg:px-14">
+        <section className="px-20 mx-auto py-10">
           {/* Flash Deals Products */}
           {flashDealsLoading ? (
             <FlashDealsSkeletonCarousel />

@@ -35,7 +35,7 @@ const FeaturedSelectionsDropdown = ({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="fixed left-0 px-60 pt-5 pb-10 overflow-hidden right-0 mt-2 w-screen min-h-[300px] bg-white shadow-2xl z-50 border-t border-gray-200"
+            className="fixed left-0 px-20 pt-5 pb-10 overflow-hidden right-0 mt-2 w-screen min-h-[300px] bg-white shadow-2xl z-50 border-t border-gray-200"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}

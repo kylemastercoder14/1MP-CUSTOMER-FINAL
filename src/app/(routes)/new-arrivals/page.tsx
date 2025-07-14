@@ -192,7 +192,7 @@ const Page = () => {
           </div>
 
           <div className="absolute inset-0 flex items-center">
-            <div className="container mt-28 mx-auto px-14 w-full">
+            <div className="mt-28 mx-auto px-20 w-full">
               <div className="flex items-center justify-between">
                 {/* Left side - Title and description */}
                 <div className="flex-1">
@@ -239,7 +239,7 @@ const Page = () => {
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white to-transparent transform -skew-x-12 animate-pulse"></div>
           </div>
         </div>
-        <section className="container mx-auto py-16 px-4 lg:px-10">
+        <section className="py-16 px-20">
           {categoriesLoading ? (
             <CategorySkeleton />
           ) : (
