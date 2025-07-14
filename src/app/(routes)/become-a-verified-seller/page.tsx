@@ -15,7 +15,7 @@ const Page = () => {
         <div className="w-full h-[500px] bg-zinc-200 relative overflow-hidden">
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="pl-60 ml-8 mt-32">
+            <div className="pl-20 mt-32">
               <div>
 
                 <h1 className="text-2xl md:text-5xl max-w-xl font-bold mb-4">
@@ -29,7 +29,7 @@ const Page = () => {
           </div>
           {/* Content - Aligned to right */}
           <div className="absolute inset-0 flex items-center justify-end">
-            <div className="pr-80 ml-8 mt-32">
+            <div className="pr-20 ml-8 mt-32">
               <div className="rounded-full relative size-[500px]">
                 <Image
                   src="/start-selling.png"
@@ -41,7 +41,7 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <section className="container mx-auto py-16 px-4 sm:px-12">
+        <section className="py-16 px-20">
           {/* Hero Section */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">

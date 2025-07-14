@@ -93,7 +93,7 @@ const Page = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="px-20 py-8">
         {/* Breadcrumbs */}
         <Breadcrumb>
           <BreadcrumbList>

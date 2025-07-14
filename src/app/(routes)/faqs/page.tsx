@@ -6,12 +6,13 @@ import { ChevronRight } from "lucide-react";
 import { ACCOUNTHELP, MAINCONTENT, ORDERHELP, PAYMENTHELP, POLICIESHELP, PRODUCTHELP, RETURNHELP, SECURITYHELP, SHIPPINGHELP, TOPICS } from "@/data/help-center";
 import HeaderDesign from "@/components/globals/header-design";
 import AccordionContent from "@/components/globals/accordion-content";
+import Footer from '@/components/globals/footer';
 
 const Page = () => {
   const [selectedTopic, setSelectedTopic] = useState("order");
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
-      <div>
+      <div className='relative'>
         <Header />
         <div className="w-full h-[280px] relative overflow-hidden">
           {/* Background Image */}
@@ -22,7 +23,7 @@ const Page = () => {
             className="size-full object-cover"
             priority
           />
-          <div className="absolute z-50 mt-36 lg:px-[250px] px-10 top-0 left-0">
+          <div className="absolute z-50 mt-36 px-20 top-0 left-0">
             <p className="text-4xl mt-5 text-white">Hi, how can we help you?</p>
             <p className="text-zinc-300 mt-2">
               Select a topic to get help with items, shipping, return or refund
@@ -30,7 +31,7 @@ const Page = () => {
             </p>
           </div>
         </div>
-        <section className="mt-10 md:px-[250px] pb-20 px-10">
+        <section className="mt-10 px-20">
           <div className="flex items-center gap-4">
             <HeaderDesign />
             <h3 className="text-[#800020] font-semibold text-2xl">
@@ -51,7 +52,7 @@ const Page = () => {
             ))}
           </div>
         </section>
-        <section className="mt-10 md:px-[250px] pb-20 px-10">
+        <section className="mt-10 pb-20 px-20">
           <div className="flex items-center gap-4">
             <HeaderDesign />
             <h3 className="text-[#800020] font-semibold text-2xl">
@@ -200,6 +201,7 @@ const Page = () => {
           </div>
         </section>
       </div>
+      <Footer />
     </div>
   );
 };

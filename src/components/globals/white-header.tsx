@@ -24,7 +24,7 @@ const WhiteHeader = ({
 }) => {
   const router = useRouter();
   return (
-    <div className="px-60 py-4 flex justify-between items-center">
+    <div className="px-20 py-4 flex justify-between items-center">
       <div className="flex items-center gap-5">
         <Link href="/" className="flex items-center gap-3">
           <div className="relative w-12 h-12">

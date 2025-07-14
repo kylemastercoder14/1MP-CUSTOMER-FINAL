@@ -33,7 +33,7 @@ const Page = () => {
       <div className="relative">
         <Header />
       </div>
-      <section className="container mx-auto px-12 pt-36 pb-10">
+      <section className="px-20 pt-36 pb-10">
         <TabsComponent
           activeTab={activeTab}
           setActiveTab={setActiveTab}

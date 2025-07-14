@@ -70,7 +70,7 @@ const Page = () => {
 
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="px-52 ml-8 mt-32 text-white">
+            <div className="px-20 mt-32 text-white">
               <div>
                 <h1 className="text-2xl md:text-5xl font-bold mb-4">
                   1 Market Philippines | Sitemap
@@ -85,7 +85,7 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <section className="container mx-auto py-16 px-12">
+        <section className="py-16 px-20">
           <h1 className="text-4xl tracking-tighter font-bold">
             Product and Services Categories
           </h1>

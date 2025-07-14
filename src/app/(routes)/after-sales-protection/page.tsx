@@ -23,7 +23,7 @@ const Page = () => {
 
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="px-52 ml-8 mt-32 text-white">
+            <div className="px-20 mt-32 text-white">
               <div>
                 <div className="flex items-center gap-2 mb-5">
                   <div className="rounded-full relative size-16">
@@ -47,7 +47,7 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <div className="container mx-auto py-16 px-12">
+        <div className="py-16 px-20">
           <h2 className="text-4xl font-bold tracking-tighter">
             On-site service & free replacement parts
           </h2>

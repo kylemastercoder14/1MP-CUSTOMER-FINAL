@@ -27,7 +27,7 @@ const Page = () => {
 
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="px-52 ml-8 mt-24 text-white">
+            <div className="px-20 mt-24 text-white">
               <div className="bg-white/10 backdrop-blur-sm p-8 rounded-lg">
                 <h1 className="text-xl md:text-2xl font-bold mb-2">
                   Secure Checkout
@@ -79,7 +79,7 @@ const Page = () => {
         </div>
 
         {/* Payment features section */}
-        <div className="container mx-auto py-16 px-10">
+        <div className="py-16 px-20">
           <h2 className="text-3xl font-bold">
             How we keeps your payments secure and simple
           </h2>
