@@ -45,7 +45,7 @@ const StepsFeature = () => {
 
   return (
     <section className="py-20">
-      <div className="px-4 md:px-12 lg:px-24 xl:px-60">
+      <div className="px-20">
         <h3 className="text-3xl md:text-4xl tracking-tight font-bold">
           From browsing to your doorstep - effortless online shopping
         </h3>

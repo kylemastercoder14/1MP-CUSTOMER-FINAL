@@ -13,7 +13,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-50 border-t">
       {/* Main Footer Content */}
-      <div className="px-60 py-12">
+      <div className="px-20 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {footerSections.map((section, index) => (
             <div key={index} className="space-y-4">

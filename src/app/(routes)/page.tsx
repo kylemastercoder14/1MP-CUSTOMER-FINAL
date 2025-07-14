@@ -86,7 +86,7 @@ export default function Homepage() {
       <section className="relative hero-background">
         {/* Header */}
         <Header isHomepage />
-        <div className="relative z-10 px-60 pb-20 pt-44">
+        <div className="relative z-10 px-20 pb-20 pt-44">
           <div className="max-w-xl">
             <div className="mb-8">
               <button className="button-glass-effect cursor-pointer flex items-center gap-2">
@@ -119,7 +119,7 @@ export default function Homepage() {
 
       {/* Features Section */}
       <section className="py-20 bg-[#3a190b]">
-        <div className="px-60">
+        <div className="px-20">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Feature Card 1 */}
             <div className="group">
@@ -128,11 +128,11 @@ export default function Homepage() {
                   <Package className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-4">
-                  Millions of business offerings
+                  Thousands of business offerings
                 </h3>
                 <p className="text-white text-sm leading-relaxed">
-                  Explore products and suppliers for your business from millions
-                  of offerings worldwide.
+                  Explore products and sellers for your business from thousands
+                  of offerings in our community.
                 </p>
               </div>
             </div>
@@ -147,7 +147,7 @@ export default function Homepage() {
                   Assured quality and transactions
                 </h3>
                 <p className="text-white text-sm leading-relaxed">
-                  Ensure production quality from verified suppliers, with your
+                  Ensure production quality from verified sellers, with your
                   orders protected from payment to delivery.
                 </p>
               </div>
@@ -160,10 +160,10 @@ export default function Homepage() {
                   <Truck className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-4">
-                  One-stop trading solution
+                  One-stop purchase protection & solution
                 </h3>
                 <p className="text-white text-sm leading-relaxed">
-                  Order seamlessly from product/supplier search to order
+                  Order seamlessly from product/seller search to order
                   management, payment, and fulfillment.
                 </p>
               </div>
@@ -176,11 +176,10 @@ export default function Homepage() {
                   <TrendingUp className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-2xl font-bold text-white mb-4">
-                  Tailored trading experience
+                  Tailored wide purchase experience
                 </h3>
                 <p className="text-white text-sm leading-relaxed">
-                  Get curated benefits, such as exclusive discounts, and extra
-                  support, to help grow your business every step of the way.
+                  Get curated benefits, such as exclusive discounts to help grow your business every step of the way.
                 </p>
               </div>
             </div>
@@ -189,11 +188,11 @@ export default function Homepage() {
       </section>
 
       <section className="bg-white py-20">
-        <div className="px-60">
+        <div className="px-20">
           <div className="grid lg:grid-cols-5 grid-cols-1 gap-40">
             <div className="lg:col-span-3">
               <h3 className="text-black text-[33px] font-bold leading-snug tracking-tight">
-                Explore hundreds of businesses in your neighborhood and discover
+                Explore thousands of businesses in your neighborhood and discover
                 the best products and services they offer.
               </h3>
             </div>
@@ -235,7 +234,7 @@ export default function Homepage() {
       </section>
 
       <section className="py-20 bg-[#f5f5f5]">
-        <div className="px-60">
+        <div className="px-20">
           <h3 className="text-3xl tracking-tight font-bold">
             Discover your next business opportunity
           </h3>
@@ -449,7 +448,7 @@ export default function Homepage() {
       </section>
 
       <section className="bg-white py-20">
-        <div className="px-60">
+        <div className="px-20">
           <h3 className="text-3xl tracking-tight font-bold">
             News and announcements you should know
           </h3>
@@ -517,7 +516,7 @@ export default function Homepage() {
 
       <section className="banner-background relative">
         <div className="absolute inset-0 bg-[#49271c]/70" />
-        <div className="px-4 md:px-12 lg:px-24 xl:px-60 py-16 md:py-24 relative z-10">
+        <div className="px-20 py-24 relative z-10">
           <h3 className="text-3xl md:text-4xl lg:text-5xl tracking-tight max-w-5xl font-bold text-white text-center md:text-left">
             Shop with Confidence - Quality Products & Buyer Protection
           </h3>
@@ -613,7 +612,7 @@ export default function Homepage() {
       <StepsFeature />
 
       <section className="py-20 bg-[#f7f2f0]">
-        <div className="px-60">
+        <div className="px-20">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black">
               Ready to get started?
