@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Header from "@/components/globals/header";
 import {
@@ -44,11 +44,12 @@ import ProductPolicy from "@/components/globals/all-about-products/product-polic
 import useCart from "@/hooks/use-cart";
 import VendorData from "@/components/globals/all-about-products/vendor-data";
 import Footer from "@/components/globals/footer";
-import { toast } from 'sonner';
+import { toast } from "sonner";
 
 const Client = () => {
+  const router = useRouter();
   const searchParams = useSearchParams();
-  const { addItem, applyVendorVoucher } = useCart();
+  const { addItem, applyVendorVoucher, buyNowItem } = useCart();
   const slug = searchParams.get("slug") || "";
   const categories = searchParams.get("categories") || "";
   const subcategories = searchParams.get("subcategories") || "";
@@ -59,6 +60,8 @@ const Client = () => {
     null
   );
   const [quantity, setQuantity] = useState(1);
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [likeCount, setLikeCount] = useState<number>(0);
 
   // Derive the current product URL
   const productUrl = useMemo(() => {
@@ -70,37 +73,36 @@ const Client = () => {
   }, [product]);
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndLikeStatus = async () => {
       setLoading(true);
       try {
-        const response = await fetch(`/api/v1/product/${slug}`, {
+        const productResponse = await fetch(`/api/v1/product/${slug}`, {
           method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers: { "Content-Type": "application/json" },
         });
-        if (!response.ok) {
+        if (!productResponse.ok) {
           throw new Error("Failed to fetch product");
         }
+        const productData = await productResponse.json();
 
-        const data = await response.json();
-        if (data.success) {
-          setProduct(data.data);
-          // Set the first variant as default if variants exist
-          if (data.data.variants?.length > 0) {
-            setSelectedVariant(data.data.variants[0]);
+        if (productData.success) {
+          setProduct(productData.data);
+          if (productData.data.variants?.length > 0) {
+            setSelectedVariant(productData.data.variants[0]);
           }
+          setIsLiked(productData.data.isLiked || false);
+          setLikeCount(productData.data._count?.likes || 0);
         } else {
-          console.error("Error fetching product:", data.message);
+          console.error("Error fetching product:", productData.message);
         }
       } catch (error) {
-        console.error("Error fetching product:", error);
+        console.error("Error fetching product or like status:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchProduct();
+    fetchProductAndLikeStatus();
   }, [slug]);
 
   // Calculate price based on selected variant or product price
@@ -119,17 +121,13 @@ const Client = () => {
   const hasDiscount = discounts.length > 0;
   const discountPrice = calculateDiscountPrice(price, discounts);
 
-  const handleAddToCart = () => {
-    if (!product) return;
-
-    // Prevent multiple clicks
-    const button = document.getElementById("add-to-cart-button");
-    if (button) {
-      button.setAttribute("disabled", "true");
-      setTimeout(() => button.removeAttribute("disabled"), 1000);
+  const prepareItemForCart = useCallback(() => {
+    if (!product) {
+      toast.error("Product data is not available.");
+      return null;
     }
 
-    addItem({
+    const itemToAdd = {
       productId: product.id,
       name: product.name,
       images: product.images,
@@ -152,10 +150,25 @@ const Client = () => {
             attributes: selectedVariant.attributes as Record<string, string>,
           }
         : undefined,
-    });
+    };
+    return itemToAdd;
+  }, [product, price, discountPrice, quantity, selectedVariant]);
+
+  const handleAddToCart = useCallback(() => {
+    const item = prepareItemForCart();
+    if (!item) return;
+
+    const button = document.getElementById("add-to-cart-button");
+    if (button) {
+      button.setAttribute("disabled", "true");
+      setTimeout(() => button.removeAttribute("disabled"), 1000);
+    }
+
+    addItem(item);
+    toast.success(`${item.name} added to cart!`);
 
     // Apply any auto-applicable promo codes
-    if (product.vendor.promoCode && product.vendor.promoCode.length > 0) {
+    if (product?.vendor.promoCode && product.vendor.promoCode.length > 0) {
       const autoPromo = product.vendor.promoCode.find(
         (pc) => pc.status === "Ongoing"
       );
@@ -167,7 +180,30 @@ const Client = () => {
         });
       }
     }
-  };
+  }, [addItem, applyVendorVoucher, product, prepareItemForCart]);
+
+  const handleBuyNow = useCallback(() => {
+    const item = prepareItemForCart();
+    if (!item) return;
+
+    buyNowItem(item);
+
+    if (product?.vendor.promoCode && product.vendor.promoCode.length > 0) {
+      const autoPromo = product.vendor.promoCode.find(
+        (pc) => pc.status === "Ongoing"
+      );
+      if (autoPromo) {
+        applyVendorVoucher(product.vendorId, {
+          code: autoPromo.code,
+          discountAmount: autoPromo.discountAmount ?? 0,
+          discountType: autoPromo.type as "Percentage Off" | "Fixed Price",
+        });
+      }
+    }
+
+    toast.loading("Redirecting to checkout...");
+    router.push("/checkout");
+  }, [buyNowItem, applyVendorVoucher, product, prepareItemForCart, router]);
 
   const handleShare = useCallback(async () => {
     if (!product || !productUrl) {
@@ -191,20 +227,64 @@ const Client = () => {
         // Fallback for browsers that don't support Web Share API
         // Copy to clipboard or open a simple dialog with options
         await navigator.clipboard.writeText(shareData.url);
-        toast.info("Product link copied to clipboard! You can paste it anywhere.");
+        toast.info(
+          "Product link copied to clipboard! You can paste it anywhere."
+        );
         // Optionally, you could open a custom modal here with social media links
         // console.log("Web Share API not supported. URL copied:", shareData.url);
       }
-    } catch (error: any) { // Explicitly type error as 'any' for now, or refine
-      if (error.name === 'AbortError') {
+    } catch (error: any) {
+      // Explicitly type error as 'any' for now, or refine
+      if (error.name === "AbortError") {
         // User cancelled the share operation
         // console.log('Share cancelled by user.');
       } else {
-        console.error('Error sharing product:', error);
-        toast.error(`Failed to share product: ${error.message || 'Unknown error'}`);
+        console.error("Error sharing product:", error);
+        toast.error(
+          `Failed to share product: ${error.message || "Unknown error"}`
+        );
       }
     }
   }, [product, productUrl]);
+
+  const handleLike = useCallback(async () => {
+    if (!product) {
+      toast.error("Cannot like product: Product data not loaded.");
+      return;
+    }
+
+    try {
+      const response = await fetch("/api/v1/wishlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ productId: product.id }),
+      });
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          toast.error("Please log in to like products.");
+          router.push("/sign-in");
+          return;
+        }
+
+        throw new Error(`Failed to update like status: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      if (data.success) {
+        setIsLiked(data.isLiked);
+        setLikeCount(data.likeCount);
+        toast.success(data.message);
+      } else {
+        toast.error(data.message || "Something went wrong.");
+      }
+    } catch (error: any) {
+      console.error("Error liking/unliking product:", error);
+      toast.error(error.message || "An unexpected error occurred.");
+    }
+  }, [product, router]);
 
   if (loading) {
     return (
@@ -400,11 +480,11 @@ const Client = () => {
             <QuantityInput quantity={quantity} setQuantity={setQuantity} />
             <div className="grid mt-5 lg:grid-cols-10 grid-cols-1 gap-3">
               <div className="flex lg:col-span-8 items-center gap-2">
-                {/* TODO: Buy now button */}
                 <Button
                   className="flex-1 border-[#800020] text-[#800020] hover:text-[#800020] hover:bg-[#800020]/10"
                   size="lg"
                   variant="outline"
+                  onClick={handleBuyNow}
                 >
                   Buy Now
                 </Button>
@@ -427,14 +507,16 @@ const Client = () => {
                   <Share className="h-4 w-4 -mb-2" />
                   Share
                 </Button>
-                {/* TODO: Like Button */}
                 <Button
                   className="flex text-muted-foreground hover:bg-transparent text-sm flex-col items-center"
                   variant="ghost"
                   size="sm"
+                  onClick={handleLike}
                 >
-                  <Heart className="h-4 w-4 -mb-2" />
-                  Like
+                  <Heart
+                    className={`h-4 w-4 -mb-2 ${isLiked ? 'fill-red-500 text-red-500' : ''}`}
+                  />
+                  Like ({likeCount}) {/* Display like count */}
                 </Button>
               </div>
             </div>

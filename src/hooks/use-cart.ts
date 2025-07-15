@@ -98,6 +98,28 @@ interface CartStore {
     voucher?: VendorVoucher;
     message?: string;
   }>;
+  buyNowItem: (data: {
+    productId: string;
+    name: string;
+    images: string[];
+    originalPrice: number;
+    discountedPrice: number;
+    vendorId: string;
+    vendorName?: string;
+    vendorImage?: string;
+    vendor?: {
+      id: string;
+      name: string;
+      image?: string;
+      promoCode?: PromoCode[];
+      coupon?: Coupon[];
+    };
+    variant?: {
+      id: string;
+      attributes: Record<string, string>;
+    };
+    quantity?: number;
+  }) => void;
 }
 
 const useCart = create(
@@ -143,6 +165,37 @@ const useCart = create(
           set({ items: [...currentItems, newItem] });
           toast.success("Item added to cart");
         }
+      },
+
+      buyNowItem: (data) => {
+        get().removeAll();
+
+        const id = data.variant
+          ? `${data.productId}-${data.variant.id}`
+          : data.productId;
+        const quantity = data.quantity || 1;
+
+        const newItem: CartItem = {
+          id,
+          productId: data.productId,
+          name: data.name,
+          images: data.images,
+          originalPrice: data.originalPrice,
+          discountedPrice: data.discountedPrice,
+          quantity,
+          vendorId: data.vendorId,
+          vendorName: data.vendorName ?? "",
+          vendorImage: data.vendorImage,
+          vendor: data.vendor,
+          variant: data.variant,
+        };
+
+        set({
+          items: [newItem],
+          selectedItems: [newItem.id],
+          vendorVouchers: {},
+          vendorCoupons: {},
+        });
       },
 
       removeItem: (id: string) => {
