@@ -19,15 +19,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
-import { Columns2, Grid2X2, TableProperties } from "lucide-react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useCallback, useEffect, useState } from "react";
+import { Columns2, Grid2X2, TableProperties, XCircle } from "lucide-react";
 import { SubCategory } from "@prisma/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { GroupedSpecifications, SpecificationWithProps } from "@/types";
+import { SpecificationWithProps } from "@/types";
 import {
   calculateDiscountPrice,
-  filterSpecificationsByCategory,
   formatText,
   getDiscountInfo,
 } from "@/lib/utils";
@@ -39,11 +38,32 @@ import PopularityFilter from "@/components/globals/product-filter/popularity-fil
 import { ProductWithProps } from "@/types";
 import ProductCard from "@/components/globals/product-card";
 import Footer from "@/components/globals/footer";
+import { Button } from "@/components/ui/button";
 
 const Client = () => {
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const categories = searchParams.get("categories") || "";
-  const subcategories = searchParams.get("subcategories") || "";
+  const initialSubcategoriesFromUrl = searchParams.get("subcategories") || "";
+
+  // Category filter state
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
+    initialSubcategoriesFromUrl ? [initialSubcategoriesFromUrl] : []
+  );
+  // Specification filter state (e.g., { "Color": ["Red", "Blue"], "Size": ["M"] })
+  const [selectedSpecifications, setSelectedSpecifications] = useState<
+    Record<string, string[]>
+  >({});
+  // Price filter state
+  const [minPrice, setMinPrice] = useState<number | null>(null);
+  const [maxPrice, setMaxPrice] = useState<number | null>(null);
+  // Popularity filter state
+  const [selectedPopularityRanges, setSelectedPopularityRanges] = useState<
+    string[]
+  >([]);
+  // Rating filter state (assuming similar structure to popularity filter, e.g., minimum star rating)
+  const [selectedRatings, setSelectedRatings] = useState<string[]>([]);
 
   // toggle view more/view less
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -77,24 +97,152 @@ const Client = () => {
     {}
   );
 
-  // Group specifications by attribute
-  const groupedSpecifications = specifications.reduce<GroupedSpecifications>(
-    (acc, spec) => {
-      // First filter by category
-      const filteredSpecs = filterSpecificationsByCategory([spec], categories);
-      if (filteredSpecs.length === 0) return acc;
+  const updateUrl = useCallback(
+    (newSubcategory: string | null) => {
+      const current = new URLSearchParams(Array.from(searchParams.entries())); // Get current params
 
+      if (newSubcategory) {
+        current.set("subcategories", newSubcategory);
+      } else {
+        current.delete("subcategories"); // Remove if null
+      }
+
+      // Preserve existing category filter
+      if (categories) {
+        current.set("categories", categories);
+      } else {
+        current.delete("categories"); // Or handle as needed if category can be cleared
+      }
+
+      const query = current.toString();
+      router.push(`${pathname}?${query}`);
+    },
+    [router, pathname, searchParams, categories]
+  );
+
+  // Function to reset all filters
+  const handleResetFilters = useCallback(() => {
+    // Reset subcategories (to initial URL value or empty if no URL param)
+    setSelectedSubcategories([]);
+    updateUrl(null);
+    setSelectedSpecifications({});
+    setMinPrice(null);
+    setMaxPrice(null);
+    setSelectedPopularityRanges([]);
+    setSelectedRatings([]);
+    setSortBy("Best seller");
+  }, [updateUrl]);
+
+  // Group specifications by attribute
+  const groupedSpecifications = specifications.reduce(
+    (acc: Record<string, string[]>, spec) => {
       if (!acc[spec.attribute]) {
         acc[spec.attribute] = [];
       }
-      acc[spec.attribute].push(spec);
+
+      const uniqueValuesForAttribute = new Set([
+        ...acc[spec.attribute],
+        ...spec.values,
+      ]);
+      acc[spec.attribute] = Array.from(uniqueValuesForAttribute);
+
       return acc;
     },
     {}
   );
 
+  // Callback for CategoryFilter
+  const handleSubcategoryChange = useCallback(
+    (slug: string, isChecked: boolean) => {
+      let newSelectedSubcategories: string[];
+      if (isChecked) {
+        // If checked, always set to the new slug (single selection)
+        newSelectedSubcategories = [slug];
+        updateUrl(slug); // Update URL with the newly selected subcategory
+      } else {
+        // If unchecked, clear selection (and URL param) only if it was the one selected
+        if (selectedSubcategories.includes(slug)) {
+          newSelectedSubcategories = [];
+          updateUrl(null); // Remove subcategories from URL
+        } else {
+          newSelectedSubcategories = selectedSubcategories; // No change if unchecking something not selected
+        }
+      }
+      setSelectedSubcategories(newSelectedSubcategories);
+    },
+    [selectedSubcategories, updateUrl]
+  );
+
+  // Callback for SpecificationFilter
+  const handleSpecificationChange = useCallback(
+    (attribute: string, value: string, isChecked: boolean) => {
+      setSelectedSpecifications((prev) => {
+        const newSpecs = { ...prev };
+        if (isChecked) {
+          newSpecs[attribute] = [...(newSpecs[attribute] || []), value];
+        } else {
+          newSpecs[attribute] = (newSpecs[attribute] || []).filter(
+            (v) => v !== value
+          );
+          if (newSpecs[attribute].length === 0) {
+            delete newSpecs[attribute];
+          }
+        }
+        return newSpecs;
+      });
+    },
+    []
+  );
+
+  // Callback for PriceFilter
+  const handlePriceRangeChange = useCallback(
+    (min: number | null, max: number | null) => {
+      setMinPrice(min);
+      setMaxPrice(max);
+    },
+    []
+  );
+
+  // Callback for PopularityFilter
+  const handlePopularityChange = useCallback(
+    (value: string, isChecked: boolean) => {
+      setSelectedPopularityRanges((prev) => {
+        if (isChecked) {
+          // Assuming you want to select multiple popularity ranges
+          return [...prev, value];
+        } else {
+          return prev.filter((v) => v !== value);
+        }
+      });
+    },
+    []
+  );
+
+  // Callback for RatingFilter (Placeholder, implement similarly)
+  const handleRatingChange = useCallback(
+    (value: string, isChecked: boolean) => {
+      setSelectedRatings((prev) => {
+        if (isChecked) {
+          return [...prev, value];
+        } else {
+          return prev.filter((v) => v !== value);
+        }
+      });
+    },
+    []
+  );
+
   // fetch products based on sort option
-  const fetchProducts = async (sortOption = sortBy) => {
+  const fetchProducts = async (
+    sortOption = sortBy,
+    currentCategories = categories,
+    currentSelectedSubcategories = selectedSubcategories,
+    currentSelectedSpecs = selectedSpecifications,
+    currentMinPrice = minPrice,
+    currentMaxPrice = maxPrice,
+    currentPopularityRanges = selectedPopularityRanges,
+    currentRatings = selectedRatings
+  ) => {
     setProductLoading(true);
     try {
       const response = await fetch("/api/v1/search", {
@@ -102,7 +250,16 @@ const Client = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ sortBy: sortOption }),
+        body: JSON.stringify({
+          sortBy: sortOption,
+          categories: currentCategories,
+          subcategories: currentSelectedSubcategories,
+          specifications: currentSelectedSpecs,
+          minPrice: currentMinPrice,
+          maxPrice: currentMaxPrice,
+          popularityRanges: currentPopularityRanges,
+          ratings: currentRatings,
+        }),
       });
 
       if (!response.ok) {
@@ -147,8 +304,14 @@ const Client = () => {
       }
     };
 
-    fetchSubCategories();
-  }, [categories]);
+    if (categories) {
+      fetchSubCategories();
+    }
+    // Re-initialize selectedSubcategories when categories change (e.g., navigating from another category)
+    setSelectedSubcategories(
+      initialSubcategoriesFromUrl ? [initialSubcategoriesFromUrl] : []
+    );
+  }, [categories, initialSubcategoriesFromUrl]);
 
   useEffect(() => {
     const fetchSpecifications = async () => {
@@ -174,10 +337,30 @@ const Client = () => {
     fetchSpecifications();
   }, []);
 
+  // Main effect to trigger product fetching
   useEffect(() => {
-    fetchProducts();
+    // Call fetchProducts with all current filter states
+    fetchProducts(
+      sortBy,
+      categories,
+      selectedSubcategories,
+      selectedSpecifications,
+      minPrice,
+      maxPrice,
+      selectedPopularityRanges,
+      selectedRatings
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sortBy]);
+  }, [
+    sortBy,
+    categories,
+    selectedSubcategories,
+    selectedSpecifications,
+    minPrice,
+    maxPrice,
+    selectedPopularityRanges,
+    selectedRatings,
+  ]);
 
   const toggleExpand = () => {
     setIsExpanded(!isExpanded);
@@ -222,17 +405,21 @@ const Client = () => {
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator />
-            <BreadcrumbItem>
-              <BreadcrumbLink asChild>
-                <Link
-                  href="/components"
-                  className="capitalize text-[#800020] hover:text-[#800020]"
-                >
-                  {formatText(subcategories)}
-                </Link>
-              </BreadcrumbLink>
-            </BreadcrumbItem>
+            {selectedSubcategories.length > 0 && (
+              <>
+                <BreadcrumbSeparator />
+                <BreadcrumbItem>
+                  <BreadcrumbLink asChild>
+                    <Link
+                      href={`/search?categories=${categories}&subcategories=${selectedSubcategories[0]}`}
+                      className="capitalize text-[#800020] hover:text-[#800020]"
+                    >
+                      {formatText(selectedSubcategories[0])}
+                    </Link>
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+              </>
+            )}
             <BreadcrumbSeparator />
             <BreadcrumbItem>
               <BreadcrumbPage>Search</BreadcrumbPage>
@@ -244,16 +431,50 @@ const Client = () => {
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="font-semibold text-xl">
-                  {formatText(subcategories)}
+                  {formatText(
+                    selectedSubcategories[0] ||
+                      initialSubcategoriesFromUrl ||
+                      categories ||
+                      "All Products"
+                  )}
                 </h3>
                 <p className="text-muted-foreground">
-                  3014 items found for{" "}
+                  {productLoading ? (
+                    <Skeleton className="inline-block w-20 h-4" />
+                  ) : (
+                    <span>{products.length}</span>
+                  )}{" "}
+                  items found for{" "}
                   <span className="font-medium">
-                    &quot;{formatText(subcategories)}&quot;
+                    &quot;
+                    {formatText(
+                      selectedSubcategories[0] ||
+                        initialSubcategoriesFromUrl ||
+                        categories ||
+                        "All Products"
+                    )}
+                    &quot;
                   </span>
                 </p>
               </div>
               <div className="flex items-center gap-5">
+                {/* --- Reset Filters Button --- */}
+                {(selectedSubcategories.length > (initialSubcategoriesFromUrl ? 1 : 0) ||
+                  Object.keys(selectedSpecifications).length > 0 ||
+                  minPrice !== null ||
+                  maxPrice !== null ||
+                  selectedPopularityRanges.length > 0 ||
+                  selectedRatings.length > 0) && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="text-[#800020] hover:text-[#800020] hover:bg-[#800020]/10 flex items-center gap-1"
+                    onClick={handleResetFilters}
+                  >
+                    <XCircle className="size-4" />
+                    Reset Filters
+                  </Button>
+                )}
                 <div className="flex gap-3 items-center">
                   <span className="text-sm text-muted-foreground">
                     Sort by:
@@ -270,6 +491,7 @@ const Client = () => {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Best seller">Best seller</SelectItem>
+                      <SelectItem value="Most popular">Most popular</SelectItem>
                       <SelectItem value="Price low to high">
                         Price low to high
                       </SelectItem>
@@ -329,6 +551,8 @@ const Client = () => {
                     visibleCount={visibleCount}
                     toggleExpand={toggleExpand}
                     isExpanded={isExpanded}
+                    selectedSubcategories={selectedSubcategories}
+                    onSubcategoryChange={handleSubcategoryChange}
                   />
                   <h3 className="font-semibold text-base mb-3">
                     Specifications
@@ -338,17 +562,29 @@ const Client = () => {
                     specificationsLoading={specificationsLoading}
                     expandedGroups={expandedGroups}
                     toggleGroup={toggleGroup}
+                    selectedSpecifications={selectedSpecifications}
+                    onSpecificationChange={handleSpecificationChange}
                   />
                   <h3 className="font-semibold text-base mb-3 mt-3">
                     Price Range
                   </h3>
-                  <PriceFilter />
+                  <PriceFilter
+                    minPrice={minPrice}
+                    maxPrice={maxPrice}
+                    onPriceRangeChange={handlePriceRangeChange}
+                  />
                   <h3 className="font-semibold text-base mb-3 mt-3">Rating</h3>
-                  <RatingFilter />
+                  <RatingFilter
+                    selectedRatings={selectedRatings}
+                    onRatingChange={handleRatingChange}
+                  />
                   <h3 className="font-semibold text-base mb-3 mt-3">
                     Popularity Score
                   </h3>
-                  <PopularityFilter />
+                  <PopularityFilter
+                    selectedPopularityRanges={selectedPopularityRanges}
+                    onPopularityChange={handlePopularityChange}
+                  />
                 </div>
               </CardContent>
             </Card>
@@ -406,7 +642,7 @@ const Client = () => {
                       viewMode={viewMode}
                       discountPrice={discountPrice}
                       categories={categories}
-                      subcategories={subcategories}
+                      subcategories={selectedSubcategories[0] || initialSubcategoriesFromUrl}
                     />
                   );
                 })

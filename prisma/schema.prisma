@@ -258,6 +258,7 @@ model Product {
   // Other fields
   soldCount       Int   @default(0)
   popularityScore Float @default(0.0)
+  averageRating   Float @default(0.0)
 
   // Timestamps
   createdAt DateTime @default(now())

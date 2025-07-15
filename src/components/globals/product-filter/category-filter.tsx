@@ -14,6 +14,8 @@ interface Props {
   categoryLoading: boolean;
   toggleExpand: () => void;
   isExpanded: boolean;
+  selectedSubcategories: string[];
+  onSubcategoryChange: (slug: string, isChecked: boolean) => void;
 }
 
 const CategoryFilter = ({
@@ -23,12 +25,20 @@ const CategoryFilter = ({
   categoryLoading,
   toggleExpand,
   isExpanded,
+  selectedSubcategories,
+  onSubcategoryChange,
 }: Props) => {
   return (
     <div className="flex flex-col min-h-[30vh] space-y-2 overflow-y-auto">
       {visibleSubCategories.map((subCategory) => (
         <div key={subCategory.id} className="flex items-center gap-3">
-          <Checkbox id={subCategory.slug} />
+          <Checkbox
+            id={subCategory.slug}
+            checked={selectedSubcategories.includes(subCategory.slug)}
+            onCheckedChange={(checked) => {
+              onSubcategoryChange(subCategory.slug, checked as boolean);
+            }}
+          />
           <Label className="font-normal" htmlFor={subCategory.slug}>
             {subCategory.name}
           </Label>
@@ -36,12 +46,17 @@ const CategoryFilter = ({
       ))}
 
       {categoryLoading &&
-        [...Array(16)].map((_, index) => (
-          <div key={index} className="flex items-center gap-3">
-            <Skeleton className="size-5 rounded-md" />
-            <Skeleton className="w-full h-5 rounded-md" />
-          </div>
-        ))}
+        [...Array(visibleCount)].map(
+          (
+            _,
+            index
+          ) => (
+            <div key={index} className="flex items-center gap-3">
+              <Skeleton className="size-5 rounded-md" />
+              <Skeleton className="w-full h-5 rounded-md" />
+            </div>
+          )
+        )}
 
       {!categoryLoading && subCategories.length === 0 && (
         <p className="text-muted-foreground text-center">

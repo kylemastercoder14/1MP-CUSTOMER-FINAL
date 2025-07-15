@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import Header from "@/components/globals/header";
 import {
   Breadcrumb,
@@ -43,6 +44,7 @@ import ProductPolicy from "@/components/globals/all-about-products/product-polic
 import useCart from "@/hooks/use-cart";
 import VendorData from "@/components/globals/all-about-products/vendor-data";
 import Footer from "@/components/globals/footer";
+import { toast } from 'sonner';
 
 const Client = () => {
   const searchParams = useSearchParams();
@@ -57,6 +59,15 @@ const Client = () => {
     null
   );
   const [quantity, setQuantity] = useState(1);
+
+  // Derive the current product URL
+  const productUrl = useMemo(() => {
+    // Ensure window is defined for client-side execution
+    if (typeof window !== "undefined" && product) {
+      return `${window.location.origin}/products?slug=${product.slug}&categories=${product.categorySlug}&subcategories=${product.subCategorySlug}`;
+    }
+    return ""; // Default empty if not available
+  }, [product]);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -158,6 +169,43 @@ const Client = () => {
     }
   };
 
+  const handleShare = useCallback(async () => {
+    if (!product || !productUrl) {
+      toast.error("Product information not available for sharing.");
+      return;
+    }
+
+    // Prepare data for sharing
+    const shareData = {
+      title: product.name,
+      text: `Check out this amazing product: ${product.name} at 1 Market Philippines!`,
+      url: productUrl,
+    };
+
+    try {
+      // Use Web Share API if available
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast.success("Product link shared successfully!");
+      } else {
+        // Fallback for browsers that don't support Web Share API
+        // Copy to clipboard or open a simple dialog with options
+        await navigator.clipboard.writeText(shareData.url);
+        toast.info("Product link copied to clipboard! You can paste it anywhere.");
+        // Optionally, you could open a custom modal here with social media links
+        // console.log("Web Share API not supported. URL copied:", shareData.url);
+      }
+    } catch (error: any) { // Explicitly type error as 'any' for now, or refine
+      if (error.name === 'AbortError') {
+        // User cancelled the share operation
+        // console.log('Share cancelled by user.');
+      } else {
+        console.error('Error sharing product:', error);
+        toast.error(`Failed to share product: ${error.message || 'Unknown error'}`);
+      }
+    }
+  }, [product, productUrl]);
+
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
@@ -224,7 +272,7 @@ const Client = () => {
               </div>
               <p>|</p>
               <span className="text-muted-foreground">
-                Ratings{" "}
+                Reviews{" "}
                 <span className="text-gray-600 font-medium">
                   {Math.floor(Math.random() * 2000) + 10}
                 </span>
@@ -238,11 +286,13 @@ const Client = () => {
           </div>
           <div className="lg:col-span-4 h-fit border p-5 bg-white rounded-md">
             <div className="flex items-center gap-1 mb-2 flex-wrap">
-              <span
-                className={`text-sm bg-gradient-to-l from-blue-500 to-blue-800 text-white px-2 py-1 rounded-sm font-medium`}
-              >
-                BEST SELLER
-              </span>
+              {product?.soldCount !== undefined && product.soldCount > 100 && (
+                <span
+                  className={`text-sm bg-gradient-to-l from-blue-500 to-blue-800 text-white px-2 py-1 rounded-sm font-medium`}
+                >
+                  BEST SELLER
+                </span>
+              )}
               {activeNewArrivalDiscount && (
                 <span
                   className={`text-sm bg-gradient-to-l from-emerald-500 to-emerald-800 text-white px-2 py-1 rounded-sm font-medium`}
@@ -368,11 +418,11 @@ const Client = () => {
                 </Button>
               </div>
               <div className="flex items-center lg:col-span-2 gap-2">
-                {/* TODO: Share Button */}
                 <Button
                   className="flex text-muted-foreground hover:bg-transparent text-sm flex-col items-center"
                   variant="ghost"
                   size="sm"
+                  onClick={handleShare}
                 >
                   <Share className="h-4 w-4 -mb-2" />
                   Share

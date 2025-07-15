@@ -1,3 +1,5 @@
+// components/globals/product-filter/specification-filter.tsx
+
 "use client";
 
 import React from "react";
@@ -9,9 +11,16 @@ import { formatAttributeName } from "@/lib/utils";
 
 interface Props {
   specificationsLoading: boolean;
-  groupedSpecifications: Record<string, { id: string; values: string[] }[]>;
+  // UPDATED: groupedSpecifications now holds an array of strings for values
+  groupedSpecifications: Record<string, string[]>; // Changed from { id: string; values: string[] }[]
   expandedGroups: Record<string, boolean>;
   toggleGroup: (attribute: string) => void;
+  selectedSpecifications: Record<string, string[]>;
+  onSpecificationChange: (
+    attribute: string,
+    value: string,
+    isChecked: boolean
+  ) => void;
 }
 
 const SpecificationFilter = ({
@@ -19,10 +28,13 @@ const SpecificationFilter = ({
   groupedSpecifications,
   expandedGroups,
   toggleGroup,
+  selectedSpecifications,
+  onSpecificationChange,
 }: Props) => {
   return (
     <div className="flex flex-col max-h-[30vh] space-y-2 overflow-y-auto">
       {specificationsLoading ? (
+        // ... (skeleton loading remains the same)
         [...Array(3)].map((_, index) => (
           <div key={index} className="space-y-2">
             <Skeleton className="h-6 w-32 rounded-md" />
@@ -35,7 +47,7 @@ const SpecificationFilter = ({
           </div>
         ))
       ) : Object.keys(groupedSpecifications).length > 0 ? (
-        Object.entries(groupedSpecifications).map(([attribute, specs]) => (
+        Object.entries(groupedSpecifications).map(([attribute, values]) => ( // `values` is now directly `string[]`
           <div key={attribute} className="space-y-2">
             <div
               className="flex items-center justify-between cursor-pointer"
@@ -59,22 +71,35 @@ const SpecificationFilter = ({
               }`}
             >
               <div className="space-y-1 pl-2 pt-1">
-                {specs.flatMap((spec) =>
-                  spec.values.map((value, idx) => (
-                    <div
-                      key={`${spec.id}-${idx}`}
-                      className="flex items-center gap-3"
+                {/* Iterate directly over the `values` array */}
+                {values.map((value,) => (
+                  <div
+                    key={`${attribute}-${value}`}
+                    className="flex items-center gap-3"
+                  >
+                    <Checkbox
+                      id={`${attribute}-${value}`}
+                      value={value}
+                      checked={
+                        selectedSpecifications[attribute]?.includes(value) ||
+                        false
+                      }
+                      onCheckedChange={(checked) => {
+                        onSpecificationChange(
+                          attribute,
+                          value,
+                          checked as boolean
+                        );
+                      }}
+                    />
+                    <Label
+                      className="font-normal capitalize"
+                      htmlFor={`${attribute}-${value}`}
                     >
-                      <Checkbox id={`${spec.id}-${value}`} value={value} />
-                      <Label
-                        className="font-normal capitalize"
-                        htmlFor={`${spec.id}-${value}`}
-                      >
-                        {value.toLowerCase()}
-                      </Label>
-                    </div>
-                  ))
-                )}
+                      {value.toLowerCase()}
+                    </Label>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

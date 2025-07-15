@@ -1,48 +1,35 @@
 "use client";
 
 import React from "react";
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
-const PopularityFilter = () => {
+interface Props {
+  selectedPopularityRanges: string[];
+  onPopularityChange: (value: string, isChecked: boolean) => void;
+}
+
+const PopularityFilter = ({
+  selectedPopularityRanges,
+  onPopularityChange,
+}: Props) => {
+  const popularityOptions = ["10.0", "9.0", "8.0", "7.0", "6.0", "Below5.0"];
   return (
     <div className="flex-col flex space-y-2">
-      <div className="flex items-center gap-3">
-        <Checkbox id="10.0" />
-        <Label className="font-normal" htmlFor="10.0">
-          10.0
-        </Label>
-      </div>
-      <div className="flex items-center gap-3">
-        <Checkbox id="9.0" />
-        <Label className="font-normal" htmlFor="9.0">
-          9.0
-        </Label>
-      </div>
-      <div className="flex items-center gap-3">
-        <Checkbox id="8.0" />
-        <Label className="font-normal" htmlFor="8.0">
-          8.0
-        </Label>
-      </div>
-      <div className="flex items-center gap-3">
-        <Checkbox id="7.0" />
-        <Label className="font-normal" htmlFor="7.0">
-          7.0
-        </Label>
-      </div>
-      <div className="flex items-center gap-3">
-        <Checkbox id="6.0" />
-        <Label className="font-normal" htmlFor="6.0">
-          6.0
-        </Label>
-      </div>
-      <div className="flex items-center gap-3">
-        <Checkbox id="Below5.0" />
-        <Label className="font-normal" htmlFor="Below5.0">
-          Below 5.0
-        </Label>
-      </div>
+      {popularityOptions.map((option) => (
+        <div key={option} className="flex items-center gap-3">
+          <Checkbox
+            id={option}
+            checked={selectedPopularityRanges.includes(option)}
+            onCheckedChange={(checked) => {
+              onPopularityChange(option, checked as boolean);
+            }}
+          />
+          <Label className="font-normal" htmlFor={option}>
+            {option === "Below5.0" ? "Below 5.0" : option}
+          </Label>
+        </div>
+      ))}
     </div>
   );
 };
