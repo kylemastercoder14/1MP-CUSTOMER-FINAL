@@ -1,3 +1,5 @@
+// components/globals/recommended-products.tsx
+
 "use client";
 
 import React from "react";
@@ -8,21 +10,23 @@ import { calculateDiscountPrice, getDiscountInfo } from "@/lib/utils";
 import ProductCard from "@/components/globals/product-card";
 
 interface RecommendedProductsProps {
-  subcategories: string;
-  vendorId?: string;
-  categories: string;
+  // Common props
+  vendorId: string; // Vendor ID is always required for both scenarios
   currentProductId?: string;
   limit?: number;
   errorTitle?: string;
+  // Specific filter flags
+  filterBySubcategory?: boolean; // New prop: true for "From the same store", false for "You may also like"
+  categorySlug: string; // Renamed from 'categories' for clarity
 }
 
 const RecommendedProducts = ({
-  subcategories,
   vendorId,
-  categories,
   currentProductId,
   limit = 4,
   errorTitle = "No similar products found",
+  filterBySubcategory = true, // Default to true, as the first usage needs it
+  categorySlug, // Use categorySlug consistently
 }: RecommendedProductsProps) => {
   const [products, setProducts] = React.useState<ProductWithProps[]>([]);
   const [productLoading, setProductLoading] = React.useState(false);
@@ -37,10 +41,12 @@ const RecommendedProducts = ({
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            subcategories,
             vendorId,
             productId: currentProductId,
             limit,
+            // Pass the filter flag and category slug to the API
+            filterBySubcategory,
+            categorySlug,
           }),
           signal: controller.signal,
         });
@@ -65,12 +71,18 @@ const RecommendedProducts = ({
     fetchProducts();
 
     return () => controller.abort();
-  }, [currentProductId, limit, subcategories, vendorId]);
+  }, [
+    vendorId,
+    currentProductId,
+    limit,
+    filterBySubcategory, // Add new prop to dependencies
+    categorySlug, // Add new prop to dependencies
+  ]);
 
   if (productLoading) {
     return (
       <div className="lg:grid-cols-4 grid grid-cols-1 gap-4 mb-5">
-        {[...Array(4)].map((_, index) => (
+        {[...Array(limit)].map((_, index) => ( // Use limit for skeleton count
           <Card
             key={index}
             className="bg-white rounded-sm shadow-sm hover:shadow-md transition-shadow duration-200"
@@ -121,8 +133,8 @@ const RecommendedProducts = ({
             hasDiscount={hasDiscount}
             viewMode="grid4"
             discountPrice={discountPrice}
-            categories={categories}
-            subcategories={subcategories}
+            categories={product.categorySlug} // Pass actual category slug from product
+            subcategories={product.subCategorySlug || ""} // Pass actual subcategory slug
           />
         );
       })}

@@ -437,11 +437,11 @@ const Client = () => {
         <div className="bg-white p-5 mt-3 rounded-md border">
           <h3 className="text-lg font-semibold mb-3">From the same store</h3>
           <RecommendedProducts
-            categories={categories}
-            subcategories={subcategories}
             vendorId={product?.vendorId as string}
             currentProductId={product?.id}
-            errorTitle="No other products from this store"
+            filterBySubcategory={true}
+            categorySlug={product?.categorySlug as string}
+            errorTitle="No other products from this store in this subcategory"
           />
           <TabsComponent
             activeTab={activeTab}
@@ -465,9 +465,12 @@ const Client = () => {
         <div className="bg-white p-5 mt-3 rounded-md border">
           <h3 className="text-lg font-semibold mb-3">You may also like</h3>
           <RecommendedProducts
-            categories={categories}
-            subcategories={subcategories}
+            vendorId={product?.vendorId as string}
+            currentProductId={product?.id}
+            filterBySubcategory={false}
+            categorySlug={product?.categorySlug as string}
             limit={12}
+            errorTitle="No other products from this store found"
           />
         </div>
       </div>
