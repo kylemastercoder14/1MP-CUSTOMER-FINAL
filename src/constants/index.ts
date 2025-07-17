@@ -7,6 +7,13 @@ import {
   ShoppingCart,
   StoreIcon,
 } from "lucide-react";
+import { FaRegFileAlt, FaRegUser } from "react-icons/fa";
+import { MdOutlineReviews } from "react-icons/md";
+import { RiCoupon3Line, RiNotification3Line } from "react-icons/ri";
+import { IoStorefrontOutline } from "react-icons/io5";
+import { LuBookHeart } from "react-icons/lu";
+import { FiMapPin } from "react-icons/fi";
+import { AiOutlineSafety, AiOutlineCreditCard } from "react-icons/ai";
 
 export const paymentMethods = [
   {
@@ -228,3 +235,60 @@ export const tabContent: Record<TabKey, string[]> = {
     "Download invoices and receipts",
   ],
 };
+
+export const ACCOUNT_LINKS: {
+  title: string;
+  href: string;
+  icon: React.ElementType;
+}[] = [
+  {
+    title: "Purchases",
+    icon: FaRegFileAlt,
+    href: "/user/purchase",
+  },
+  {
+    title: "Reviews",
+    icon: MdOutlineReviews,
+    href: "/user/reviews",
+  },
+  {
+    title: "My profile",
+    icon: FaRegUser,
+    href: "/user/profile",
+  },
+  {
+    title: "Payment methods",
+    icon: AiOutlineCreditCard,
+    href: "/user/payment-methods",
+  },
+  {
+    title: "My vouchers",
+    icon: RiCoupon3Line,
+    href: "/user/vouchers",
+  },
+  {
+    title: "Followed stores",
+    icon: IoStorefrontOutline,
+    href: "/user/followed-stores",
+  },
+  {
+    title: "Wishlist",
+    icon: LuBookHeart,
+    href: "/user/wishlist",
+  },
+  {
+    title: "Addresses",
+    icon: FiMapPin,
+    href: "/user/addresses",
+  },
+  {
+    title: "Account security",
+    icon: AiOutlineSafety,
+    href: "/user/account-security",
+  },
+  {
+    title: "Notifications",
+    icon: RiNotification3Line,
+    href: "/user/notifications",
+  },
+];

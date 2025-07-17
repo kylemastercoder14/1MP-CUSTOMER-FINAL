@@ -201,3 +201,35 @@ export const getTimeSinceListing = (product: ProductWithProps) => {
     return `Listed in last ${Math.floor(diffInDays / 7)} weeks`;
   return `Listed in last ${Math.floor(diffInDays / 30)} months`;
 };
+
+export const getInitials = (
+  firstName?: string | null,
+  lastName?: string | null
+): string => {
+  const firstInitial = firstName ? firstName.charAt(0).toUpperCase() : "";
+  const lastInitial = lastName ? lastName.charAt(0).toUpperCase() : "";
+  return (firstInitial + lastInitial).trim();
+};
+
+export const maskEmail = (email: string | null | undefined): string => {
+  if (!email) {
+    return "";
+  }
+
+  const atIndex = email.indexOf("@");
+  if (atIndex === -1) {
+    return email;
+  }
+
+  const username = email.substring(0, atIndex);
+  const domain = email.substring(atIndex);
+
+  if (username.length <= 2) {
+    return username.charAt(0) + "*".repeat(username.length - 1) + domain;
+  }
+
+  const maskedUsername =
+    username.substring(0, 2) + "*".repeat(username.length - 2);
+
+  return maskedUsername + domain;
+};

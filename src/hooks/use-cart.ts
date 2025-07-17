@@ -40,11 +40,21 @@ interface VendorCoupon {
   type: "Percentage Off" | "Fixed Price";
 }
 
+// Define delivery option types for consistency
+export type DeliveryOptionType =
+  | "motorcycle-delivery"
+  | "bicycle-delivery"
+  | "standard"; // "standard" is generic
+
 interface CartStore {
   items: CartItem[];
   selectedItems: string[];
   vendorVouchers: Record<string, VendorVoucher>;
   vendorCoupons: Record<string, VendorCoupon>;
+  // --- NEW: Per-vendor delivery options ---
+  vendorDeliveryOptions: Record<string, DeliveryOptionType>;
+  // --- End NEW ---
+
   addItem: (data: {
     productId: string;
     name: string;
@@ -87,8 +97,14 @@ interface CartStore {
     subtotal: number;
     discount: number;
     total: number;
+    shippingFee: number; // Add shipping fee to vendor total calculation
   };
-  calculateCartTotal: () => number;
+  calculateCartTotal: () => {
+    total: number;
+    subtotal: number;
+    totalDiscount: number;
+    totalShippingFee: number;
+  };
   validateVoucher: (
     vendorId: string,
     code: string,
@@ -120,6 +136,11 @@ interface CartStore {
     };
     quantity?: number;
   }) => void;
+  // --- NEW: Update per-vendor delivery option ---
+  setVendorDeliveryOption: (
+    vendorId: string,
+    option: DeliveryOptionType
+  ) => void;
 }
 
 const useCart = create(
@@ -129,6 +150,7 @@ const useCart = create(
       selectedItems: [],
       vendorVouchers: {},
       vendorCoupons: {},
+      vendorDeliveryOptions: {}, // Initialize new state
 
       addItem: (data) => {
         const currentItems = get().items;
@@ -159,7 +181,7 @@ const useCart = create(
             vendorId: data.vendorId,
             vendorName: data.vendorName ?? "",
             vendorImage: data.vendorImage,
-            vendor: data.vendor, // Add this line
+            vendor: data.vendor,
             variant: data.variant,
           };
           set({ items: [...currentItems, newItem] });
@@ -195,6 +217,10 @@ const useCart = create(
           selectedItems: [newItem.id],
           vendorVouchers: {},
           vendorCoupons: {},
+          vendorDeliveryOptions: {
+            // Default to motorcycle for buy now
+            [newItem.vendorId]: "motorcycle-delivery",
+          },
         });
       },
 
@@ -211,6 +237,14 @@ const useCart = create(
           items: get().items.filter((item) => !ids.includes(item.id)),
           selectedItems: get().selectedItems.filter(
             (itemId) => !ids.includes(itemId)
+          ),
+          // When items are removed, also clean up related delivery options
+          vendorDeliveryOptions: Object.fromEntries(
+            Object.entries(get().vendorDeliveryOptions).filter(([vendorId]) =>
+              get().items.some(
+                (item) => item.vendorId === vendorId && !ids.includes(item.id)
+              )
+            )
           ),
         });
         toast.success("Items removed from cart");
@@ -233,6 +267,7 @@ const useCart = create(
           selectedItems: [],
           vendorVouchers: {},
           vendorCoupons: {},
+          vendorDeliveryOptions: {}, // Clear all delivery options
         });
       },
 
@@ -331,6 +366,20 @@ const useCart = create(
         toast.success("Coupon removed");
       },
 
+      // --- NEW: Set per-vendor delivery option ---
+      setVendorDeliveryOption: (
+        vendorId: string,
+        option: DeliveryOptionType
+      ) => {
+        set((state) => ({
+          vendorDeliveryOptions: {
+            ...state.vendorDeliveryOptions,
+            [vendorId]: option,
+          },
+        }));
+      },
+
+      // --- Modified calculateVendorTotal to include shippingFee ---
       calculateVendorTotal: (vendorId: string) => {
         const vendorItems = get().items.filter(
           (item) =>
@@ -360,21 +409,48 @@ const useCart = create(
           discount += couponDiscount;
         }
 
+        // Get shipping fee based on selected option for this vendor
+        const deliveryOption = get().vendorDeliveryOptions[vendorId];
+        let shippingFee = 0;
+        if (deliveryOption === "motorcycle-delivery") {
+          shippingFee = 40.0;
+        } else if (deliveryOption === "bicycle-delivery") {
+          shippingFee = 30.0;
+        }
+        // else if (deliveryOption === "standard") { shippingFee = 38.00; } // If you still have a generic standard
+
         return {
           subtotal,
           discount,
           total: subtotal - discount,
+          shippingFee, // Include shippingFee in the return
         };
       },
 
+      // --- Modified calculateCartTotal to sum all vendor totals including shipping ---
       calculateCartTotal: () => {
-        const vendorIds = [
+        const vendorIdsInCart = [
           ...new Set(get().items.map((item) => item.vendorId)),
         ];
-        return vendorIds.reduce((total, vendorId) => {
+        let grandSubtotal = 0;
+        let grandDiscount = 0;
+        let grandShippingFee = 0;
+        let grandTotal = 0;
+
+        vendorIdsInCart.forEach((vendorId) => {
           const vendorTotal = get().calculateVendorTotal(vendorId);
-          return total + vendorTotal.total;
-        }, 0);
+          grandSubtotal += vendorTotal.subtotal;
+          grandDiscount += vendorTotal.discount;
+          grandShippingFee += vendorTotal.shippingFee;
+          grandTotal += vendorTotal.total + vendorTotal.shippingFee; // Add vendor's shipping fee to their total
+        });
+
+        return {
+          total: grandTotal,
+          subtotal: grandSubtotal,
+          totalDiscount: grandDiscount,
+          totalShippingFee: grandShippingFee,
+        };
       },
 
       validateVoucher: async (vendorId, code, vendorPromoCodes) => {
@@ -383,7 +459,6 @@ const useCart = create(
           return { valid: false, message: "Please enter a voucher code" };
         }
 
-        // Find matching promo code
         const promoCode = vendorPromoCodes.find(
           (pc) =>
             pc.code === trimmedCode &&
@@ -396,7 +471,6 @@ const useCart = create(
           return { valid: false, message: "Invalid or expired voucher code" };
         }
 
-        // Check minimum spend requirement
         const vendorItems = get().items.filter(
           (item) =>
             item.vendorId === vendorId && get().selectedItems.includes(item.id)
@@ -426,6 +500,27 @@ const useCart = create(
     {
       name: "1mp-final-cart-storage",
       storage: createJSONStorage(() => localStorage),
+      // --- Zustand Middleware: Initialize vendorDeliveryOptions when hydrating ---
+      onRehydrateStorage: (state) => {
+        return (state) => {
+          if (state) {
+            const initialDeliveryOptions: Record<string, DeliveryOptionType> =
+              {};
+            // For each unique vendor in cart, set a default delivery option if not already set
+            [...new Set(state.items.map((item) => item.vendorId))].forEach(
+              (vendorId) => {
+                if (!state.vendorDeliveryOptions[vendorId]) {
+                  initialDeliveryOptions[vendorId] = "motorcycle-delivery"; // Default option
+                }
+              }
+            );
+            state.vendorDeliveryOptions = {
+              ...state.vendorDeliveryOptions,
+              ...initialDeliveryOptions,
+            };
+          }
+        };
+      },
     }
   )
 );

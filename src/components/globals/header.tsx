@@ -131,6 +131,8 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                           customer={{
                             firstName: customer?.firstName ?? undefined,
                             lastName: customer?.lastName ?? undefined,
+                            image: customer?.image ?? undefined,
+                            email: user.email ?? undefined,
                           }}
                           user={user}
                         />

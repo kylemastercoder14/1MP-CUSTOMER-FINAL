@@ -19,6 +19,7 @@ const nextConfig: NextConfig = {
       "down-ph.img.susercontent.com",
       "china-southnorth-01.oss-cn-zhangjiakou.aliyuncs.com",
       "images.pexels.com",
+      "aimg.kwcdn.com",
     ],
   },
   eslint: {

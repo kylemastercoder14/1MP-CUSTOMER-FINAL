@@ -1,59 +1,54 @@
-import { createClient } from "@/lib/supabase/server";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+import { createClient } from "@/lib/supabase/server"; // Server-side Supabase client
 import db from "@/lib/db";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   try {
-    // 1. Get the access token from Authorization header
-    const authHeader = request.headers.get("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      return NextResponse.json(
-        {
-          message: "Authorization header is missing or invalid.",
-          code: "MISSING_AUTH_HEADER",
-        },
-        { status: 401 }
-      );
-    }
-
-    const accessToken = authHeader.split(" ")[1];
-
-    // 2. Create Supabase client and verify the token
     const supabase = createClient();
     const {
-      data: { user },
-      error: authError,
-    } = await (await supabase).auth.getUser(accessToken);
+      data: { session },
+      error: sessionError,
+    } = await (await supabase).auth.getSession();
 
-    if (authError || !user) {
+    if (sessionError || !session) {
+      console.warn("No active Supabase session found for API request.");
       return NextResponse.json(
         {
-          message: "Invalid or expired access token.",
-          code: "INVALID_ACCESS_TOKEN",
+          message: "Authentication required.",
+          code: "UNAUTHENTICATED",
         },
         { status: 401 }
       );
     }
 
-    // 3. Fetch customer details from the database
+    // `session.user` contains the Supabase user details
+    const supabaseUserId = session.user.id;
+
+    // Fetch customer details from your Prisma database using the Supabase user ID
     const customer = await db.user.findUnique({
-      where: { authId: user.id },
+      where: { authId: supabaseUserId }, // Assuming 'authId' in your DB `User` model stores Supabase user ID
     });
 
     if (!customer) {
+      console.warn(
+        `Customer record not found for Supabase User ID: ${supabaseUserId}`
+      );
       return NextResponse.json(
         {
-          message: "Customer not found.",
+          message: "Customer profile not found in database.",
           code: "CUSTOMER_NOT_FOUND",
         },
         { status: 404 }
       );
     }
 
+    // Return the customer data
     return NextResponse.json(
       {
-        ...customer,
-        supabaseUserId: user.id,
+        success: true,
+        data: customer,
       },
       { status: 200 }
     );

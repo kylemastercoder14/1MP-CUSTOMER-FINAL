@@ -1,29 +1,40 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { createClient } from "@/lib/supabase/client";
-import { User } from "@prisma/client";
+import { createClient } from "@/lib/supabase/client"; // This is your client-side Supabase client
+import { User } from "@prisma/client"; // Assuming this is your Prisma model type
 
-type UserData = {
+type SupabaseUserMetadata = {
+  name?: string;
+  avatar_url?: string;
+  // Add other metadata fields you might use
+  first_name?: string; // If you store first/last in metadata
+  last_name?: string;
+};
+
+type SupabaseUserData = {
   id: string;
   email: string;
-  user_metadata?: {
-    name?: string;
-    avatar_url?: string;
-  };
+  user_metadata: SupabaseUserMetadata;
 };
 
 export function useUser() {
+  // `customer` is your Prisma DB user record
   const [customer, setCustomer] = useState<User | null>(null);
-  const [user, setUser] = useState<UserData | null>(null);
+  // `supabaseUser` is the user object directly from Supabase auth
+  const [supabaseUser, setSupabaseUser] = useState<SupabaseUserData | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCustomerDetails = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  const fetchUserData = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    setCustomer(null); // Clear previous customer data on refetch
+    setSupabaseUser(null); // Clear previous Supabase user data
 
+    try {
       const supabase = createClient();
       const {
         data: { session },
@@ -31,65 +42,81 @@ export function useUser() {
       } = await supabase.auth.getSession();
 
       if (sessionError || !session) {
+        // User is not logged in or session expired
         setLoading(false);
-        return; // No session, user is not logged in
+        setSupabaseUser(null);
+        setCustomer(null);
+        return;
       }
 
-      // Get Supabase user data
-      const { data: userData, error: userError } =
-        await supabase.auth.getUser();
-      if (userError) throw new Error(userError.message);
+      // User is logged in via Supabase
+      const { user: supabaseAuthUser } = session; // Get user directly from session
 
-      if (userData.user) {
-        setUser({
-          id: userData.user.id,
-          email: userData.user.email || "",
-          user_metadata: userData.user.user_metadata,
+      setSupabaseUser({
+        id: supabaseAuthUser.id,
+        email: supabaseAuthUser.email || "",
+        user_metadata: supabaseAuthUser.user_metadata || {}, // Ensure it's an object
+      });
+
+      // Now fetch customer details from your backend using the session token
+      try {
+        const response = await fetch("/api/v1/customer", {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`, // Pass access token for verification on backend
+          },
         });
 
-        try {
-          const response = await fetch("/api/v1/customer", {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${session.access_token}`,
-            },
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
+        if (!response.ok) {
+          const errorData = await response.json();
+          // If customer record not found (e.g., new Supabase user but no DB entry)
+          if (
+            response.status === 404 &&
+            errorData.code === "CUSTOMER_NOT_FOUND"
+          ) {
             console.warn(
-              "Customer fetch failed, but user is authenticated:",
-              errorData.message
+              "No corresponding customer DB record found for Supabase user. You might need to create it."
             );
-            // Still continue even if customer fetch fails
+            // Optionally, here you could trigger a user creation flow
+            setCustomer(null); // Explicitly set customer to null if not found
             return;
           }
-
-          const { data: customerData } = await response.json();
-          setCustomer(customerData);
-        } catch (err) {
-          console.warn("Failed to fetch customer details:", err);
-          // Continue even if customer fetch fails
+          // For other errors during customer fetch
+          throw new Error(
+            errorData.message || "Failed to fetch customer details from DB."
+          );
         }
+
+        const { data: customerData } = await response.json();
+        setCustomer(customerData); // Set your Prisma DB customer data
+      } catch (err) {
+        console.error("Error fetching customer details from API:", err);
+        setError(
+          err instanceof Error
+            ? err.message
+            : "Failed to load customer profile."
+        );
       }
     } catch (err) {
+      console.error("Supabase session or user fetch error:", err);
       setError(
-        err instanceof Error ? err.message : "An unknown error occurred"
+        err instanceof Error ? err.message : "Authentication check failed."
       );
     } finally {
-      setLoading(false);
+      setLoading(false); // Ensure loading is always set to false when fetch completes
     }
-  }, []);
+  }, []); // No dependencies are needed here, as it's meant to refetch all user data
 
   useEffect(() => {
-    fetchCustomerDetails();
-  }, [fetchCustomerDetails]);
+    fetchUserData(); // Initial fetch on component mount
+  }, [fetchUserData]); // Dependency array to prevent infinite loop (fetchUserData is memoized)
 
   return {
-    customer,
-    user,
+    customer, // Your Prisma DB user data (firstName, lastName, etc.)
+    user: supabaseUser, // Raw user data from Supabase auth (email, user_metadata, etc.)
     loading,
     error,
-    refetch: fetchCustomerDetails,
+    refetch: fetchUserData, // Allow manual refetching
   };
 }

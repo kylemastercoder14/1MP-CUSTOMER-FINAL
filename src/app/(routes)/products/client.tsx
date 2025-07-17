@@ -380,6 +380,27 @@ const Client = () => {
                   NEW ARRIVAL
                 </span>
               )}
+              {product?.onTimeDeliveryGuarantee && (
+                <span
+                  className={`text-sm bg-gradient-to-l from-orange-500 to-orange-800 text-white px-2 py-1 rounded-sm font-medium`}
+                >
+                  ON TIME DELIVERY GUARANTEE
+                </span>
+              )}
+              {product?.onSiteServiceGuarantee && (
+                <span
+                  className={`text-sm bg-gradient-to-l from-violet-500 to-violet-800 text-white px-2 py-1 rounded-sm font-medium`}
+                >
+                  ON SITE SERVICE GUARANTEE
+                </span>
+              )}
+              {product?.freeReplacementParts && (
+                <span
+                  className={`text-sm bg-gradient-to-l from-yellow-500 to-yellow-800 text-white px-2 py-1 rounded-sm font-medium`}
+                >
+                  FREE REPLACEMENT PARTS
+                </span>
+              )}
             </div>
             <span className="text-sm text-muted-foreground">
               Brand:{" "}

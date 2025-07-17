@@ -8,6 +8,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import SearchContainer from "./search-container";
 import { useRouter } from "next/navigation";
+import NavUser from "./nav-user";
 
 const WhiteHeader = ({
   showSearch,
@@ -66,18 +67,17 @@ const WhiteHeader = ({
             <div className={`h-4 w-20 rounded bg-gray-300 animate-pulse `} />
           </div>
         ) : user ? (
-          <Link
-            href="/my-account"
-            className="cursor-pointer flex text-black hover:text-[#800020] items-center gap-2"
-          >
-            <User className="w-6 h-6 inline-block mr-1" />
-            Hi,{" "}
-            {customer?.firstName ||
-              customer?.lastName ||
-              user.email?.split("@")[0] ||
-              "User"}
-            !
-          </Link>
+          <NavUser
+            isCategoriesOpen={true}
+            isHomepage
+            customer={{
+              firstName: customer?.firstName ?? undefined,
+              lastName: customer?.lastName ?? undefined,
+              image: customer?.image ?? undefined,
+              email: user.email ?? undefined,
+            }}
+            user={user}
+          />
         ) : (
           <>
             <Link

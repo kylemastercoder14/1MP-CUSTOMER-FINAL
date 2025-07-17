@@ -1,7 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import Header from "@/components/globals/header";
 import Footer from "@/components/globals/footer";
 import useCart from "@/hooks/use-cart";
@@ -12,14 +13,18 @@ import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import QuantityInput from "@/components/globals/quantity-input";
 import { Input } from "@/components/ui/input";
-import { Coupon, PromoCode } from "@prisma/client";
+import { Coupon, PromoCode, Address as AddressType } from "@prisma/client";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { useRouter } from "next/navigation";
+import { useUser } from "@/hooks/use-user";
+import { toast } from "sonner";
 
 const Page = () => {
+  const router = useRouter();
   const {
     items,
     selectedItems,
@@ -42,12 +47,20 @@ const Page = () => {
     validateVoucher,
   } = useCart();
 
+  const { user: supabaseUser, loading: userLoading } = useUser(); // Get user info to conditionally fetch address
+
   const [vendorVoucherInputs, setVendorVoucherInputs] = useState<
     Record<string, string>
   >({});
   const [voucherErrors, setVoucherErrors] = useState<Record<string, string>>(
     {}
   );
+  // --- New state for default address ---
+  const [defaultAddress, setDefaultAddress] = useState<AddressType | null>(
+    null
+  );
+  const [addressLoading, setAddressLoading] = useState(true);
+  // --- End new state ---
 
   // Group items by vendor
   const itemsByVendor = items.reduce(
@@ -113,6 +126,44 @@ const Page = () => {
     });
   };
 
+  // --- Fetch Default Address ---
+  const fetchDefaultAddress = useCallback(async () => {
+    if (!supabaseUser || userLoading) return;
+    setAddressLoading(true);
+    try {
+      const response = await fetch("/api/v1/customer/addresses", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to fetch addresses.");
+      }
+
+      const result = await response.json();
+      if (result.success) {
+        const foundDefault = result.data.find(
+          (addr: AddressType) => addr.isDefault
+        );
+        setDefaultAddress(foundDefault || null); // Set default or null if none found
+      } else {
+        toast.error(result.message || "Failed to load addresses.");
+      }
+    } catch (err: any) {
+      console.error("Error fetching default address:", err);
+      toast.error(err.message || "An error occurred while loading address.");
+    } finally {
+      setAddressLoading(false);
+    }
+  }, [supabaseUser, userLoading]); // Depend on supabaseUser and userLoading
+
+  useEffect(() => {
+    fetchDefaultAddress();
+  }, [fetchDefaultAddress]);
+
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
@@ -121,6 +172,7 @@ const Page = () => {
       <div className="px-4 md:px-8 lg:px-60 pb-20 pt-[140px]">
         <div className="grid lg:grid-cols-10 grid-cols-1 gap-3">
           <div className="lg:col-span-7">
+            {/* ... Select All / Delete button for cart items ... */}
             <div className="bg-white border rounded-sm py-2 px-3 flex items-center justify-between">
               <div className="flex text-sm text-muted-foreground items-center gap-3">
                 <Checkbox
@@ -403,13 +455,61 @@ const Page = () => {
           <div className="lg:col-span-3">
             <div className="bg-white border rounded-sm sticky top-28">
               <div className="py-2 px-3">
-                <span className="text-sm text-muted-foreground">Location</span>
-                <div className="flex items-center gap-2 mt-2">
-                  <MapPin className="size-4 text-muted-foreground" />
-                  <span className="text-sm">
-                    Block 123 Lot 90 Phase 02, Pasay City, Metro Manila
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">
+                    Location
                   </span>
+                  <Button
+                    variant="link"
+                    onClick={() => router.push("/user/addresses")}
+                    size="sm"
+                    className="px-0 py-0 h-auto text-[#800020] hover:text-[#800020]"
+                  >
+                    Change
+                  </Button>
                 </div>
+                {/* Default Address Display */}
+                {addressLoading ? (
+                  <div className="mt-2 space-y-1">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="size-4 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">
+                        Loading address...
+                      </span>
+                    </div>
+                    <div className="h-4 w-full bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-4 w-5/6 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                ) : defaultAddress ? (
+                  <div className="mt-2">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="size-4 text-muted-foreground" />
+                      <span className="font-semibold text-sm">
+                        {defaultAddress.fullName}{" "}
+                      </span>
+                      <span className="text-sm text-gray-600">
+                        ({defaultAddress.contactNumber})
+                      </span>
+                    </div>
+                    <p className="text-sm text-gray-700">
+                      {defaultAddress.homeAddress}, {defaultAddress.barangay},{" "}
+                      {defaultAddress.city}, {defaultAddress.province},{" "}
+                      {defaultAddress.region}, {defaultAddress.zipCode}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    No default address found. Please add one.
+                    <Button
+                      variant="link"
+                      size="sm"
+                      className="px-0 py-0 h-auto text-[#800020] hover:text-[#800020] ml-1"
+                      onClick={() => router.push("/user/addresses")}
+                    >
+                      Add Address
+                    </Button>
+                  </div>
+                )}
               </div>
               <Separator />
               <div className="py-2 px-3">
@@ -483,10 +583,10 @@ const Page = () => {
                 <div className="flex justify-between">
                   <span className="font-medium">Total</span>
                   <span className="font-medium text-lg text-[#800020]">
-                    ₱{calculateCartTotal().toFixed(2)}
+                    ₱{calculateCartTotal().total.toFixed(2)}
                   </span>
                 </div>
-                <Button className="w-full mt-4 bg-[#800020] hover:bg-[#800020]/90">
+                <Button onClick={() => router.push("/checkout")} className="w-full mt-4 bg-[#800020] hover:bg-[#800020]/90">
                   Proceed to Checkout ({selectedItems.length})
                 </Button>
               </div>

@@ -12,14 +12,7 @@ export async function GET(request: Request) {
       adminApprovalStatus: "Approved",
       // Only show products created in the last 30 days for "new arrivals"
       createdAt: {
-        gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-      },
-      newArrivalDiscountId: {
-        not: null,
-      },
-      newArrivalDiscount: {
-        startDate: { lte: new Date().toISOString() },
-        endDate: { gte: new Date().toISOString() },
+        gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       },
     };
 
