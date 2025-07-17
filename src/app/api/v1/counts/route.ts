@@ -9,11 +9,7 @@ export async function GET(request: Request) {
       },
     });
 
-    const vendors = await db.vendor.count({
-      where: {
-        adminApproval: "Approved",
-      },
-    });
+    const vendors = await db.vendor.count();
 
     const users = await db.user.count();
 
