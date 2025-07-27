@@ -140,10 +140,16 @@ export const footerSections = [
   {
     title: "Get to know us",
     links: [
-      { name: "About 1 Market Philippines", href: "/about" },
-      { name: "Corporate responsibility", href: "/responsibility" },
-      { name: "News center", href: "/news" },
-      { name: "Contac us", href: "/contact" },
+      {
+        name: "About 1 Market Philippines",
+        href: "/what-is-1-market-philippines",
+      },
+      {
+        name: "Mission & Vision",
+        href: "/what-is-1-market-philippines#mission-and-vision",
+      },
+      { name: "News center", href: "/news-center" },
+      { name: "Contact us", href: "/contact-us" },
     ],
   },
 ];

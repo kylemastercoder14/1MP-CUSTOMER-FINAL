@@ -182,6 +182,9 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                       <Link href="/what-is-1-market-philippines" className="hover:text-[#800020] cursor-pointer">
                         What is 1 Market Philippines?
                       </Link>
+                      <Link href="/promotions-offers" className="hover:text-[#800020] cursor-pointer">
+                        Promotions & Offers
+                      </Link>
                       <Link href="/help-center" className="hover:text-[#800020] cursor-pointer">
                         Help Center
                       </Link>

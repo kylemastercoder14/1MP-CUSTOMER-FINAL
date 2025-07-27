@@ -9,9 +9,9 @@ const geistKarla = Karla({
 });
 
 export const metadata: Metadata = {
-  title: "1 Market Philippines",
+  title: "1 Market Philippines - One community, one market place.",
   description:
-    "1 Market Villamor - Your one online place to find all businesses in your neighborhood - one community, one market place.",
+    "1 Market Philippines - Your one online place to find all businesses in your neighborhood - one community, one market place.",
   icons: {
     icon: "/images/logo-dark.png",
   },
