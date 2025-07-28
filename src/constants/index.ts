@@ -183,7 +183,6 @@ export const socialIcons = [
 ];
 
 export const policies = [
-  "Policies and rules",
   "Legal Notice",
   "Product Listing Policy",
   "Intellectual Property Protection",

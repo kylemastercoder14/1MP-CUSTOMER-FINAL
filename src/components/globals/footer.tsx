@@ -116,7 +116,7 @@ const Footer = () => {
             {policies.map((policy, index) => (
               <span key={index}>
                 <Link
-                  href="#"
+                  href={`/1-market-philippines-policy?type=${policy.toLowerCase().replace(/ /g, "-")}`}
                   className="hover:text-[#800020] hover:underline transition-colors"
                 >
                   {policy}
