@@ -11,6 +11,8 @@ import {
   NutritionalFact,
   PromoCode,
   Coupon,
+  News,
+  NewsSection,
 } from "@prisma/client";
 import {} from "@prisma/client";
 import { TabItemType } from "@/components/globals/tabs-component";
@@ -179,4 +181,8 @@ export interface ProductVariantsProps {
   onVariantSelect?: (variant: ProductVariant | null) => void;
   selectedVariantId?: string | null;
   sizeGuide?: string | null;
+}
+
+export interface NewsWithSections extends News {
+  sections: NewsSection[];
 }

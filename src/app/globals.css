@@ -168,3 +168,31 @@
   background-color: hsla(0, 0%, 100%, .11);
   backdrop-filter: blur(50px);
 }
+
+.prose img {
+  /* This will target images specifically within elements that have the 'prose' class */
+  border-radius: 8px; /* Example: rounded corners */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Example: subtle shadow */
+  margin-top: 1.5rem; /* Example: 24px top margin */
+  margin-bottom: 1.5rem; /* Example: 24px bottom margin */
+  /* Add any other CSS properties you need */
+  width: 100%;
+}
+
+.prose p {
+  margin-top: 1.5rem; /* Example: 24px top margin */
+  margin-bottom: 1.5rem; /* Example: 24px bottom margin */
+}
+
+.prose ul {
+  list-style-type: disc; /* Example: disc bullets */
+  margin-top: 1.5rem; /* Example: 24px top margin */
+  margin-bottom: 1.5rem; /* Example: 24px bottom margin */
+}
+
+.prose ol {
+  list-style-type: decimal; /* Example: decimal numbers */
+  margin-top: 1.5rem; /* Example: 24px top margin */
+  margin-bottom: 1.5rem; /* Example: 24px bottom margin */
+}
+

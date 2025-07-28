@@ -548,6 +548,28 @@ model Announcement {
   updatedAt DateTime @updatedAt
 }
 
+model News {
+  id        String        @id @default(cuid())
+  title     String
+  category  String
+  type      String
+  thumbnail String
+  status    String        @default("Active")
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  sections  NewsSection[]
+}
+
+model NewsSection {
+  id       String @id @default(cuid())
+  newsId   String
+  news     News   @relation(fields: [newsId], references: [id])
+  heading  String
+  content  String
+  order    Int
+  anchorId String @unique
+}
+
 model Policies {
   id                             String   @id @default(cuid())
   legalNotice                    String?

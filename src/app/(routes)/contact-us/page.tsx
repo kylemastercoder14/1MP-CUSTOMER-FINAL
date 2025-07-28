@@ -29,7 +29,7 @@ import {
   RETURNHELP,
   SECURITYHELP,
   SHIPPINGHELP,
-} from "@/data/support-center";
+} from "@/data/help-center";
 
 const Page = () => {
   return (
@@ -193,7 +193,7 @@ const Page = () => {
                     {ORDERHELP.map((item, index) => (
                       <Link
                         key={index}
-                        href="/support-center"
+                        href="/help-center"
                         className="py-2 px-3 hover:bg-zinc-200"
                       >
                         {item.title} &rarr;
@@ -213,7 +213,7 @@ const Page = () => {
                     {SHIPPINGHELP.map((item, index) => (
                       <Link
                         key={index}
-                        href="/support-center"
+                        href="/help-center"
                         className="py-2 px-3 hover:bg-zinc-200"
                       >
                         {item.title} &rarr;
@@ -233,7 +233,7 @@ const Page = () => {
                     {RETURNHELP.map((item, index) => (
                       <Link
                         key={index}
-                        href="/support-center"
+                        href="/help-center"
                         className="py-2 px-3 hover:bg-zinc-200"
                       >
                         {item.title} &rarr;
@@ -253,7 +253,7 @@ const Page = () => {
                     {PRODUCTHELP.map((item, index) => (
                       <Link
                         key={index}
-                        href="/support-center"
+                        href="/help-center"
                         className="py-2 px-3 hover:bg-zinc-200"
                       >
                         {item.title} &rarr;
@@ -273,7 +273,7 @@ const Page = () => {
                     {ACCOUNTHELP.map((item, index) => (
                       <Link
                         key={index}
-                        href="/support-center"
+                        href="/help-center"
                         className="py-2 px-3 hover:bg-zinc-200"
                       >
                         {item.title} &rarr;
@@ -293,7 +293,7 @@ const Page = () => {
                     {PAYMENTHELP.map((item, index) => (
                       <Link
                         key={index}
-                        href="/support-center"
+                        href="/help-center"
                         className="py-2 px-3 hover:bg-zinc-200"
                       >
                         {item.title} &rarr;
@@ -313,7 +313,7 @@ const Page = () => {
                     {SECURITYHELP.map((item, index) => (
                       <Link
                         key={index}
-                        href="/support-center"
+                        href="/help-center"
                         className="py-2 px-3 hover:bg-zinc-200"
                       >
                         {item.title} &rarr;
@@ -333,7 +333,7 @@ const Page = () => {
                     {POLICIESHELP.map((item, index) => (
                       <Link
                         key={index}
-                        href="/support-center"
+                        href="/help-center"
                         className="py-2 px-3 hover:bg-zinc-200"
                       >
                         {item.title} &rarr;
