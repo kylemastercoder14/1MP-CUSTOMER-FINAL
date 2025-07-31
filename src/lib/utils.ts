@@ -233,3 +233,12 @@ export const maskEmail = (email: string | null | undefined): string => {
 
   return maskedUsername + domain;
 };
+
+export function categoryNameToSlug(name: string): string {
+  return name
+    .toLowerCase() // Convert to lowercase
+    .replace(/&/g, "") // Replace '&' with 'and'
+    .replace(/[^a-z0-9\s-]/g, "") // Remove non-alphanumeric characters except spaces and dashes
+    .replace(/\s+/g, "-") // Replace spaces with single dashes
+    .replace(/^-+|-+$/g, ""); // Trim dashes from start/end
+}

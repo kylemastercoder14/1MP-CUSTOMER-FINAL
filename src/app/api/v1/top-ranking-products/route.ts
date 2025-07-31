@@ -9,7 +9,7 @@ export async function GET(request: Request) {
     const subCategorySlug = searchParams.get("subCategory");
     const sortBy = searchParams.get("sortBy") || "soldCount";
 
-    let orderBy = {};
+    let orderBy: { [key: string]: string } = {}; // Explicitly define orderBy type
     const where: any = { adminApprovalStatus: "Approved" };
 
     // Filter by category if provided
@@ -22,12 +22,17 @@ export async function GET(request: Request) {
       where.subCategorySlug = subCategorySlug;
     }
 
+    // New condition for popularityScore
+    if (sortBy === "popularityScore") {
+      where.popularityScore = { gte: 100 };
+    }
+
     // Set sorting
     switch (sortBy) {
       case "soldCount":
         orderBy = { soldCount: "desc" };
         break;
-      case "popularityScore":
+      case "popularityScore": // New case for popularityScore
         orderBy = { popularityScore: "desc" };
         break;
       case "bestReviewed":

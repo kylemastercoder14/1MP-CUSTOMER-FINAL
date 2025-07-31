@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import React from "react";
 import Header from "@/components/globals/header";
@@ -19,6 +20,8 @@ import {
   ShieldUser,
   Store,
 } from "lucide-react";
+import { NewsWithSections } from "@/types";
+import Link from "next/link";
 
 const comparisonData = [
   {
@@ -146,6 +149,10 @@ const Page = () => {
     users: 0,
     productCategories: 0,
   });
+  const [newsArticles, setNewsArticles] = React.useState<NewsWithSections[]>(
+    []
+  );
+  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     const fetchCounts = async () => {
@@ -166,6 +173,53 @@ const Page = () => {
     };
     fetchCounts();
   }, []);
+
+  React.useEffect(() => {
+    // Fetch active news articles from an API
+    const fetchNews = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("/api/v1/news-articles");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.success) {
+          setNewsArticles(result.data);
+        } else {
+          console.error("Error fetching news articles:", result.message);
+          setNewsArticles([]);
+        }
+      } catch (err: any) {
+        console.error("Error fetching news articles:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNews();
+  }, []);
+
+  const formatDate = (dateString: string | Date) => {
+    const options: Intl.DateTimeFormatOptions = {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    };
+    return new Date(dateString).toLocaleDateString("en-US", options);
+  };
+
+  const NewsArticleSkeleton = () => (
+    <div className="flex flex-col border rounded-lg overflow-hidden shadow-sm bg-white h-full animate-pulse">
+      <div className="w-full h-48 bg-gray-200"></div>
+      <div className="p-4 flex-grow flex flex-col">
+        <div className="h-4 bg-gray-200 rounded w-1/4 mb-2"></div>
+        <div className="h-6 bg-gray-200 rounded w-3/4 mb-2"></div>
+        <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
+        <div className="h-4 bg-gray-200 rounded w-1/3 mt-auto"></div>
+      </div>
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -209,7 +263,10 @@ const Page = () => {
         </div>
         <section className="py-20">
           <div className="px-20">
-            <div id='mission-and-vision' className="grid lg:grid-cols-5 grid-cols-1 gap-40">
+            <div
+              id="mission-and-vision"
+              className="grid lg:grid-cols-5 grid-cols-1 gap-40"
+            >
               <div className="lg:col-span-3">
                 <h1 className="text-black text-5xl tracking-tighter font-bold">
                   What is 1 Market Philippines?
@@ -444,10 +501,55 @@ const Page = () => {
               customers nationwide.
             </p>
           </div>
-          <div className="mt-20">
+          <div className="mt-20 px-20">
             <h2 className="text-4xl font-bold text-center mb-4 text-gray-800">
               Latest from 1 Market Philippines
             </h2>
+            <div className="grid mt-5 grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {loading ? (
+                // Show 4 skeleton loaders when loading
+                Array.from({ length: 4 }).map((_, index) => (
+                  <NewsArticleSkeleton key={index} />
+                ))
+              ) : newsArticles.length === 0 ? (
+                // Show "No news articles found" message when not loading and no articles
+                <p className="col-span-full text-gray-500 text-center py-10 text-lg">
+                  No news articles found. Please check back later!
+                </p>
+              ) : (
+                // Render actual news articles when not loading and articles exist
+                newsArticles.map((news) => (
+                  <Link
+                    key={news.id}
+                    href={`/news-center/${news.id}`}
+                    className="block group"
+                  >
+                    <div className="flex flex-col border rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow bg-white h-full">
+                      <div className="w-full h-48 relative overflow-hidden">
+                        <Image
+                          src={news.thumbnail || "/placeholder.jpg"}
+                          alt={news.title}
+                          layout="fill"
+                          objectFit="cover"
+                          className="transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+                      <div className="p-4 flex-grow flex flex-col">
+                        <p className="text-xs font-semibold text-gray-600 uppercase mb-2">
+                          {news.type.toUpperCase()}
+                        </p>
+                        <h3 className="text-lg font-semibold mb-2 line-clamp-2 group-hover:underline">
+                          {news.title}
+                        </h3>
+                        <p className="text-gray-500 text-sm mt-auto">
+                          Admin /{formatDate(news.createdAt)}
+                        </p>
+                      </div>
+                    </div>
+                  </Link>
+                ))
+              )}
+            </div>
           </div>
         </section>
       </div>

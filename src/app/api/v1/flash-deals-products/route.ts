@@ -11,8 +11,7 @@ export async function GET(request: Request) {
           not: null,
         },
         productDiscount: {
-          startDate: { lte: new Date().toISOString() },
-          endDate: { gte: new Date().toISOString() },
+          status: "Ongoing",
         },
       },
       take: 10,

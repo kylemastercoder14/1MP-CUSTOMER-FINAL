@@ -19,6 +19,7 @@ const ProductCard = ({
   subcategories,
   newArrival,
   rank,
+  isTopRank,
 }: {
   product: ProductWithProps;
   price: number;
@@ -30,6 +31,7 @@ const ProductCard = ({
   subcategories: string;
   newArrival?: string;
   rank?: number;
+  isTopRank?: boolean;
 }) => {
   const router = useRouter();
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
@@ -87,6 +89,11 @@ const ProductCard = ({
                 >
                   #{rank}
                 </div>
+              </div>
+            )}
+            {isTopRank && (
+              <div className="absolute bottom-2 right-2">
+                <Image src="https://s.alicdn.com/@img/imgextra/i4/O1CN01GOxgdV1n1KmMe9jr8_!!6000000005029-2-tps-72-72.png" alt='Top Rank' width={60} height={60} />
               </div>
             )}
             {/* Discount Badges */}

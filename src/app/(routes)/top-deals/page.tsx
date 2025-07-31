@@ -14,20 +14,21 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import { Loader2 } from "lucide-react";
 import {
   IoArrowRedoCircleSharp,
   IoBonfireSharp,
   IoFlashSharp,
   IoTimeSharp,
 } from "react-icons/io5";
-import { FaBolt } from "react-icons/fa";
 import {
   calculateDiscountPrice,
   formatTime,
   getDiscountInfo,
 } from "@/lib/utils";
 import ProductCard from "@/components/globals/product-card";
+import FlashDealsSkeletonCarousel, {
+  SkeletonCard,
+} from "@/components/globals/flash-deal-skeleton";
 
 const Page = () => {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -50,22 +51,6 @@ const Page = () => {
   });
   const [flashDealEndTime, setFlashDealEndTime] = useState<Date | null>(null);
 
-  // Skeleton Card Component
-  const SkeletonCard = () => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden animate-pulse">
-      <div className="aspect-square bg-gray-200"></div>
-      <div className="p-4 space-y-3">
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        <div className="flex items-center justify-between">
-          <div className="h-5 bg-gray-200 rounded w-20"></div>
-          <div className="h-4 bg-gray-200 rounded w-16"></div>
-        </div>
-        <div className="h-8 bg-gray-200 rounded w-full"></div>
-      </div>
-    </div>
-  );
-
   // Category Skeleton Component
   const CategorySkeleton = () => (
     <div className="flex space-x-4 mb-10 border-b">
@@ -76,21 +61,6 @@ const Page = () => {
         ></div>
       ))}
     </div>
-  );
-
-  // Flash Deals Skeleton Component
-  const FlashDealsSkeletonCarousel = () => (
-    <Carousel className="w-full max-w-full mb-12">
-      <CarouselContent className="-ml-1">
-        {[...Array(5)].map((_, i) => (
-          <CarouselItem key={i} className="pl-1 md:basis-1/2 lg:basis-1/5">
-            <SkeletonCard />
-          </CarouselItem>
-        ))}
-      </CarouselContent>
-      <CarouselPrevious />
-      <CarouselNext />
-    </Carousel>
   );
 
   // No Products Found Component
@@ -240,7 +210,7 @@ const Page = () => {
           url += `?subCategory=${selectedSubCategory.slug}`;
         }
 
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        await new Promise((resolve) => setTimeout(resolve, 1500));
         const response = await fetch(url);
         const data = await response.json();
         setProducts(data);
@@ -320,8 +290,8 @@ const Page = () => {
                     </span>
                     <span className="w-1 h-1 bg-gray-200 rounded-full"></span>
                     <span className="text-sm font-medium">
-						Up to 40% off on selected products
-					</span>
+                      Up to 40% off on selected products
+                    </span>
                   </div>
                 </div>
 
@@ -452,10 +422,10 @@ const Page = () => {
                         onClick={() => handleCategoryChange(null)}
                         className={`pt-2 pb-4 px-4 text-base font-medium whitespace-nowrap transition-colors border-b-[3px]
 						${
-							!selectedCategory
-							? "text-gray-900 border-[#800020]"
-							: "text-gray-600 border-transparent"
-						}`}
+              !selectedCategory
+                ? "text-gray-900 border-[#800020]"
+                : "text-gray-600 border-transparent"
+            }`}
                       >
                         All
                       </button>
@@ -469,10 +439,10 @@ const Page = () => {
                           onClick={() => handleCategoryChange(category)}
                           className={`pt-2 pb-4 px-4 text-base font-medium whitespace-nowrap transition-colors border-b-[3px]
 							${
-							selectedCategory?.id === category.id
-								? "text-gray-900 border-[#800020]"
-								: "text-gray-600 border-transparent"
-							}`}
+                selectedCategory?.id === category.id
+                  ? "text-gray-900 border-[#800020]"
+                  : "text-gray-600 border-transparent"
+              }`}
                         >
                           {category.name}
                         </button>
