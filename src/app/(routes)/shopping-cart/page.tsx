@@ -271,6 +271,7 @@ const Page = () => {
                                     discountAmount: number | null;
                                     minimumSpend: number | null;
                                     claimableQuantity: number;
+                                    claimedQuantity: number;
                                     status: string;
                                     createdAt: Date;
                                     updatedAt: Date;

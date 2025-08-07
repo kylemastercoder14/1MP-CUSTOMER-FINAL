@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import axios from "axios";
 import { formatDistanceToNowStrict } from "date-fns";
 
 interface VendorStatus {
@@ -23,22 +22,32 @@ const useVendorActiveStatus = (vendorId: string | null) => {
   });
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Function to update the vendor's activity on the backend
+  // Function to update the vendor's activity on the backend using fetch
   const updateActivity = async () => {
     if (!vendorId) return;
     try {
-      await axios.post(UPDATE_ACTIVITY_URL, { vendorId });
+      await fetch(UPDATE_ACTIVITY_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ vendorId }),
+      });
     } catch (error) {
       console.error("Failed to update vendor activity:", error);
     }
   };
 
-  // Function to fetch the vendor's last active timestamp
+  // Function to fetch the vendor's last active timestamp using fetch
   const fetchStatus = async () => {
     if (!vendorId) return;
     try {
-      const response = await axios.get(`${GET_LAST_ACTIVE_URL}/${vendorId}`);
-      const lastActiveTimestamp = response.data.lastActiveAt;
+      const response = await fetch(`${GET_LAST_ACTIVE_URL}/${vendorId}`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch vendor status");
+      }
+      const data = await response.json();
+      const lastActiveTimestamp = data.lastActiveAt;
 
       if (lastActiveTimestamp) {
         const lastActiveDate = new Date(lastActiveTimestamp);
@@ -77,10 +86,8 @@ const useVendorActiveStatus = (vendorId: string | null) => {
       return;
     }
 
-    // Initial status fetch
     fetchStatus();
 
-    // Event listeners to update activity
     const activityEvents = [
       "mousemove",
       "mousedown",
@@ -93,10 +100,8 @@ const useVendorActiveStatus = (vendorId: string | null) => {
       window.addEventListener(event, handleActivity, { once: true });
     });
 
-    // Polling every 30 seconds to update the status
     intervalRef.current = setInterval(fetchStatus, 30000);
 
-    // Cleanup function
     return () => {
       if (intervalRef.current) {
         clearInterval(intervalRef.current);
