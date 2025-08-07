@@ -121,7 +121,7 @@ const Page = () => {
                   <p className="text-gray-600 mb-4">
                     Go to My orders {">"} Order details to fill in your request.
                   </p>
-				  <div className="bg-zinc-200 p-6 h-96 rounded-lg shadow-sm border"></div>
+                  <div className="bg-zinc-200 p-6 h-96 rounded-lg shadow-sm border"></div>
                 </div>
               </div>
 
@@ -139,9 +139,10 @@ const Page = () => {
                 </div>
                 <div className="ml-14 pb-8">
                   <p className="text-gray-600 mb-4">
-                    Seller provides a solution, or you are eligible for compensation. To view your after-sales requests, go to {">"} Orders {">"} Refund Requests {">"} After-sales services.
+                    Seller provides a solution, or you are eligible for
+                    compensation. To view your after-sales requests, go to {">"}{" "}
+                    Orders {">"} Refund Requests {">"} After-sales services.
                   </p>
-
                 </div>
               </div>
             </div>
