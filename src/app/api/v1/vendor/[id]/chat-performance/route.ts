@@ -10,10 +10,10 @@ RECENT_DATE.setDate(RECENT_DATE.getDate() - RECENT_MESSAGES_DAYS);
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const vendorId = params.id;
+    const vendorId = (await params).id;
 
     if (!vendorId) {
       return NextResponse.json(
