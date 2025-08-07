@@ -5,8 +5,9 @@ import Image from "next/image";
 import PolicyContent from "./policy-content";
 
 // The Page component receives the dynamic parameters from the URL directly as a prop
-const Page = ({ params }: { params: { type: string } }) => {
-  const type = params.type.replace(/-/g, " ");
+const Page = async ({ params }: { params: Promise<{ type: string }> }) => {
+  const { type } = await params;
+  const formattedType = type.toLowerCase().replace(/ /g, "-");
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -40,7 +41,7 @@ const Page = ({ params }: { params: { type: string } }) => {
           </div>
         </div>
         {/* Pass the 'type' as a prop to the Client Component */}
-        <PolicyContent type={type} />
+        <PolicyContent type={formattedType} />
       </div>
       <Footer />
     </div>
