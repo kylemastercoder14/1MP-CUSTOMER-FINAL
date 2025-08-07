@@ -297,3 +297,77 @@ export const ACCOUNT_LINKS: {
     href: "/user/notifications",
   },
 ];
+
+export const isAllowedFileType = (file: File): boolean => {
+  // List of allowed MIME types
+  const allowedTypes = [
+    "application/pdf",
+    "application/msword",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "application/vnd.ms-excel",
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    "application/vnd.ms-powerpoint",
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+    "text/plain",
+    "application/zip",
+    "application/x-rar-compressed",
+    "application/x-7z-compressed",
+    "text/csv",
+    "application/json",
+    "application/xml",
+  ];
+
+  // List of disallowed file extensions (images, audio, video)
+  const disallowedExtensions = [
+    ".jpg",
+    ".jpeg",
+    ".png",
+    ".gif",
+    ".webp",
+    ".svg",
+    ".mp3",
+    ".wav",
+    ".ogg",
+    ".m4a",
+    ".flac",
+    ".mp4",
+    ".mov",
+    ".avi",
+    ".mkv",
+    ".webm",
+  ];
+
+  // Check MIME type
+  if (allowedTypes.includes(file.type)) {
+    return true;
+  }
+
+  // Check file extension as fallback
+  const fileName = file.name.toLowerCase();
+  return !disallowedExtensions.some((ext) => fileName.endsWith(ext));
+};
+
+export const isVideoFile = (file: File): boolean => {
+  const allowedVideoTypes = [
+    "video/mp4",
+    "video/webm",
+    "video/ogg",
+    "video/quicktime",
+    "video/x-msvideo",
+  ];
+
+  const allowedExtensions = [".mp4", ".webm", ".ogg", ".mov", ".avi"];
+  const fileName = file.name.toLowerCase();
+
+  return (
+    allowedVideoTypes.includes(file.type) ||
+    allowedExtensions.some((ext) => fileName.endsWith(ext))
+  );
+};
+
+export const MAX_FILE_SIZE_MB = 5;
+export const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+export const MAX_IMAGE_SIZE_MB = 5;
+export const MAX_IMAGE_SIZE_BYTES = MAX_IMAGE_SIZE_MB * 1024 * 1024;
+export const MAX_VIDEO_SIZE_MB = 5;
+export const MAX_VIDEO_SIZE_BYTES = MAX_VIDEO_SIZE_MB * 1024 * 1024;

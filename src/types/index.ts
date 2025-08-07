@@ -13,6 +13,13 @@ import {
   Coupon,
   News,
   NewsSection,
+  InvoiceInfo,
+  Address,
+  User,
+  FollowStore,
+  OrderItem,
+  VendorPolicies,
+  VendorFaqs,
 } from "@prisma/client";
 import {} from "@prisma/client";
 import { TabItemType } from "@/components/globals/tabs-component";
@@ -24,8 +31,19 @@ export type PasswordRequirements = {
   isValidLength: boolean;
 };
 
+export interface VendorWithProducts extends Vendor {
+  product: ProductWithProps[];
+  coupon?: Coupon[];
+  followStore?: FollowStore[];
+  orderItem?: OrderItem[];
+  vendorPolicies?: VendorPolicies[];
+  vendorFaqs?: VendorFaqs[];
+}
+
 export interface CategoryWithSubCategories extends Category {
   subCategories: SubCategory[];
+  vendor: VendorWithProducts[];
+  product: ProductWithProps[];
 }
 
 export interface ProductWithCategory extends Product {
@@ -44,6 +62,7 @@ export interface GroupedSpecifications {
 export interface VendorWithPromotions extends Vendor {
   promoCode?: PromoCode[];
   coupon?: Coupon[];
+  followStore?: FollowStore[];
 }
 
 export interface ProductWithProps extends Product {
@@ -185,4 +204,31 @@ export interface ProductVariantsProps {
 
 export interface NewsWithSections extends News {
   sections: NewsSection[];
+}
+
+export interface InvoiceWithAddress extends InvoiceInfo {
+  address: Address | null;
+  user: User;
+}
+
+export interface SellerWithLastMessage {
+  id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
+  isUnread: boolean;
+  isPinned: boolean;
+  isMuted: boolean;
+  lastMessage: {
+    id: string;
+    image?: string | null;
+    file?: string | null;
+    video?: string | null;
+    productId?: string | null;
+    body: string | null;
+    createdAt: Date;
+    senderUserId: string | null;
+    senderSellerId: string | null;
+  } | null;
+  conversationId: string;
 }

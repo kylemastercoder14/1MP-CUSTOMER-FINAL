@@ -31,9 +31,15 @@ import {
 import Image from "next/image";
 import StepsFeature from "@/components/globals/steps-feature";
 import Footer from "@/components/globals/footer";
+import { NewsWithSections } from "@/types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export default function Homepage() {
   const [categories, setCategories] = React.useState<Category[]>([]);
+  const [newsArticles, setNewsArticles] = React.useState<NewsWithSections[]>(
+    []
+  );
+  const [loadingNews, setLoadingNews] = React.useState<boolean>(true);
   const [counts, setCounts] = React.useState({
     products: 0,
     vendors: 0,
@@ -79,6 +85,29 @@ export default function Homepage() {
       }
     };
     fetchCounts();
+  }, []);
+
+  React.useEffect(() => {
+    // Fetch active news articles from an API
+    const fetchNews = async () => {
+      try {
+        setLoadingNews(true);
+        const response = await fetch("/api/v1/news-articles");
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const result = await response.json();
+        if (result.success) {
+          setNewsArticles(result.data);
+        }
+      } catch (err) {
+        console.error("Error fetching news articles:", err);
+      } finally {
+        setLoadingNews(false);
+      }
+    };
+
+    fetchNews();
   }, []);
   return (
     <div className="min-h-screen">
@@ -179,7 +208,8 @@ export default function Homepage() {
                   Tailored wide purchase experience
                 </h3>
                 <p className="text-white text-sm leading-relaxed">
-                  Get curated benefits, such as exclusive discounts to help grow your business every step of the way.
+                  Get curated benefits, such as exclusive discounts to help grow
+                  your business every step of the way.
                 </p>
               </div>
             </div>
@@ -192,8 +222,8 @@ export default function Homepage() {
           <div className="grid lg:grid-cols-5 grid-cols-1 gap-40">
             <div className="lg:col-span-3">
               <h3 className="text-black text-[33px] font-bold leading-snug tracking-tight">
-                Explore thousands of businesses in your neighborhood and discover
-                the best products and services they offer.
+                Explore thousands of businesses in your neighborhood and
+                discover the best products and services they offer.
               </h3>
             </div>
             <div className="lg:col-span-2">
@@ -453,63 +483,53 @@ export default function Homepage() {
             News and announcements you should know
           </h3>
           <div className="grid lg:grid-cols-3 grid-cols-1 mt-10 gap-10">
-            <div>
-              <div className="relative w-full h-[50vh]">
-                <Image
-                  src="https://s.alicdn.com/@img/imgextra/i1/O1CN01twP5Jv1tjCIiCOQAv_!!6000000005937-2-tps-920-920.png"
-                  alt="1"
-                  fill
-                  className="size-full rounded-lg object-cover"
-                />
-                {/* overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent rounded-lg" />
-                <div className="absolute bottom-6 left-6 font-semibold pr-6 text-white">
-                  <p className="text-lg mb-4">
-                    Connect with top ranking businesses and discover the latest
-                    products and services they offer.
-                  </p>
-                  <p className="underline text-base">View more</p>
+            {loadingNews ? (
+              <>
+                <div>
+                  <Skeleton className="h-[40vh] w-full rounded-lg mb-4" />
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
                 </div>
-              </div>
-            </div>
-            <div>
-              <div className="relative w-full h-[50vh]">
-                <Image
-                  src="https://s.alicdn.com/@img/imgextra/i1/O1CN01Lcuxd21Gs6zkRBFHe_!!6000000000677-2-tps-920-920.png"
-                  alt="1"
-                  fill
-                  className="size-full rounded-lg object-cover"
-                />
-                {/* overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent rounded-lg" />
-                <div className="absolute bottom-6 left-6 font-semibold pr-6 text-white">
-                  <p className="text-lg mb-4">
-                    Get samples from top sellers and experience the quality of
-                    their products before making a purchase.
-                  </p>
-                  <p className="underline text-base">View more</p>
+                <div>
+                  <Skeleton className="h-[40vh] w-full rounded-lg mb-4" />
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
                 </div>
-              </div>
-            </div>
-            <div>
-              <div className="relative w-full h-[50vh]">
-                <Image
-                  src="https://s.alicdn.com/@img/imgextra/i3/O1CN01blSupV1NpY5ZcwvIj_!!6000000001619-2-tps-920-920.png"
-                  alt="1"
-                  fill
-                  className="size-full rounded-lg object-cover"
-                />
-                {/* overlay gradient */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent rounded-lg" />
-                <div className="absolute bottom-6 left-6 pr-6 font-semibold text-white">
-                  <p className="text-lg mb-4">
-                    Local community delivery riders are now available to help
-                    you get your products delivered faster and more efficiently.
-                  </p>
-                  <p className="underline text-base">View more</p>
+                <div>
+                  <Skeleton className="h-[40vh] w-full rounded-lg mb-4" />
+                  <Skeleton className="h-6 w-3/4 mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
+                  <Skeleton className="h-4 w-full mb-2" />
                 </div>
+              </>
+            ) : newsArticles.length > 0 ? (
+              newsArticles.slice(0, 3).map((article) => (
+                <div key={article.id}>
+                  <div className="relative w-full h-[50vh]">
+                    <Image
+                      src={
+                        article.thumbnail || "https://via.placeholder.com/920"
+                      }
+                      alt={article.title}
+                      fill
+                      className="size-full rounded-lg object-cover"
+                    />
+                    {/* overlay gradient */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent rounded-lg" />
+                    <div className="absolute bottom-6 left-6 font-semibold pr-6 text-white">
+                      <p className="text-lg mb-4 line-clamp-1">{article.title}</p>
+                      <Link href={`/news-center/${article.id}`} className="underline text-base">View more</Link>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full text-center py-10 text-gray-500 text-lg">
+                No news articles found.
               </div>
-            </div>
+            )}
           </div>
         </div>
       </section>
@@ -637,17 +657,6 @@ export default function Homepage() {
       </section>
 
       <Footer />
-
-      {/* Chat Widget */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <div className="bg-orange-500 hover:bg-orange-600 text-white p-3 rounded-full shadow-lg cursor-pointer">
-          <div className="w-6 h-6 flex items-center justify-center">
-            <div className="w-2 h-2 bg-white rounded-full"></div>
-            <div className="w-2 h-2 bg-white rounded-full ml-1"></div>
-          </div>
-        </div>
-        <div className="absolute -top-2 -right-2 w-3 h-3 bg-red-500 rounded-full"></div>
-      </div>
     </div>
   );
 }

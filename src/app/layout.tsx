@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Karla } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
+import { NuqsAdapter } from "nuqs/adapters/next/app";
+import { VisitorTracker } from "@/components/globals/visitor-tracker";
 
 const geistKarla = Karla({
   variable: "--font-geist-karla",
@@ -27,7 +29,8 @@ export default function RootLayout({
       <body
         className={`${geistKarla.variable} font-karla antialiased`}
       >
-        {children}
+        <NuqsAdapter>{children}</NuqsAdapter>
+        <VisitorTracker />
         <Toaster position="bottom-right" />
       </body>
     </html>

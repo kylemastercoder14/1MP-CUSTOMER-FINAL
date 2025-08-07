@@ -586,7 +586,7 @@ const Client = () => {
             </div>
           </div>
         </div>
-        <VendorData product={product} />
+        <VendorData product={product} loading={loading} />
         <div className="bg-white p-5 mt-3 rounded-md border">
           <h3 className="text-lg font-semibold mb-3">From the same store</h3>
           <RecommendedProducts

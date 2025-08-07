@@ -1,4 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+"use client";
+
 import {
   Carousel,
   CarouselContent,
@@ -8,9 +10,11 @@ import {
 } from "@/components/ui/carousel";
 import { Category } from "@prisma/client";
 import Image from "next/image";
+import { useRouter } from 'next/navigation';
 import { useState } from "react";
 
 export function CategoriesCarousel({ categories }: { categories: Category[] }) {
+  const router = useRouter();
   // Split categories into pages of 16 (7x2 grid)
   const itemsPerPage = 14;
   const pages = [];
@@ -44,6 +48,7 @@ export function CategoriesCarousel({ categories }: { categories: Category[] }) {
                     {pageCategories.slice(0, 7).map((category) => (
                       <div
                         key={category.id}
+                        onClick={() => router.push(`/category?name=${category.slug}`)}
                         className="flex cursor-pointer flex-col items-center justify-center group"
                       >
                         <div className="size-20 relative rounded-full border group-hover:shadow-lg border-gray-200 bg-white flex items-center justify-center group-hover:scale-110">
@@ -66,6 +71,7 @@ export function CategoriesCarousel({ categories }: { categories: Category[] }) {
                     {pageCategories.slice(7, 14).map((category) => (
                       <div
                         key={category.id}
+                        onClick={() => router.push(`/category?name=${category.slug}`)}
                         className="flex cursor-pointer flex-col items-center justify-center group"
                       >
                         <div className="size-20 relative rounded-full border group-hover:shadow-lg border-gray-200 bg-white flex items-center justify-center group-hover:scale-110">

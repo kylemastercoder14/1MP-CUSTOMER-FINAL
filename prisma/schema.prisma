@@ -38,9 +38,16 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  order   Order[]
-  address Address[]
-  like    Like[]
+  participantConversations ParticipantConversation[]
+  sentMessages             Message[]
+  seenMessages             Message[]                 @relation("Seen")
+
+  order        Order[]
+  address      Address[]
+  like         Like[]
+  invoiceInfo  InvoiceInfo[]
+  conversation Conversation[]
+  followStore  FollowStore[]
 }
 
 model Address {
@@ -62,7 +69,8 @@ model Address {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  order Order[]
+  order       Order[]
+  invoiceInfo InvoiceInfo[]
 
   @@index([userId])
 }
@@ -94,23 +102,28 @@ model Vendor {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  lastActiveAt DateTime?
 
   categorySlug String?
   category     Category? @relation(fields: [categorySlug], references: [slug], onDelete: Cascade)
 
-  product            Product[]
-  productDiscount    ProductDiscount[]
-  newArrivalDiscount NewArrivalDiscount[]
-  coupon             Coupon[]
-  promoCode          PromoCode[]
-  orderItem          OrderItem[]
-  transaction        Transaction[]
-  paymentAccount     PaymentAccount[]
-  subscription       Subscription[]
-  vendorAddress      VendorAddress[]
-  vendorPolicies     VendorPolicies[]
-  vendorFaqs         VendorFaqs[]
-  automatedResponse  AutomatedResponse[]
+  product                  Product[]
+  productDiscount          ProductDiscount[]
+  newArrivalDiscount       NewArrivalDiscount[]
+  coupon                   Coupon[]
+  promoCode                PromoCode[]
+  orderItem                OrderItem[]
+  transaction              Transaction[]
+  paymentAccount           PaymentAccount[]
+  subscription             Subscription[]
+  vendorAddress            VendorAddress[]
+  vendorPolicies           VendorPolicies[]
+  vendorFaqs               VendorFaqs[]
+  automatedResponse        AutomatedResponse[]
+  conversation             Conversation[]
+  participantConversations ParticipantConversation[]
+  sentMessages             Message[]
+  followStore              FollowStore[]
 }
 
 model VendorAddress {
@@ -291,6 +304,7 @@ model Product {
   orderItem        OrderItem[]
   productView      ProductView[]
   like             Like[]
+  message          Message[]
 }
 
 model NutritionalFact {
@@ -427,6 +441,7 @@ model Coupon {
   status            String   @default("Active")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  claimedQuantity   Int      @default(0)
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
@@ -447,6 +462,7 @@ model PromoCode {
   status            String   @default("Active")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
+  claimedQuantity   Int      @default(0)
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
@@ -455,16 +471,17 @@ model PromoCode {
 }
 
 model Order {
-  id            String   @id @default(uuid())
-  orderNumber   String   @unique
-  status        String   @default("Pending") // Pending, Processing, Out For Delivery, Delivered, Cancelled, Rejected
-  paymentStatus String   @default("Pending")
-  paymentMethod String
-  vehicleType   String?
-  deliveryFee   Float?
-  totalAmount   Float
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  id              String   @id @default(uuid())
+  orderNumber     String   @unique
+  status          String   @default("Pending") // Pending, Processing, Out For Delivery, Delivered, Cancelled, Rejected
+  paymentStatus   String   @default("Pending")
+  xenditInvoiceId String?
+  paymentMethod   String
+  vehicleType     String?
+  deliveryFee     Float?
+  totalAmount     Float
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -472,7 +489,8 @@ model Order {
   addressId String
   address   Address @relation(fields: [addressId], references: [id], onDelete: Cascade)
 
-  orderItem OrderItem[]
+  orderItem   OrderItem[]
+  invoiceInfo InvoiceInfo[]
 }
 
 model OrderItem {
@@ -490,6 +508,24 @@ model OrderItem {
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model InvoiceInfo {
+  id          String   @id @default(uuid())
+  invoiceNo   String   @unique
+  tinId       String?
+  companyName String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderId String?
+  order   Order?  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  addressId String
+  address   Address @relation(fields: [addressId], references: [id], onDelete: Cascade)
 }
 
 model Transaction {
@@ -601,4 +637,96 @@ model Like {
   createdAt DateTime @default(now())
 
   @@unique([userId, productId])
+}
+
+model Conversation {
+  id            String   @id @default(cuid())
+  createdAt     DateTime @default(now())
+  lastMessageAt DateTime @default(now())
+  isPinned      Boolean  @default(false)
+  isUnread      Boolean  @default(false)
+  isMuted       Boolean  @default(false)
+
+  // Each conversation is between a customer and a vendor
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  messages     Message[]
+  participants ParticipantConversation[]
+
+  @@unique([userId, vendorId])
+  @@index([vendorId])
+}
+
+model ParticipantConversation {
+  id             String       @id @default(cuid())
+  userId         String?
+  user           User?        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  vendorId       String?
+  vendor         Vendor?      @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  joinedAt       DateTime     @default(now())
+  lastSeenAt     DateTime?
+
+  @@unique([userId, vendorId, conversationId])
+  @@index([vendorId])
+  @@index([conversationId])
+}
+
+model Message {
+  id          String    @id @default(cuid())
+  body        String?
+  image       String?
+  file        String?
+  video       String?
+  productId   String?
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt   DateTime  @default(now())
+  seenAt      DateTime?
+  isAutoReply Boolean   @default(false)
+
+  // Who has seen the message
+  seenBy User[] @relation("Seen")
+
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  // Sender can be either User or Vendor
+  senderUserId String?
+  senderUser   User?   @relation(fields: [senderUserId], references: [id], onDelete: Cascade)
+
+  senderVendorId String?
+  senderVendor   Vendor? @relation(fields: [senderVendorId], references: [id], onDelete: Cascade)
+
+  // Ensure either senderUser or senderVendor is set
+  @@index([senderUserId])
+  @@index([senderVendorId])
+  @@index([conversationId])
+  @@index([productId])
+}
+
+model FollowStore {
+  id        String   @id @default(cuid())
+  userId    String
+  vendorId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  vendor Vendor @relation(fields: [vendorId], references: [id])
+
+  @@unique([userId, vendorId])
+  @@index([vendorId])
+}
+
+model PageView {
+  id        String   @id @default(cuid())
+  platform  String
+  count     Int      @default(0)
+  ip        String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

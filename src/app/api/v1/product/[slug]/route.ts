@@ -77,6 +77,7 @@ export async function GET(
           include: {
             promoCode: true,
             coupon: true,
+            followStore: true,
           },
         },
         specifications: true,

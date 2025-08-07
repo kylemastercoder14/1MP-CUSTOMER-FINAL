@@ -1,0 +1,56 @@
+export const categoryBanner = (slug: string) => {
+  switch (slug) {
+    case "arts-crafts-sewing":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN01rEmuAI1LvqU4tlnCw_!!6000000001362-0-tps-1500-188.jpg_q60.jpg";
+    case "automotive":
+      return "https://s.alicdn.com/@img/imgextra/i2/O1CN01pms8jR1XrW8FM5fc6_!!6000000002977-0-tps-1500-188.jpg_q60.jpg";
+    case "beauty-health":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN01PYJoV11tik5a0juwn_!!6000000005936-0-tps-1500-188.jpg_q60.jpg";
+    case "beauty-personal-care-services":
+      return "https://s.alicdn.com/@img/imgextra/i1/O1CN01KmHG221wgrJDsjI7I_!!6000000006338-0-tps-1500-188.jpg_q60.jpg";
+    case "creative-services":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN01tL1usz1b6a0NIMNU3_!!6000000003416-0-tps-1500-188.jpg_q60.jpg";
+    case "consumer-electronics":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN01ZpT2E21WYuQNGssRR_!!6000000002801-2-tps-1500-188.png_q60.jpg";
+    case "education-training-services":
+      return "https://s.alicdn.com/@img/imgextra/i2/O1CN01JZVe6r1o0hvq8yzCT_!!6000000005163-0-tps-1500-188.jpg_q60.jpg";
+    case "e-learning-services":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN01FCNpvd1M7kme8LAnn_!!6000000001388-0-tps-1500-188.jpg_q60.jpg";
+    case "event-services":
+      return "https://s.alicdn.com/@img/imgextra/i4/O1CN01O3emwo1aObyxbWVY9_!!6000000003320-0-tps-1500-188.jpg_q60.jpg";
+    case "fabrication-services":
+      return "https://s.alicdn.com/@img/imgextra/i1/O1CN0147qrWs1bX8ydXHV4l_!!6000000003474-0-tps-1500-188.jpg_q60.jpg";
+    case "fashion-apparel":
+      return "https://s.alicdn.com/@img/imgextra/i4/O1CN01G6KHmG1xRZhxAFs0O_!!6000000006440-0-tps-1500-188.jpg_q60.jpg";
+    case "food-beverages":
+      return "https://s.alicdn.com/@img/imgextra/i2/O1CN01D9Dqg11efKuPm9hgk_!!6000000003898-0-tps-1500-188.jpg_q60.jpg";
+    case "health-wellness-services":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN01Ez9j5a1FmKZAC2y9L_!!6000000000529-0-tps-3840-480.jpg_q60.jpg";
+    case "home-services":
+      return "https://s.alicdn.com/@img/imgextra/i4/O1CN011uF8sH1I5E8THi00E_!!6000000000841-0-tps-1500-188.jpg_q60.jpg";
+    case "home-supplies":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN01ikCS5G1ScnJz5CRzX_!!6000000002268-0-tps-1500-188.jpg_q60.jpg";
+    case "jewelry-accessories":
+      return "https://s.alicdn.com/@img/imgextra/i2/O1CN01uBz1fJ23dq0SiDzUY_!!6000000007279-0-tps-1500-188.jpg_q60.jpg";
+    case "pet-supplies":
+      return "https://s.alicdn.com/@img/imgextra/i4/O1CN01m1AUxJ1yfbSDmk89E_!!6000000006606-0-tps-1500-188.jpg_q60.jpg";
+    case "professional-services":
+      return "https://s.alicdn.com/@img/imgextra/i4/O1CN01yl7gba1MctiTnEum2_!!6000000001456-0-tps-1500-188.jpg_q60.jpg";
+    case "rubber-plastics":
+      return "https://s.alicdn.com/@img/imgextra/i2/O1CN01frWJ0Q1emCqiGHobc_!!6000000003913-0-tps-1500-188.jpg_q60.jpg";
+    case "real-estate-services":
+      return "https://s.alicdn.com/@img/imgextra/i2/O1CN01ByTLX91iU7fsfDpui_!!6000000004415-0-tps-1500-188.jpg_q60.jpg";
+    case "sports-outdoor":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN01td9tbx24XiKJcKSvL_!!6000000007401-0-tps-1500-188.jpg_q60.jpg";
+    case "technology-programming":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN01BmjDp524Ce6l0ApMk_!!6000000007355-0-tps-1500-188.jpg_q60.jpg";
+    case "tools-hardwares":
+      return "https://s.alicdn.com/@img/imgextra/i4/O1CN01Q14FLW1Pnq1Z7BRlg_!!6000000001886-0-tps-1500-188.jpg_q60.jpg";
+    case "toys-games":
+      return "https://s.alicdn.com/@img/imgextra/i1/O1CN01IspH2A24QqO0O3kAi_!!6000000007386-0-tps-1500-188.jpg_q60.jpg";
+    case "transportation-logistic-services":
+      return "https://s.alicdn.com/@img/imgextra/i3/O1CN012vpeYL1WQfIMrKXNI_!!6000000002783-0-tps-1500-188.jpg_q60.jpg";
+    case "utencils-supplies":
+      return "https://s.alicdn.com/@img/imgextra/i2/O1CN01uRiO8F1tXIBoYMu24_!!6000000005911-0-tps-1500-188.jpg_q60.jpg";
+  }
+};

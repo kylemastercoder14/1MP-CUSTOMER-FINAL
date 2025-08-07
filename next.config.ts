@@ -21,11 +21,15 @@ const nextConfig: NextConfig = {
       "images.pexels.com",
       "aimg.kwcdn.com",
       "commimg-us.kwcdn.com",
+      "2.bp.blogspot.com",
+      "i.ytimg.com",
+      "down-zl-ph.img.susercontent.com",
     ],
   },
   eslint: {
     ignoreDuringBuilds: true,
   },
+  devIndicators: false,
 };
 
 export default nextConfig;
