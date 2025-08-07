@@ -156,7 +156,7 @@ const BrowseProductPopover = ({
                       <h3 className="line-clamp-1 text-xs font-medium">
                         {product.name}
                       </h3>
-                      {priceInfo}
+                      {priceInfo.displayPrice}
                     </div>
                   </div>
                 </div>
