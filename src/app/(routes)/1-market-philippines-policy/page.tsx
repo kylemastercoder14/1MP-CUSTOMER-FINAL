@@ -1,9 +1,8 @@
-import React, { Suspense } from "react";
+import React from "react";
 import Header from "@/components/globals/header";
 import Footer from "@/components/globals/footer";
 import Image from "next/image";
-import PolicyContent from "./policy-content";
-import { Loader2 } from 'lucide-react';
+import PolicyContentWrapper from "./policy-content-wrapper"; // Import the new wrapper
 
 const Page = () => {
   return (
@@ -37,17 +36,8 @@ const Page = () => {
             </div>
           </div>
         </div>
-        {/* Suspense boundary for the client component */}
-        <Suspense
-          fallback={
-            <div className="flex items-center justify-center min-h-[300px] py-10">
-              <Loader2 className="h-12 w-12 animate-spin" />
-              <p className="mt-4 text-lg text-gray-600">Loading policy content...</p>
-            </div>
-          }
-        >
-          <PolicyContent />
-        </Suspense>
+        {/* Use the new wrapper component here */}
+        <PolicyContentWrapper />
       </div>
       <Footer />
     </div>
