@@ -2,7 +2,6 @@
 
 import React from "react";
 import Image from "next/image";
-import { useSearchParams } from "next/navigation";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -54,9 +53,7 @@ const EmptyPolicyState: React.FC<EmptyPolicyStateProps> = ({
   );
 };
 
-const PolicyContent = () => {
-  const searchParams = useSearchParams();
-  const type = searchParams.get("type")?.replace(/-/g, " ") || "Policy";
+const PolicyContent = ({ type }: { type: string }) => {
   const [policyData, setPolicyData] = React.useState<PolicyData | null>(null);
   const [isLoading, setIsLoading] = React.useState(true);
   const [error, setError] = React.useState<string | null>(null);

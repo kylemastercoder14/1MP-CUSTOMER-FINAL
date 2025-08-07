@@ -2,9 +2,12 @@ import React from "react";
 import Header from "@/components/globals/header";
 import Footer from "@/components/globals/footer";
 import Image from "next/image";
-import PolicyClientPage from "./client";
+import PolicyContent from "./policy-content";
 
-const Page = () => {
+// The Page component receives the dynamic parameters from the URL directly as a prop
+const Page = ({ params }: { params: { type: string } }) => {
+  const type = params.type.replace(/-/g, " ");
+
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
@@ -15,7 +18,7 @@ const Page = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl capitalize md:text-5xl font-bold mb-4">
-                    Policy
+                    {type}
                   </h1>
                   <p className="max-w-3xl text-lg mb-6">
                     Learn about the policies and regulations that govern the
@@ -36,8 +39,8 @@ const Page = () => {
             </div>
           </div>
         </div>
-        {/* Render the new client component here */}
-        <PolicyClientPage />
+        {/* Pass the 'type' as a prop to the Client Component */}
+        <PolicyContent type={type} />
       </div>
       <Footer />
     </div>
