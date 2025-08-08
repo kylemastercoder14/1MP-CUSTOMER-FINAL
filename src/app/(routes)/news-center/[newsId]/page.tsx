@@ -109,7 +109,7 @@ const NewsDetailPage = () => {
     return (
       <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
         <Header />
-        <section className="px-5 md:px-20 pb-20 pt-36 flex flex-grow items-center justify-center">
+        <section className="px-5 lg:px-20 lg:pb-20 pb-2 lg:pt-36 pt-20 flex flex-grow items-center justify-center">
           <Loader2 className="size-4 animate-spin mr-2" />
           <p className="text-gray-600">Loading news article...</p>
         </section>
@@ -122,7 +122,7 @@ const NewsDetailPage = () => {
     return (
       <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
         <Header />
-        <section className="px-5 md:px-20 pb-20 pt-36 flex flex-grow items-center justify-center">
+        <section className="px-5 lg:px-20 lg:pb-20 pb-2 lg:pt-36 pt-20 flex flex-grow items-center justify-center">
           <p className="text-red-600">Error: {error}</p>
         </section>
         <Footer />
@@ -134,7 +134,7 @@ const NewsDetailPage = () => {
     return (
       <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
         <Header />
-        <section className="px-5 md:px-20 pb-20 pt-36 flex flex-grow items-center justify-center">
+        <section className="px-5 lg:px-20 lg:pb-20 pb-2 lg:pt-36 pt-20 flex flex-grow items-center justify-center">
           <p className="text-gray-500">News article not found.</p>
         </section>
         <Footer />
@@ -146,7 +146,7 @@ const NewsDetailPage = () => {
     <div className="min-h-screen bg-[#f5f5f5]">
       <main className="relative flex-grow">
         <Header />
-        <section className="px-5 md:px-20 pb-20 pt-36">
+        <section className="px-5 lg:px-20 lg:pb-20 pb-2 lg:pt-36 pt-20">
           <Breadcrumb>
             <BreadcrumbList>
               <BreadcrumbItem>
@@ -158,15 +158,15 @@ const NewsDetailPage = () => {
               </BreadcrumbItem>
               <BreadcrumbSeparator />
               <BreadcrumbItem>
-                <BreadcrumbPage>{newsArticle.title}</BreadcrumbPage>
+                <BreadcrumbPage className='line-clamp-1 truncate w-64'>{newsArticle.title}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
-          <div className="mt-10 grid grid-cols-1 lg:grid-cols-7 gap-10">
+          <div className="mt-5 grid grid-cols-1 lg:grid-cols-7 gap-10">
             {/* Main Article Content Area */}
             <article className="lg:col-span-5">
               {/* Thumbnail */}
-              <div className="relative w-full h-[350px] md:h-[450px] rounded-lg overflow-hidden mb-6 shadow-lg">
+              <div className="relative w-full h-[350px] lg:h-[450px] rounded-lg overflow-hidden mb-6 shadow-lg">
                 <Image
                   src={newsArticle.thumbnail || "/placeholder.jpg"}
                   alt={newsArticle.title}
@@ -218,7 +218,7 @@ const NewsDetailPage = () => {
             </article>
 
             {/* Table of Contents / Sidebar */}
-            <aside className="lg:col-span-2 bg-white p-6 rounded-lg shadow-md h-fit sticky top-36">
+            <aside className="lg:col-span-2 lg:block hidden bg-white p-6 rounded-lg shadow-md h-fit sticky top-36">
               {" "}
               {/* sticky + top for fixed sidebar */}
               <h3 className="text-xl font-bold mb-4 text-gray-800">

@@ -12,7 +12,7 @@ const Page = () => {
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
         <Header />
-        <div className="w-full h-[500px] relative overflow-hidden">
+        <div className="w-full lg:h-[500px] h-[440px] relative overflow-hidden">
           {/* Background Image */}
           <Image
             src="https://s.alicdn.com/@img/imgextra/i2/O1CN01jRIyKo21SiyaabZgZ_!!6000000006984-0-tps-3840-800.jpg"
@@ -27,7 +27,7 @@ const Page = () => {
 
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="px-20 mt-24 text-white">
+            <div className="lg:px-20 px-10 lg:mt-24 mt-14 text-white">
               <div className="bg-white/10 backdrop-blur-sm p-8 rounded-lg">
                 <h1 className="text-xl md:text-2xl font-bold mb-2">
                   Secure Checkout
@@ -79,7 +79,7 @@ const Page = () => {
         </div>
 
         {/* Payment features section */}
-        <div className="py-16 px-20">
+        <div className="lg:py-16 py-10 pb-0 lg:px-20 px-10">
           <h2 className="text-3xl font-bold">
             How we keeps your payments secure and simple
           </h2>
@@ -177,7 +177,7 @@ const Page = () => {
               </div>
 
               {/* Step 03 */}
-              <div className="relative mb-8">
+              <div className="relative">
                 <div className="flex items-center mb-4">
                   <div className="flex-shrink-0 w-10 h-10 bg-[#800020] text-white rounded-full flex items-center justify-center font-bold">
                     3

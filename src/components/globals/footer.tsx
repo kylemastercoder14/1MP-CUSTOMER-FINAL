@@ -13,7 +13,7 @@ const Footer = () => {
   return (
     <footer className="bg-gray-50 border-t">
       {/* Main Footer Content */}
-      <div className="px-20 py-12">
+      <div className="lg:px-20 px-10 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           {footerSections.map((section, index) => (
             <div key={index} className="space-y-4">
@@ -74,7 +74,7 @@ const Footer = () => {
           </div>
 
           {/* App Download Section */}
-          <div className="flex items-center gap-4">
+          <div className="flex lg:flex-row flex-col items-center gap-4">
             <span className="text-sm text-gray-600">
               Shop on the go with the{" "}
               <Link href="#" className="underline font-bold">

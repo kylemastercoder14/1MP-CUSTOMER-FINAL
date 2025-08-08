@@ -37,7 +37,7 @@ const Page = () => {
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
         <Header />
-        <div className="w-full h-[500px] relative overflow-hidden">
+        <div className="w-full lg:h-[500px] h-[360px] relative overflow-hidden">
           {/* Background Image */}
           <Image
             src="https://china-southnorth-01.oss-cn-zhangjiakou.aliyuncs.com/intl-social-service/26/143003/20200416/7869abc19a4c4bbd8203b9d4f5d76f2d-helphub-1587013750729-rc-upload-1587006101888-128"
@@ -51,7 +51,7 @@ const Page = () => {
           <div className="absolute inset-0 bg-black/30 backdrop-blur-sm" />
 
           {/* Content */}
-          <div className="absolute mt-20 inset-0 flex items-center justify-center">
+          <div className="absolute lg:mt-20 mt-10 inset-0 flex items-center justify-center">
             <div className="w-full max-w-2xl mx-4">
               <h1 className="text-3xl md:text-4xl font-bold text-white text-center mb-6 drop-shadow-lg">
                 How can we help you?
@@ -63,9 +63,9 @@ const Page = () => {
                       placeholder="Enter question or keyword..."
                       className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 shadow-none h-12 bg-white/90"
                     />
-                    <Search className="absolute right-3 top-3 h-5 w-5 text-muted-foreground" />
+                    <Search className="absolute right-3 lg:top-3 top-4 h-5 w-5 text-muted-foreground" />
                   </div>
-                  <div className="border-l border-gray-200 mx-1">
+                  <div className="border-l hidden lg:block border-gray-200 mx-1">
                     <Select>
                       <SelectTrigger className="w-[180px] border-0 focus:ring-0 focus:ring-offset-0 h-12 py-6 shadow-none bg-white/90">
                         <SelectValue placeholder="Payment" />
@@ -93,7 +93,7 @@ const Page = () => {
       </div>
 
       {/* Main Content */}
-      <div className="px-20 py-8">
+      <div className="lg:px-20 px-10 lg:py-8 py-6">
         {/* Breadcrumbs */}
         <Breadcrumb>
           <BreadcrumbList>
@@ -112,7 +112,7 @@ const Page = () => {
         </Breadcrumb>
 
         {/* Learning Center */}
-        <div className="mb-12 mt-5">
+        <div className="lg:mb-12 mb-8 mt-5">
           <h2 className="text-2xl font-bold mb-6">Learning Center</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {/* Sourcing */}
@@ -189,7 +189,7 @@ const Page = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-6 py-4 font-medium transition-colors border-b-2 ${
+                  className={`flex items-center lg:w-auto w-1/2 space-x-2 px-6 py-4 font-medium transition-colors border-b-2 ${
                     activeTab === tab.id
                       ? "bg-[#800020]/90 text-white border-[#800020]"
                       : "text-gray-600 hover:text-[#800020]/50 border-transparent hover:bg-[#800020]/10"
@@ -222,7 +222,7 @@ const Page = () => {
         </div>
 
         {/* Contact Us Section */}
-        <div className="text-center mb-12">
+        <div className="text-center lg:mb-12 mb-4">
           <h2 className="text-2xl font-bold mb-8">Contact Us</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white p-6 rounded-lg shadow-sm">

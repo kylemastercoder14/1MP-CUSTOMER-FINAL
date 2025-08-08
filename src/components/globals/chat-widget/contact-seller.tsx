@@ -117,7 +117,7 @@ const ContactSeller = ({
           <DropdownMenuTrigger className="text-sm flex items-center gap-1">
             <div className="flex items-center gap-2">
               <Avatar className="h-6 w-6">
-                <AvatarImage src={selectedSeller?.image || undefined} />
+                <AvatarImage src={selectedSeller?.image || undefined} className='object-cover' />
                 <AvatarFallback>
                   {selectedSeller?.name?.charAt(0)}
                 </AvatarFallback>

@@ -188,6 +188,7 @@
   list-style-type: disc; /* Example: disc bullets */
   margin-top: 1.5rem; /* Example: 24px top margin */
   margin-bottom: 1.5rem; /* Example: 24px bottom margin */
+  margin-left: 1.5rem;
 }
 
 .prose ol {

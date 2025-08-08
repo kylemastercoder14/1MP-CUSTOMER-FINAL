@@ -115,16 +115,16 @@ export default function Homepage() {
       <section className="relative hero-background">
         {/* Header */}
         <Header isHomepage />
-        <div className="relative z-10 px-20 pb-20 pt-44">
+        <div className="relative z-10 lg:px-20 px-10 lg:pb-20 pb-10 lg:pt-44 pt-24">
           <div className="max-w-xl">
-            <div className="mb-8">
+            <div className="mb-8 lg:mb-4">
               <button className="button-glass-effect cursor-pointer flex items-center gap-2">
                 <CirclePlay fill="#111" className="size-5" /> Learn about 1
                 Market Philippines
               </button>
             </div>
 
-            <h1 className="text-5xl font-bold text-white mb-8 leading-tight">
+            <h1 className="lg:text-5xl text-4xl font-bold text-white mb-8 leading-tight tracking-tight">
               Your one online place to find all the businesses in your
               neighborhood.
             </h1>
@@ -147,8 +147,8 @@ export default function Homepage() {
       </section>
 
       {/* Features Section */}
-      <section className="py-20 bg-[#3a190b]">
-        <div className="px-20">
+      <section className="py-10 lg:py-20 bg-[#3a190b]">
+        <div className="lg:px-20 px-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Feature Card 1 */}
             <div className="group">
@@ -217,17 +217,17 @@ export default function Homepage() {
         </div>
       </section>
 
-      <section className="bg-white py-20">
-        <div className="px-20">
-          <div className="grid lg:grid-cols-5 grid-cols-1 gap-40">
+      <section className="bg-white lg:py-20 py-10">
+        <div className="lg:px-20 px-0">
+          <div className="grid lg:px-0 px-10 lg:grid-cols-5 grid-cols-1 lg:gap-40 gap-10">
             <div className="lg:col-span-3">
-              <h3 className="text-black text-[33px] font-bold leading-snug tracking-tight">
+              <h3 className="text-black lg:text-[33px] text-2xl font-bold lg:leading-snug tracking-tight">
                 Explore thousands of businesses in your neighborhood and
                 discover the best products and services they offer.
               </h3>
             </div>
             <div className="lg:col-span-2">
-              <div className="grid lg:grid-cols-2 grid-cols-1 gap-y-10">
+              <div className="grid lg:grid-cols-2 grid-cols-2 gap-y-10">
                 <div className="border-l-[4px] border-zinc-300 pl-3">
                   <NumberTicker
                     value={counts.products}
@@ -263,8 +263,8 @@ export default function Homepage() {
         </div>
       </section>
 
-      <section className="py-20 bg-[#f5f5f5]">
-        <div className="px-20">
+      <section className="lg:py-20 py-10 bg-[#f5f5f5]">
+        <div className="lg:px-20 px-10">
           <h3 className="text-3xl tracking-tight font-bold">
             Discover your next business opportunity
           </h3>
@@ -477,8 +477,8 @@ export default function Homepage() {
         </div>
       </section>
 
-      <section className="bg-white py-20">
-        <div className="px-20">
+      <section className="bg-white lg:py-20 py-10">
+        <div className="lg:px-20 px-10">
           <h3 className="text-3xl tracking-tight font-bold">
             News and announcements you should know
           </h3>
@@ -486,19 +486,19 @@ export default function Homepage() {
             {loadingNews ? (
               <>
                 <div>
-                  <Skeleton className="h-[40vh] w-full rounded-lg mb-4" />
+                  <Skeleton className="h-[30vh] w-full rounded-lg mb-4" />
                   <Skeleton className="h-6 w-3/4 mb-2" />
                   <Skeleton className="h-4 w-full mb-2" />
                   <Skeleton className="h-4 w-full mb-2" />
                 </div>
                 <div>
-                  <Skeleton className="h-[40vh] w-full rounded-lg mb-4" />
+                  <Skeleton className="h-[30vh] w-full rounded-lg mb-4" />
                   <Skeleton className="h-6 w-3/4 mb-2" />
                   <Skeleton className="h-4 w-full mb-2" />
                   <Skeleton className="h-4 w-full mb-2" />
                 </div>
                 <div>
-                  <Skeleton className="h-[40vh] w-full rounded-lg mb-4" />
+                  <Skeleton className="h-[30vh] w-full rounded-lg mb-4" />
                   <Skeleton className="h-6 w-3/4 mb-2" />
                   <Skeleton className="h-4 w-full mb-2" />
                   <Skeleton className="h-4 w-full mb-2" />
@@ -507,7 +507,7 @@ export default function Homepage() {
             ) : newsArticles.length > 0 ? (
               newsArticles.slice(0, 3).map((article) => (
                 <div key={article.id}>
-                  <div className="relative w-full h-[50vh]">
+                  <div className="relative w-full h-[30vh]">
                     <Image
                       src={
                         article.thumbnail || "https://via.placeholder.com/920"
@@ -519,8 +519,15 @@ export default function Homepage() {
                     {/* overlay gradient */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black to-transparent rounded-lg" />
                     <div className="absolute bottom-6 left-6 font-semibold pr-6 text-white">
-                      <p className="text-lg mb-4 line-clamp-1">{article.title}</p>
-                      <Link href={`/news-center/${article.id}`} className="underline text-base">View more</Link>
+                      <p className="text-lg mb-4 line-clamp-1">
+                        {article.title}
+                      </p>
+                      <Link
+                        href={`/news-center/${article.id}`}
+                        className="underline text-base"
+                      >
+                        View more
+                      </Link>
                     </div>
                   </div>
                 </div>
@@ -536,7 +543,7 @@ export default function Homepage() {
 
       <section className="banner-background relative">
         <div className="absolute inset-0 bg-[#49271c]/70" />
-        <div className="px-20 py-24 relative z-10">
+        <div className="lg:px-20 px-10 lg:py-24 py-10 relative z-10">
           <h3 className="text-3xl md:text-4xl lg:text-5xl tracking-tight max-w-5xl font-bold text-white text-center md:text-left">
             Shop with Confidence - Quality Products & Buyer Protection
           </h3>
@@ -631,8 +638,8 @@ export default function Homepage() {
 
       <StepsFeature />
 
-      <section className="py-20 bg-[#f7f2f0]">
-        <div className="px-20">
+      <section className="lg:py-20 py-10 bg-[#f7f2f0]">
+        <div className="lg:px-20 px-10">
           <div className="text-center mb-16">
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-black">
               Ready to get started?

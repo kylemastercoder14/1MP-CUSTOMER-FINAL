@@ -66,7 +66,7 @@ const Client = () => {
   }, [categorySlug]);
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="relative pb-20">
+      <div className="relative lg:pb-20 pb-10">
         <Header />
         <div className="w-full h-[350px] relative">
           {/* Background Image */}
@@ -85,7 +85,7 @@ const Client = () => {
 
           {/* Content - Aligned to center */}
           <div className="absolute inset-0 flex justify-center items-center">
-            <div className="px-20 mt-24 text-white">
+            <div className="lg:px-20 px-10 lg:mt-24 mt-10 text-white">
               <div>
                 {isLoading ? (
                   <h1 className="text-2xl md:text-5xl font-bold mb-4">
@@ -105,7 +105,7 @@ const Client = () => {
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-md shadow-md -mt-18 relative p-5 max-w-7xl mx-auto">
+        <div className="bg-white rounded-md shadow-md -mt-18 relative p-5 max-w-7xl lg:mx-auto mx-9">
           <h2 className="text-2xl font-bold tracking-tight">
             Source by category
           </h2>
@@ -127,7 +127,7 @@ const Client = () => {
                       return (
                         <CarouselItem
                           key={subCategory.id}
-                          className="basis-1/9"
+                          className="lg:basis-1/9 basis-1/4"
                         >
                           <div
                             key={subCategory.id}
@@ -138,7 +138,7 @@ const Client = () => {
                             }
                             className="flex cursor-pointer flex-col items-center justify-center group"
                           >
-                            <div className="size-20 relative rounded-full border group-hover:shadow-lg border-gray-200 bg-white flex items-center justify-center group-hover:scale-110">
+                            <div className="lg:size-20 size-16 relative rounded-full border group-hover:shadow-lg border-gray-200 bg-white flex items-center justify-center group-hover:scale-110">
                               <Image
                                 src={subCategory.image || ""}
                                 alt={subCategory.name}
@@ -165,9 +165,9 @@ const Client = () => {
             )}
           </div>
         </div>
-        <section className="max-w-7xl mx-auto">
+        <section className="max-w-7xl lg:mx-auto mx-14">
           <div className="mt-10">
-            <h3 className="text-2xl font-bold tracking-tight">
+            <h3 className="text-2xl -mx-5 lg:-mx-0 font-bold tracking-tight">
               Verified Pro Seller
             </h3>
             {isLoading ? (
@@ -187,7 +187,7 @@ const Client = () => {
                   {category.vendor.map((vendor) => (
                     <CarouselItem
                       key={vendor.id}
-                      className="md:basis-1/2 lg:basis-1/3"
+                      className="lg:basis-1/3 basis-full"
                     >
                       <div
                         className="relative cursor-pointer overflow-hidden rounded-lg bg-cover bg-center h-60"
@@ -250,7 +250,7 @@ const Client = () => {
               </p>
             )}
           </div>
-          <div className="mt-14">
+          <div className="mt-14 lg:-mx-0 -mx-8">
             {isLoading ? (
               <div className="grid lg:grid-cols-5 grid-cols-1 gap-5">
                 {Array.from({ length: 10 }).map((_, index) => (

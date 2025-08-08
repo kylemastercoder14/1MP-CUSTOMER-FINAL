@@ -33,7 +33,7 @@ const Page = () => {
       <div className="relative">
         <Header />
       </div>
-      <section className="px-20 pt-36 pb-10">
+      <section className="lg:px-20 px-10 lg:pt-36 pt-20 pb-10">
         <TabsComponent
           activeTab={activeTab}
           setActiveTab={setActiveTab}
@@ -47,7 +47,7 @@ const Page = () => {
                 <h3 className="font-bold text-xl tracking-tighter">
                   IP rights holder report
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className=" text-muted-foreground">
                     If you are the owner or licensee of an intellectual property
                     right and believe it has been infringed on our platform,
@@ -73,7 +73,7 @@ const Page = () => {
                 <h3 className="font-semibold tracking-tighter">
                   Report Image Copyright infringement
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     If you are the creator of the image but are unable to
                     provide copyright proof, please submit a complaint.
@@ -92,7 +92,7 @@ const Page = () => {
                 <h3 className="font-semibold mt-2 tracking-tighter">
                   Report counterfeit products
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     If you are not the owner or licensee of an intellectual
                     property right but are aware of counterfeit products being
@@ -115,7 +115,7 @@ const Page = () => {
                 <h3 className="font-bold mb-2 text-xl tracking-tighter">
                   Report prohibited and restricted products
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     If you find a supplier displaying prohibited or restricted
                     products, please click "Report" to submit a complaint.
@@ -138,7 +138,7 @@ const Page = () => {
                 <h3 className="font-bold mb-2 text-xl tracking-tighter">
                   Report misleading product information
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     If you find any supplier listing containing misleading or
                     inaccurate information, please click "Report" to submit a
@@ -167,7 +167,7 @@ const Page = () => {
                 <h3 className="font-bold text-xl tracking-tighter">
                   Order not received
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     The order was marked as shipped but I haven't received it
                     within the promised delivery timeframe.
@@ -190,7 +190,7 @@ const Page = () => {
                 <h3 className="font-bold text-xl tracking-tighter">
                   Defective or damaged product
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     The item arrived damaged, defective, or not working as
                     described in the product specifications.
@@ -213,7 +213,7 @@ const Page = () => {
                 <h3 className="font-bold text-xl tracking-tighter">
                   Refund not processed
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     The seller agreed to a refund but I haven't received it
                     within the promised timeframe.
@@ -236,7 +236,7 @@ const Page = () => {
                 <h3 className="font-bold text-xl tracking-tighter">
                   Third party payment dispute
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     I paid through a third-party source but no products or
                     refund received/I have not received payment after delivery.
@@ -264,7 +264,7 @@ const Page = () => {
                 <h3 className="font-bold text-xl tracking-tighter">
                   Improper use of other people's information
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     If your complaint involves any infringement due to improper
                     use of someone else's information, please click the
@@ -288,7 +288,7 @@ const Page = () => {
                 <h3 className="font-bold text-xl tracking-tighter">
                   Content Violations
                 </h3>
-                <div className="flex items-center justify-between">
+                <div className="flex lg:flex-row flex-col lg:items-center gap-3 lg:justify-between">
                   <p className="text-muted-foreground">
                     Please submit reporting information if the platform content
                     violates the rules.

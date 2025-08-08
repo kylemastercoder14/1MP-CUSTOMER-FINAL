@@ -169,7 +169,7 @@ const Page = () => {
       <div className="relative">
         <Header />
       </div>
-      <div className="px-4 md:px-8 lg:px-60 pb-20 pt-[140px]">
+      <div className="px-4 md:px-8 lg:px-60 lg:pb-20 pb-10 lg:pt-[140px] pt-20">
         <div className="grid lg:grid-cols-10 grid-cols-1 gap-3">
           <div className="lg:col-span-7">
             {/* ... Select All / Delete button for cart items ... */}
@@ -587,7 +587,7 @@ const Page = () => {
                     ₱{calculateCartTotal().total.toFixed(2)}
                   </span>
                 </div>
-                <Button onClick={() => router.push("/checkout")} className="w-full mt-4 bg-[#800020] hover:bg-[#800020]/90">
+                <Button onClick={() => router.push("/checkout")} className="w-full mt-4 lg:mb-0 mb-4 bg-[#800020] hover:bg-[#800020]/90">
                   Proceed to Checkout ({selectedItems.length})
                 </Button>
               </div>

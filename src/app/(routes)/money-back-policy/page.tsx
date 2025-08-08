@@ -12,7 +12,7 @@ const Page = () => {
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
         <Header />
-        <div className="w-full h-[500px] relative overflow-hidden">
+        <div className="w-full lg:h-[500px] h-[360px] relative overflow-hidden">
           {/* Background Image */}
           <Image
             src="https://s.alicdn.com/@img/imgextra/i4/O1CN01PogENa20bb28NCZwL_!!6000000006868-0-tps-3840-800.jpg"
@@ -24,7 +24,7 @@ const Page = () => {
 
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="px-20 mt-32 text-white">
+            <div className="lg:px-20 px-10 lg:mt-32 mt-20 text-white">
               <div>
                 <div className="flex items-center gap-2 mb-5">
                   <div className="rounded-full relative size-16">
@@ -49,7 +49,7 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <div className="py-16 px-20">
+        <div className="lg:py-16 pb-0 py-10 lg:px-20 px-10">
           <h2 className="text-4xl font-bold tracking-tighter">Refund policy</h2>
           <p className="text-xl mt-2">
             Claim refunds if orders haven't been shipped, are missing, or arrive
@@ -133,7 +133,7 @@ const Page = () => {
               </div>
 
               {/* Step 03 */}
-              <div className="relative mb-8">
+              <div className="relative">
                 <div className="flex items-center mb-4">
                   <div className="flex-shrink-0 w-10 h-10 bg-[#800020] text-white rounded-full flex items-center justify-center font-bold">
                     3

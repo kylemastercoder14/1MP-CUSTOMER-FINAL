@@ -71,7 +71,7 @@ const NavUser = ({
           ) : (
             <User className="w-6 h-6 inline-block mr-1" />
           )}
-          Hi, {displayName}!
+          <span className='lg:block hidden'>Hi, {displayName}!</span>
         </DropdownMenuTrigger>
         <DropdownMenuContent className="w-[200px]">
           <DropdownMenuLabel className="flex flex-col items-start">

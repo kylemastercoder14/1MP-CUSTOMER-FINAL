@@ -55,7 +55,7 @@ const Page = () => {
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
         <Header />
-        <div className="w-full h-[500px] relative overflow-hidden">
+        <div className="w-full lg:h-[500px] h-[400px] relative overflow-hidden">
           {/* Background Image */}
           <Image
             src="https://images.pexels.com/photos/3985062/pexels-photo-3985062.jpeg"
@@ -70,7 +70,7 @@ const Page = () => {
 
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="px-20 mt-32 text-white">
+            <div className="lg:px-20 px-10 lg:mt-32 mt-20 text-white">
               <div>
                 <h1 className="text-2xl md:text-5xl font-bold mb-4">
                   1 Market Philippines | Sitemap
@@ -85,7 +85,7 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <section className="py-16 px-20">
+        <section className="lg:py-16 py-10 lg:px-20 px-10">
           <h1 className="text-4xl tracking-tighter font-bold">
             Product and Services Categories
           </h1>

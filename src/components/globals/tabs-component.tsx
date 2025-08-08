@@ -25,10 +25,11 @@ const TabsComponent = <T extends string>({
   activeTab,
   setActiveTab,
   items,
-  className = "flex flex-row items-center gap-5 mb-5",
-  itemClassName = "flex flex-row gap-2 items-center border-b-2 border-transparent hover:border-primary pb-1 cursor-pointer",
+  // The main container now uses a responsive flex layout
+  className = "flex flex-col lg:flex-row items-start lg:items-center gap-3 lg:gap-5 mb-5",
+  itemClassName = "w-full lg:w-auto flex flex-row gap-2 items-center border-b-2 border-transparent hover:border-primary pb-2 lg:pb-1 cursor-pointer",
   activeItemClassName = "border-primary hover:border-primary",
-  separatorClassName = "mr-2 h-4 mx-2",
+  separatorClassName = "h-4 w-px bg-gray-300 mx-2 hidden lg:block", // Hide separator on mobile
 }: TabsComponentProps<T>) => {
   return (
     <div className={className}>

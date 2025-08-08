@@ -44,12 +44,12 @@ const StepsFeature = () => {
   const [activeStep, setActiveStep] = useState(1);
 
   return (
-    <section className="py-20">
-      <div className="px-20">
+    <section className="lg:py-20 py-10">
+      <div className="lg:px-20 px-10">
         <h3 className="text-3xl md:text-4xl tracking-tight font-bold">
           From browsing to your doorstep - effortless online shopping
         </h3>
-		<p className="mt-4 text-lg text-gray-600">
+        <p className="mt-4 text-lg text-gray-600">
           Our seamless process makes buying what you love simple and secure
         </p>
 
@@ -88,7 +88,6 @@ const StepsFeature = () => {
                     </p>
                   </div>
                 </motion.div>
-
               </motion.div>
             ))}
           </div>

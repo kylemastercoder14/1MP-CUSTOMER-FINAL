@@ -14,7 +14,7 @@ const Page = () => {
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className='relative'>
         <Header />
-        <div className="w-full h-[280px] relative overflow-hidden">
+        <div className="w-full lg:h-[280px] h-[240px] relative overflow-hidden">
           {/* Background Image */}
           <Image
             src="/images/top-banner.webp"
@@ -23,7 +23,7 @@ const Page = () => {
             className="size-full object-cover"
             priority
           />
-          <div className="absolute z-50 mt-36 px-20 top-0 left-0">
+          <div className="absolute z-50 lg:mt-36 mt-20 lg:px-20 px-10 top-0 left-0">
             <p className="text-4xl mt-5 text-white">Hi, how can we help you?</p>
             <p className="text-zinc-300 mt-2">
               Select a topic to get help with items, shipping, return or refund
@@ -31,7 +31,7 @@ const Page = () => {
             </p>
           </div>
         </div>
-        <section className="mt-10 px-20">
+        <section className="mt-10 lg:px-20 px-10">
           <div className="flex items-center gap-4">
             <HeaderDesign />
             <h3 className="text-[#800020] font-semibold text-2xl">
@@ -52,7 +52,7 @@ const Page = () => {
             ))}
           </div>
         </section>
-        <section className="mt-10 pb-20 px-20">
+        <section className="mt-10 lg:pb-20 pb-10 lg:px-20 px-10">
           <div className="flex items-center gap-4">
             <HeaderDesign />
             <h3 className="text-[#800020] font-semibold text-2xl">

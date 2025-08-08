@@ -36,23 +36,23 @@ const Page = () => {
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
         <Header />
-        <div className="w-full h-[500px] relative overflow-hidden bg-gradient-to-r from-white to-zinc-300">
+        <div className="w-full lg:h-[500px] h-[450px] relative overflow-hidden bg-gradient-to-r from-white to-zinc-300">
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="pl-40 mt-32 text-black">
-              <div className="flex items-center justify-between">
+            <div className="lg:pl-40 px-10 lg:mt-32 mt-20 text-black">
+              <div className="flex lg:flex-row flex-col-reverse items-center lg:justify-between">
                 <div>
                   <h1 className="text-2xl md:text-5xl font-bold mb-4">
                     Contact Us
                   </h1>
-                  <p className="max-w-3xl text-lg mb-6">
+                  <p className="max-w-3xl text-lg lg:mb-6 mb-10">
                     We would love to hear from you! Whether you have a question,
                     feedback, or just want to say hello, feel free to reach out
                     to us. Our team is here to assist you with anything you
                     need.
                   </p>
                 </div>
-                <div className="relative size-[400px] ml-80">
+                <div className="relative lg:size-[400px] size-56 -mb-5 lg:-mb-0 lg:ml-80">
                   <Image
                     src="/contact-us.png"
                     alt="Contact Us"
@@ -64,8 +64,8 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <section className="bg-white py-20 px-20">
-          <div className="mt-5 grid lg:grid-cols-2 lg:gap-20 gap-10 grid-cols-1">
+        <section className="bg-white lg:py-20 lg:px-20 py-10 px-10">
+          <div className="lg:mt-5 grid lg:grid-cols-2 lg:gap-20 gap-10 grid-cols-1">
             <div className="bg-white border rounded-md shadow-md px-10 py-5 flex lg:items-center gap-5">
               <div className="bg-[#800020] w-12 h-12 rounded-full flex shrink-0 items-center justify-center">
                 <MessageCircleMoreIcon
@@ -112,7 +112,7 @@ const Page = () => {
               </div>
             </div>
           </div>
-          <div className="mt-20 w-full">
+          <div className="lg:mt-20 mt-10 w-full">
             <h3 className="text-2xl tracking-tight font-semibold text-center">
               We are also available on social media
             </h3>
@@ -175,11 +175,11 @@ const Page = () => {
               </Link>
             </div>
           </div>
-          <div className="mt-20">
+          <div className="lg:mt-20 mt-10">
             <h3 className="text-center tracking-tight font-semibold text-2xl mt-12">
               Have a question? Well, {"we've"} got some answers.
             </h3>
-            <div className="mt-12 w-full">
+            <div className="lg:mt-12 mt-8 w-full">
               <div className="grid lg:grid-cols-2 grid-cols-1 gap-10">
                 <div className="bg-zinc-100 py-5 px-10">
                   {/* header */}
@@ -189,7 +189,7 @@ const Page = () => {
                     </div>
                     <p>Order issues</p>
                   </div>
-                  <div className="space-y-1 ml-10 mt-3 flex flex-col">
+                  <div className="space-y-1 lg:ml-10 ml-0 mt-3 flex flex-col">
                     {ORDERHELP.map((item, index) => (
                       <Link
                         key={index}
@@ -209,7 +209,7 @@ const Page = () => {
                     </div>
                     <p>Shipping & Delivery</p>
                   </div>
-                  <div className="space-y-1 ml-10 mt-3 flex flex-col">
+                  <div className="space-y-1 lg:ml-10 ml-0 mt-3 flex flex-col">
                     {SHIPPINGHELP.map((item, index) => (
                       <Link
                         key={index}
@@ -229,7 +229,7 @@ const Page = () => {
                     </div>
                     <p>Return & Refund</p>
                   </div>
-                  <div className="space-y-1 ml-10 mt-3 flex flex-col">
+                  <div className="space-y-1 lg:ml-10 ml-0 mt-3 flex flex-col">
                     {RETURNHELP.map((item, index) => (
                       <Link
                         key={index}
@@ -249,7 +249,7 @@ const Page = () => {
                     </div>
                     <p>Product & Stock</p>
                   </div>
-                  <div className="space-y-1 ml-10 mt-3 flex flex-col">
+                  <div className="space-y-1 lg:ml-10 ml-0 mt-3 flex flex-col">
                     {PRODUCTHELP.map((item, index) => (
                       <Link
                         key={index}
@@ -269,7 +269,7 @@ const Page = () => {
                     </div>
                     <p>Managing My Account</p>
                   </div>
-                  <div className="space-y-1 ml-10 mt-3 flex flex-col">
+                  <div className="space-y-1 lg:ml-10 ml-0 mt-3 flex flex-col">
                     {ACCOUNTHELP.map((item, index) => (
                       <Link
                         key={index}
@@ -289,7 +289,7 @@ const Page = () => {
                     </div>
                     <p>Payment & Promos</p>
                   </div>
-                  <div className="space-y-1 ml-10 mt-3 flex flex-col">
+                  <div className="space-y-1 lg:ml-10 ml-0 mt-3 flex flex-col">
                     {PAYMENTHELP.map((item, index) => (
                       <Link
                         key={index}
@@ -309,7 +309,7 @@ const Page = () => {
                     </div>
                     <p>Your Security</p>
                   </div>
-                  <div className="space-y-1 ml-10 mt-3 flex flex-col">
+                  <div className="space-y-1 lg:ml-10 ml-0 mt-3 flex flex-col">
                     {SECURITYHELP.map((item, index) => (
                       <Link
                         key={index}
@@ -329,7 +329,7 @@ const Page = () => {
                     </div>
                     <p>Policies & Others</p>
                   </div>
-                  <div className="space-y-1 ml-10 mt-3 flex flex-col">
+                  <div className="space-y-1 lg:ml-10 ml-0 mt-3 flex flex-col">
                     {POLICIESHELP.map((item, index) => (
                       <Link
                         key={index}
@@ -343,7 +343,7 @@ const Page = () => {
                 </div>
               </div>
             </div>
-            <div className="mt-12 flex flex-col items-center justify-center">
+            <div className="lg:mt-12 mt-8 flex flex-col items-center justify-center">
               <h3 className="text-center font-semibold text-2xl">
                 {"Can't"} find the answer you are looking for?
               </h3>
@@ -352,7 +352,7 @@ const Page = () => {
                 className="mt-6"
               >
                 <Button
-                  className="rounded-full h-14 w-44 text-base border-zinc-400 hover:border-black"
+                  className="rounded-full h-14 lg:w-44 w-full text-base border-zinc-400 hover:border-black"
                   size="lg"
                   variant="outline"
                 >

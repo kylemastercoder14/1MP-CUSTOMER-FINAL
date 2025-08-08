@@ -299,7 +299,7 @@ const Client = () => {
       <div className="relative">
         <Header />
       </div>
-      <div className="px-20 pb-20 pt-[140px]">
+      <div className="lg:px-20 lg:pb-20 px-5 pb-10 lg:pt-[140px] pt-20">
         <div className="grid lg:grid-cols-10 grid-cols-1 gap-5">
           <div className="lg:col-span-6 bg-white p-5 rounded-md border">
             <Breadcrumb>

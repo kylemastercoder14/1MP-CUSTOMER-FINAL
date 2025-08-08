@@ -126,7 +126,7 @@ const NewsPage = () => {
     <div className="min-h-screen bg-[#f5f5f5] flex flex-col">
       <div className="relative flex-grow">
         <Header />
-        <section className="px-5 md:px-20 pb-20 pt-36">
+        <section className="px-5 lg:px-20 lg:pb-20 pb-10 lg:pt-36 pt-20">
           <div className="flex flex-col md:flex-row items-center justify-between mb-10">
             <div>
               <h2 className="text-4xl font-semibold tracking-tight">
@@ -165,7 +165,7 @@ const NewsPage = () => {
           <h1 className="text-4xl text-[#800020] font-bold tracking-tight mb-8">
             Latest Posts
           </h1>
-          <div className="grid lg:grid-cols-5 gap-6">
+          <div className="grid lg:grid-cols-5 grid-cols-1 gap-6">
             {/* Main Latest Post - Left Column */}
             {latestPost ? (
               <div className="lg:col-span-3">
@@ -242,10 +242,10 @@ const NewsPage = () => {
           </div>
 
           {/* Posts by Category Section */}
-          <div className="mt-20">
+          <div className="lg:mt-20 mt-10">
             {categoriesWithPosts.length > 0 ? (
               categoriesWithPosts.map(([category, posts]) => (
-                <div key={category} className="mb-12">
+                <div key={category} className="lg:mb-12 mb-8">
                   <h2 className="text-3xl font-bold tracking-tight mb-6 capitalize text-[#800020]">
                     {category}
                   </h2>

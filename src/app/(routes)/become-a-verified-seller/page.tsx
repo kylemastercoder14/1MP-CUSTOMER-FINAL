@@ -5,32 +5,33 @@ import React from "react";
 import Header from "@/components/globals/header";
 import Footer from "@/components/globals/footer";
 import Image from "next/image";
-import { Separator } from '@/components/ui/separator';
+import { Separator } from "@/components/ui/separator";
 
 const Page = () => {
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
         <Header />
-        <div className="w-full h-[500px] bg-zinc-200 relative overflow-hidden">
-          {/* Content - Aligned to left */}
-          <div className="absolute inset-0 flex items-center">
-            <div className="pl-20 mt-32">
-              <div>
-
-                <h1 className="text-2xl md:text-5xl max-w-xl font-bold mb-4">
-                  How to start selling on <span className='text-[#800020]'>1 Market Philippines</span>
-                </h1>
-                <p className="max-w-lg text-lg mb-6">
-                  Ready to go online? Follow our simple onboarding process to become a verified seller on 1 Market Philippines. Complete your profile, upload required documents, and start reaching customers today!
-                </p>
-              </div>
+        <div className="w-full lg:h-[500px] h-auto bg-zinc-200 relative overflow-hidden flex items-center">
+          {/* Main Container: Flexbox for responsive layout */}
+          <div className="flex flex-col lg:flex-row items-center justify-center w-full px-10 lg:px-20 lg:mt-0 mt-14 py-10 lg:py-0">
+            {/* Content Section - text and description */}
+            <div className="flex-1 lg:text-left mb-8 lg:mb-0 lg:pr-10">
+              <h1 className="text-2xl md:text-5xl font-bold mb-4">
+                How to start selling on{" "}
+                <span className="text-[#800020]">1 Market Philippines</span>
+              </h1>
+              <p className="max-w-lg text-lg mb-6 mx-auto lg:mx-0">
+                Ready to go online? Follow our simple onboarding process to
+                become a verified seller on 1 Market Philippines. Complete your
+                profile, upload required documents, and start reaching customers
+                today!
+              </p>
             </div>
-          </div>
-          {/* Content - Aligned to right */}
-          <div className="absolute inset-0 flex items-center justify-end">
-            <div className="pr-20 ml-8 mt-32">
-              <div className="rounded-full relative size-[500px]">
+
+            {/* Image Section */}
+            <div className="flex-1 -mt-20 lg:-mt-0 lg:-mb-0 -mb-16 flex justify-center lg:justify-end">
+              <div className="rounded-full relative lg:size-[500px] size-[400px]">
                 <Image
                   src="/start-selling.png"
                   alt="Start selling"
@@ -41,7 +42,7 @@ const Page = () => {
             </div>
           </div>
         </div>
-        <section className="py-16 px-20">
+        <section className="lg:py-16 py-10 pb-0 lg:px-20 px-10">
           {/* Hero Section */}
           <div className="mb-8">
             <h1 className="text-4xl font-bold text-gray-900 mb-4">
@@ -52,7 +53,7 @@ const Page = () => {
               Philippines. Get verified and unlock all seller features.
             </p>
           </div>
-		  <Separator className='mb-8' />
+          <Separator className="mb-8" />
 
           {/* Onboarding Process */}
           <div className="mb-12">
@@ -101,7 +102,7 @@ const Page = () => {
                 <h4 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
                   <span className="mr-2">🛍️</span> Store Details
                 </h4>
-                <div className="pl-8">
+                <div className="lg:pl-8">
                   <h5 className="font-medium text-gray-700 mb-2">Store Name</h5>
                   <p className="text-gray-600 mb-4">
                     This is the public name customers will see. It must be
@@ -140,7 +141,7 @@ const Page = () => {
                   <span className="mr-2">🏢</span> Business Type & Legal
                   Structure
                 </h4>
-                <div className="pl-8">
+                <div className="lg:pl-8">
                   <p className="text-gray-600 mb-4">
                     Select the structure that represents your business. This
                     affects required documents:
@@ -191,7 +192,7 @@ const Page = () => {
                 <h4 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
                   <span className="mr-2">👤</span> Seller Information
                 </h4>
-                <div className="pl-8">
+                <div className="lg:pl-8">
                   <h5 className="font-medium text-gray-700 mb-2">
                     Seller Name
                   </h5>
@@ -207,7 +208,7 @@ const Page = () => {
                 <h4 className="text-lg font-medium text-gray-800 mb-4 flex items-center">
                   <span className="mr-2">📄</span> Upload Required Documents
                 </h4>
-                <div className="pl-8">
+                <div className="lg:pl-8">
                   <p className="text-gray-600 mb-4">
                     Depending on your business type, you'll need to upload:
                   </p>
@@ -250,7 +251,7 @@ const Page = () => {
             </div>
 
             {/* After Submission */}
-            <div className='p-6 bg-white border shadow'>
+            <div className="p-6 bg-white border shadow">
               <h3 className="text-2xl font-semibold text-gray-800 mb-6">
                 After Submission
               </h3>

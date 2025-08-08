@@ -108,11 +108,11 @@ const SearchContainer = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex bg-white rounded-full border border-gray-200 w-full max-w-7xl mx-auto relative"
+      className="flex flex-1 bg-white rounded-full border border-gray-200 relative min-w-0"
       style={{ overflow: 'visible' }}
     >
       {/* Category dropdown */}
-      <div className="relative h-full" style={{ overflow: 'visible' }} ref={dropdownRef}>
+      <div className="relative lg:block hidden h-full" style={{ overflow: 'visible' }} ref={dropdownRef}>
         <button
           type="button"
           onClick={() => setIsCategoryDropdownOpen(!isCategoryDropdownOpen)}
@@ -157,14 +157,14 @@ const SearchContainer = () => {
       </div>
 
       {/* Search input and dropdown */}
-      <div className="relative flex-1" ref={searchDropdownRef}>
+      <div className="relative flex-1 min-w-0 lg:text-base text-sm" ref={searchDropdownRef}>
         <input
           ref={inputRef}
           type="text"
           value={inputValue}
           onChange={handleChange}
           onFocus={handleSearchInputFocus}
-          className="flex-1 px-6 py-2 text-gray-700 outline-none min-w-[520px] bg-transparent relative z-10"
+          className="w-full h-full lg:py-2 py-1 lg:px-6 px-4 text-gray-700 outline-none bg-transparent relative z-10"
           placeholder=" "
         />
 
@@ -176,7 +176,7 @@ const SearchContainer = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
               transition={{ duration: 0.3 }}
-              className="absolute top-1/2 left-6 -translate-y-1/2 pointer-events-none text-gray-500"
+              className="absolute top-1/2 lg:left-6 left-4 -translate-y-1/2 pointer-events-none text-gray-500"
             >
               {placeholders[currentPlaceholder]}
             </motion.div>
@@ -234,7 +234,7 @@ const SearchContainer = () => {
       {/* Search button */}
       <button
         type="submit"
-        className="bg-[#800020] rounded-tr-full rounded-br-full hover:bg-[#800020]/80 px-6 py-2 text-white font-semibold"
+        className="bg-[#800020] rounded-tr-full rounded-br-full hover:bg-[#800020]/80 lg:px-6 px-4 lg:py-2 py-1 text-white font-semibold"
       >
         Search
       </button>
