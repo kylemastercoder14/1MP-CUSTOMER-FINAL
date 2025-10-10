@@ -1,43 +1,6 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
-import { z } from "zod";
-
-async function getAuthUser() {
-  const supabase = createClient();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await (await supabase).auth.getSession();
-
-  if (sessionError || !session) {
-    return {
-      error: NextResponse.json(
-        { message: "Authentication required.", code: "UNAUTHENTICATED" },
-        { status: 401 }
-      ),
-    };
-  }
-
-  const supabaseUserId = session.user.id;
-  const user = await db.user.findUnique({
-    where: { authId: supabaseUserId },
-    select: { id: true },
-  });
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { message: "User profile not found.", code: "USER_NOT_FOUND" },
-        { status: 404 }
-      ),
-    };
-  }
-
-  return { user };
-}
+import { useUser } from "@/hooks/use-user";
 
 export async function POST(
   request: Request,
@@ -53,12 +16,12 @@ export async function POST(
       );
     }
 
-    const { user, error } = await getAuthUser();
-    if (error) return error;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (!user) {
+    if (!userId) {
       return NextResponse.json(
-        { success: false, message: "User not authenticated." },
+        { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
       );
     }
@@ -67,7 +30,7 @@ export async function POST(
     const existingFollow = await db.followStore.findUnique({
       where: {
         userId_vendorId: {
-          userId: user.id,
+          userId: userId,
           vendorId: vendorId,
         },
       },
@@ -83,7 +46,7 @@ export async function POST(
     // Create a new follow record
     await db.followStore.create({
       data: {
-        userId: user.id,
+        userId: userId,
         vendorId: vendorId,
       },
     });
@@ -119,12 +82,12 @@ export async function DELETE(
       );
     }
 
-    const { user, error } = await getAuthUser();
-    if (error) return error;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (!user) {
+    if (!userId) {
       return NextResponse.json(
-        { success: false, message: "User not authenticated." },
+        { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
       );
     }
@@ -133,7 +96,7 @@ export async function DELETE(
     const existingFollow = await db.followStore.findUnique({
       where: {
         userId_vendorId: {
-          userId: user.id,
+          userId: userId,
           vendorId: vendorId,
         },
       },
@@ -150,7 +113,7 @@ export async function DELETE(
     await db.followStore.delete({
       where: {
         userId_vendorId: {
-          userId: user.id,
+          userId: userId,
           vendorId: vendorId,
         },
       },

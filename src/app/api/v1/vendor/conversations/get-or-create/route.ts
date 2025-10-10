@@ -1,47 +1,17 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
-
-async function getAuthUser() {
-  const supabase = createClient();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await (await supabase).auth.getSession();
-
-  if (sessionError || !session) {
-    return {
-      error: NextResponse.json(
-        { message: "Authentication required.", code: "UNAUTHENTICATED" },
-        { status: 401 }
-      ),
-    };
-  }
-
-  const supabaseUserId = session.user.id;
-  const user = await db.user.findUnique({
-    where: { authId: supabaseUserId },
-    select: { id: true },
-  });
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { message: "User profile not found.", code: "USER_NOT_FOUND" },
-        { status: 404 }
-      ),
-    };
-  }
-
-  return { user };
-}
+import { useUser } from "@/hooks/use-user";
 
 export async function GET(request: Request) {
   try {
-    const { user } = await getAuthUser();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (!user || !user.id) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Authentication required.", code: "UNAUTHENTICATED" },
+        { status: 401 }
+      );
     }
 
     // Extract sellerId from query parameters
@@ -55,7 +25,7 @@ export async function GET(request: Request) {
     // Check if conversation already exists
     let conversation = await db.conversation.findFirst({
       where: {
-        userId: user.id,
+        userId: userId,
         vendorId: sellerId,
       },
       include: {
@@ -89,7 +59,7 @@ export async function GET(request: Request) {
       conversation = await db.conversation.create({
         data: {
           user: {
-            connect: { id: user.id },
+            connect: { id: userId },
           },
           vendor: {
             connect: { id: sellerId },
@@ -98,7 +68,7 @@ export async function GET(request: Request) {
           // This example assumes a separate Participant model or direct relation setup
           participants: {
             create: [
-              { userId: user.id }, // Assuming userId is the foreign key for customer
+              { userId: userId }, // Assuming userId is the foreign key for customer
               { vendorId: sellerId }, // Assuming sellerId is the foreign key for seller
             ],
           },
