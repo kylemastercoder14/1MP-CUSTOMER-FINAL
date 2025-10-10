@@ -178,6 +178,7 @@ const Client = () => {
           code: autoPromo.code,
           discountAmount: autoPromo.discountAmount ?? 0,
           discountType: autoPromo.type as "Percentage Off" | "Fixed Price",
+          adminApprovalStatus: autoPromo.adminApprovalStatus
         });
       }
     }
@@ -198,6 +199,7 @@ const Client = () => {
           code: autoPromo.code,
           discountAmount: autoPromo.discountAmount ?? 0,
           discountType: autoPromo.type as "Percentage Off" | "Fixed Price",
+          adminApprovalStatus: autoPromo.adminApprovalStatus
         });
       }
     }
