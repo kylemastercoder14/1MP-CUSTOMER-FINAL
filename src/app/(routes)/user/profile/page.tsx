@@ -5,7 +5,7 @@ import { useUser } from "@/hooks/use-user";
 const Page = async () => {
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const { user } = await useUser();
-  return <UserProfileClient user={user} />;
+  return <UserProfileClient user={user ?? null} />;
 };
 
 export default Page;
