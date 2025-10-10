@@ -24,7 +24,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { useUser } from '@/hooks/use-user';
+import { useUserClient } from "@/hooks/use-user-client";
 
 interface SellerBoxProps {
   data: SellerWithLastMessage;
@@ -54,8 +54,7 @@ const SellerBox = ({
   onStatusChange,
 }: SellerBoxProps) => {
   const { open } = useContactSeller();
-  const {customer} = useUser()
-  const currentUserId = customer?.id;
+  const { loading, user } = useUserClient();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [localPinned, setLocalPinned] = useState(data.isPinned);
   const [localUnread, setLocalUnread] = useState(data.isUnread);
@@ -213,6 +212,10 @@ const SellerBox = ({
 
     return "New message";
   };
+
+  if (loading) return null;
+
+  const currentUserId = user?.id;
 
   return (
     <div
