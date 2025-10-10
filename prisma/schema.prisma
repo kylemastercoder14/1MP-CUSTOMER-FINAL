@@ -556,6 +556,7 @@ model Order {
   updatedAt       DateTime @updatedAt
 
   processingAt     DateTime?
+  shippedAt        DateTime?
   outForDeliveryAt DateTime?
   deliveredAt      DateTime?
   cancelledAt      DateTime?
