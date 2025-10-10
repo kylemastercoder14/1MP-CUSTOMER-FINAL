@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { ProductWithProps } from "@/types";
 import { calculateDiscountPrice, getDiscountInfo } from "@/lib/utils";
-import { useUserClient } from "../../../hooks/use-user-client";
+import { useUserClient } from "@/hooks/use-user-client";
 
 interface MessageListProps {
   messages: any[];
