@@ -20,6 +20,7 @@ import {
   OrderItem,
   VendorPolicies,
   VendorFaqs,
+  Order,
 } from "@prisma/client";
 import {} from "@prisma/client";
 import { TabItemType } from "@/components/globals/tabs-component";
@@ -231,4 +232,11 @@ export interface SellerWithLastMessage {
     senderSellerId: string | null;
   } | null;
   conversationId: string;
+}
+
+export interface OrderWithOrderItem extends Order {
+  orderItem: OrderItem &
+    {
+      product: Product;
+    }[];
 }

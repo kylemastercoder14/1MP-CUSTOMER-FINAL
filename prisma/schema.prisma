@@ -542,7 +542,7 @@ model PromoCode {
 model Order {
   id              String   @id @default(uuid())
   orderNumber     String   @unique
-  status          String   @default("Pending") // Pending, Processing, Out For Delivery, Delivered, Cancelled, Rejected
+  status          String   @default("Pending") // Pending, Processing, Out For Delivery, Delivered, Cancelled, Returned
   paymentStatus   String   @default("Pending")
   xenditInvoiceId String?
   paymentMethod   String
