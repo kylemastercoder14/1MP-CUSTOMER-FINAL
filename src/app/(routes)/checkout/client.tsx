@@ -250,6 +250,11 @@ const Client = () => {
             priceAtPurchase: item.discountedPrice,
             originalPrice: item.originalPrice,
             vendorId: item.vendorId,
+            // Include discount IDs - you'll need to fetch or store these in your cart
+            productDiscountId: item.productDiscountId || null,
+            newArrivalDiscountId: item.newArrivalDiscountId || null,
+            couponId: item.couponId || null,
+            promoCodeId: item.promoCodeId || null,
           };
         }),
         vendorTotals: Object.keys(selectedItemsByVendor).map((vendorId) => {

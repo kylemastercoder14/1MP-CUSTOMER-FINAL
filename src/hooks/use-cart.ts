@@ -26,6 +26,10 @@ export interface CartItem {
     id: string;
     attributes: Record<string, string>;
   };
+  productDiscountId?: string;
+  newArrivalDiscountId?: string;
+  couponId?: string;
+  promoCodeId?: string;
 }
 
 interface VendorVoucher {
@@ -78,6 +82,10 @@ interface CartStore {
       attributes: Record<string, string>;
     };
     quantity?: number;
+    productDiscountId?: string;
+    newArrivalDiscountId?: string;
+    couponId?: string;
+    promoCodeId?: string;
   }) => void;
   removeItem: (id: string) => void;
   removeItems: (ids: string[]) => void;
@@ -185,6 +193,10 @@ const useCart = create(
             vendorImage: data.vendorImage,
             vendor: data.vendor,
             variant: data.variant,
+            productDiscountId: data.productDiscountId,
+            newArrivalDiscountId: data.newArrivalDiscountId,
+            couponId: data.couponId,
+            promoCodeId: data.promoCodeId,
           };
           set({ items: [...currentItems, newItem] });
           toast.success("Item added to cart");
@@ -231,7 +243,6 @@ const useCart = create(
           items: get().items.filter((item) => item.id !== id),
           selectedItems: get().selectedItems.filter((itemId) => itemId !== id),
         });
-        toast.success("Item removed from cart");
       },
 
       removeItems: (ids: string[]) => {
@@ -249,7 +260,6 @@ const useCart = create(
             )
           ),
         });
-        toast.success("Items removed from cart");
       },
 
       updateQuantity: (id: string, quantity: number) => {

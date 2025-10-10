@@ -98,6 +98,10 @@ export async function POST(req: NextRequest) {
           quantity: item.quantity,
           sellerId: item.vendorId, // Map frontend 'vendorId' to backend 'sellerId'
           price: item.priceAtPurchase, // Map frontend 'priceAtPurchase' to backend 'price'
+          productDiscountId: item.productDiscountId || null,
+          newArrivalDiscountId: item.newArrivalDiscountId || null,
+          couponId: item.couponId || null,
+          promoCodeId: item.promoCodeId || null,
         };
       })
     );
@@ -166,7 +170,7 @@ export async function POST(req: NextRequest) {
         vehicleType: vehicleType,
         addressId: shippingAddressId,
         paymentMethod: paymentMethod,
-        userId: user.id, // <--- This userId MUST exist in your User table!
+        userId: user.id,
         deliveryFee: cartSummary.totalShippingFee,
         paymentStatus: paymentStatus, // Set payment status based on transaction type
         xenditInvoiceId: xenditInvoiceId, // Store Xendit invoice ID if applicable
@@ -180,7 +184,11 @@ export async function POST(req: NextRequest) {
         quantity: item.quantity,
         price: item.price,
         orderId: order.id,
-        vendorId: item.sellerId, // Storing vendorId as sellerId in OrderItem
+        vendorId: item.sellerId,
+        productDiscountId: item.productDiscountId,
+        newArrivalDiscountId: item.newArrivalDiscountId,
+        couponId: item.couponId,
+        promoCodeId: item.promoCodeId,
       })),
     });
 

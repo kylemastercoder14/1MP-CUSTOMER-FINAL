@@ -122,6 +122,18 @@ const Client = () => {
   const hasDiscount = discounts.length > 0;
   const discountPrice = calculateDiscountPrice(price, discounts);
 
+  const productDiscountId = activeDiscount ? product.productDiscountId : null;
+  const newArrivalDiscountId = activeNewArrivalDiscount
+    ? product.newArrivalDiscountId
+    : null;
+
+  const activeCoupon = product?.vendor?.coupon?.find(
+    (pc) => pc.status === "Ongoing" && pc.adminApprovalStatus === "Approved"
+  );
+  const activePromoCode = product?.vendor?.promoCode?.find(
+    (pc) => pc.status === "Ongoing" && pc.adminApprovalStatus === "Approved"
+  );
+
   const prepareItemForCart = useCallback(() => {
     if (!product) {
       toast.error("Product data is not available.");
@@ -145,6 +157,10 @@ const Client = () => {
         promoCode: product.vendor.promoCode || [],
       },
       quantity: quantity,
+      productDiscountId: productDiscountId ?? "",
+      newArrivalDiscountId: newArrivalDiscountId ?? "",
+      couponId: activeCoupon?.id,
+      promoCodeId: activePromoCode?.id,
       variant: selectedVariant
         ? {
             id: selectedVariant.id,
@@ -153,7 +169,7 @@ const Client = () => {
         : undefined,
     };
     return itemToAdd;
-  }, [product, price, discountPrice, quantity, selectedVariant]);
+  }, [product, price, discountPrice, quantity, productDiscountId, newArrivalDiscountId, activeCoupon?.id, activePromoCode?.id, selectedVariant]);
 
   const handleAddToCart = useCallback(() => {
     const item = prepareItemForCart();
@@ -178,7 +194,7 @@ const Client = () => {
           code: autoPromo.code,
           discountAmount: autoPromo.discountAmount ?? 0,
           discountType: autoPromo.type as "Percentage Off" | "Fixed Price",
-          adminApprovalStatus: autoPromo.adminApprovalStatus
+          adminApprovalStatus: autoPromo.adminApprovalStatus,
         });
       }
     }
@@ -199,7 +215,7 @@ const Client = () => {
           code: autoPromo.code,
           discountAmount: autoPromo.discountAmount ?? 0,
           discountType: autoPromo.type as "Percentage Off" | "Fixed Price",
-          adminApprovalStatus: autoPromo.adminApprovalStatus
+          adminApprovalStatus: autoPromo.adminApprovalStatus,
         });
       }
     }
