@@ -91,13 +91,14 @@ model User {
   sentMessages             Message[]
   seenMessages             Message[]                 @relation("Seen")
 
-  order        Order[]
-  address      Address[]
-  like         Like[]
-  invoiceInfo  InvoiceInfo[]
-  conversation Conversation[]
-  followStore  FollowStore[]
-  ticket       Ticket[]
+  order         Order[]
+  address       Address[]
+  like          Like[]
+  invoiceInfo   InvoiceInfo[]
+  conversation  Conversation[]
+  followStore   FollowStore[]
+  ticket        Ticket[]
+  productReview ProductReview[]
 }
 
 model Address {
@@ -359,6 +360,7 @@ model Product {
   message          Message[]
   campaigns        Campaign[]
   campaignProduct  CampaignProduct[]
+  productReview    ProductReview[]
 }
 
 model NutritionalFact {
@@ -891,4 +893,20 @@ model Revenue {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model ProductReview {
+  id          String   @id @default(cuid())
+  rating      Int
+  review      String
+  images      String[]
+  isAnonymous Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 }

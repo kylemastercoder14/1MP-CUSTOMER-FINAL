@@ -36,7 +36,7 @@ import TabsComponent from "@/components/globals/tabs-component";
 import { productTabs, ProductTabType, ProductWithProps } from "@/types";
 import ProductImages from "@/components/globals/product-images";
 import { ProductVariants } from "@/components/globals/product-variant";
-import { ProductVariant } from "@prisma/client";
+import { ProductReview, ProductVariant } from "@prisma/client";
 import RecommendedProducts from "@/components/globals/recommended-products";
 import ProductAttributes from "@/components/globals/all-about-products/product-attributes";
 import ProductReviews from "@/components/globals/all-about-products/product-reviews";
@@ -63,6 +63,12 @@ const Client = () => {
   const [quantity, setQuantity] = useState(1);
   const [isLiked, setIsLiked] = useState<boolean>(false);
   const [likeCount, setLikeCount] = useState<number>(0);
+
+  const [reviews, setReviews] = useState<ProductReview[]>([]);
+  const [averageRating, setAverageRating] = useState<number>(0);
+  const [totalReviews, setTotalReviews] = useState<number>(0);
+  const [productReviewLoading, setProductReviewLoading] =
+    useState<boolean>(true);
 
   // Derive the current product URL
   const productUrl = useMemo(() => {
@@ -104,6 +110,27 @@ const Client = () => {
     };
 
     fetchProductAndLikeStatus();
+  }, [slug]);
+
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch(`/api/v1/product/${slug}/product-review`);
+        const data = await res.json();
+
+        if (data.success) {
+          setReviews(data.data.reviews);
+          setAverageRating(data.data.averageRating);
+          setTotalReviews(data.data.totalReviews);
+        }
+      } catch (error) {
+        console.error("Error fetching reviews:", error);
+      } finally {
+        setProductReviewLoading(false);
+      }
+    };
+
+    if (slug) fetchReviews();
   }, [slug]);
 
   // Calculate price based on selected variant or product price
@@ -169,7 +196,17 @@ const Client = () => {
         : undefined,
     };
     return itemToAdd;
-  }, [product, price, discountPrice, quantity, productDiscountId, newArrivalDiscountId, activeCoupon?.id, activePromoCode?.id, selectedVariant]);
+  }, [
+    product,
+    price,
+    discountPrice,
+    quantity,
+    productDiscountId,
+    newArrivalDiscountId,
+    activeCoupon?.id,
+    activePromoCode?.id,
+    selectedVariant,
+  ]);
 
   const handleAddToCart = useCallback(() => {
     const item = prepareItemForCart();
@@ -305,7 +342,7 @@ const Client = () => {
     }
   }, [product, router]);
 
-  if (loading) {
+  if (loading && productReviewLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
         <Loader2 className="animate-spin h-16 w-16 text-[#800020]" />
@@ -372,19 +409,23 @@ const Client = () => {
             </h3>
             <div className="flex items-center gap-3 text-gray-500 mb-2">
               <div className="flex items-center gap-1">
-                <Star className={`size-4 fill-current text-yellow-500`} />
-                <Star className={`size-4 fill-current text-yellow-500`} />
-                <Star className={`size-4 fill-current text-yellow-500`} />
-                <Star className={`size-4 fill-current text-yellow-500`} />
-                <Star className={`size-4 fill-half text-yellow-500`} />
-                <span className="text-gray-500">4.9</span>
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`size-5 ${
+                      i < Math.round(averageRating)
+                        ? "fill-yellow-500 text-yellow-500"
+                        : "text-gray-300"
+                    }`}
+                  />
+                ))}
+                <span className="text-gray-500">
+                  {averageRating.toFixed(1)}
+                </span>
               </div>
               <p>|</p>
               <span className="text-muted-foreground">
-                Reviews{" "}
-                <span className="text-gray-600 font-medium">
-                  {Math.floor(Math.random() * 2000) + 10}
-                </span>
+                ({totalReviews} review{totalReviews !== 1 ? "s" : ""})
               </span>
             </div>
             <ProductImages
@@ -631,12 +672,12 @@ const Client = () => {
             items={productTabs}
           />
           {/* Tab Content */}
-          <div className="mt-6 max-w-2xl">
+          <div className="mt-6">
             {activeTab === "Attributes" && (
               <ProductAttributes product={product} />
             )}
             {activeTab === "Reviews" && (
-              <ProductReviews productId={product?.id as string} />
+              <ProductReviews reviews={reviews} />
             )}
             {activeTab === "Description" && (
               <ProductDescription product={product} />

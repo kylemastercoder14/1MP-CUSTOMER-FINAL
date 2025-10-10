@@ -16,6 +16,7 @@ import { Modal } from "@/components/ui/modal";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
+import RatingForm from '@/components/forms/rating-form';
 
 // ─── ORDER STATUSES ────────────────────────────────────────────────
 const ORDER_STATUSES = [
@@ -224,7 +225,12 @@ const Client = () => {
         isOpen={ratingModalOpen}
         onClose={() => setRatingModalOpen(false)}
       >
-        {selectedProduct && <div>I will uncomment the rating form later</div>}
+        {selectedProduct && (
+          <RatingForm
+            selectedProduct={selectedProduct}
+            onClose={() => setRatingModalOpen(false)}
+          />
+        )}
       </Modal>
 
       <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
@@ -278,7 +284,7 @@ const Client = () => {
       {/* ─── Loading / Empty / Orders Section ─── */}
       {isLoading ? (
         <div className="flex flex-col items-center justify-center h-[30vh] mt-8">
-          <Loader2 className='size-10 animate-spin' />
+          <Loader2 className="size-10 animate-spin" />
           <p className="mt-3 text-muted-foreground">Loading your orders...</p>
         </div>
       ) : Object.keys(groupedOrders).length === 0 ? (
@@ -404,6 +410,7 @@ const Client = () => {
 
                       {/* Order Footer */}
                       <div className="mt-4 pt-2 border-t flex justify-between items-center">
+                        {/* TODO: Implement the chat later */}
                         <Button size="sm">Contact Vendor</Button>
                         <div className="flex items-center gap-2">
                           <span className="text-sm text-muted-foreground">
