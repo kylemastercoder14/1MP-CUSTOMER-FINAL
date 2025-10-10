@@ -1,24 +1,19 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
 import { Prisma } from "@prisma/client";
+import { useUser } from "@/hooks/use-user";
 
 export async function PUT(request: Request) {
   try {
-    const supabase = createClient();
-    const {
-      data: { session },
-      error: sessionError,
-    } = await (await supabase).auth.getSession();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (sessionError || !session) {
+    if (!userId) {
       return NextResponse.json(
         { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
       );
     }
-
-    const supabaseUserId = session.user.id;
 
     const formData = await request.formData();
     const username = formData.get("username") as string | null;
@@ -30,7 +25,7 @@ export async function PUT(request: Request) {
 
     // Fetch the existing customer from your DB
     const customer = await db.user.findUnique({
-      where: { authId: supabaseUserId },
+      where: { id: userId },
     });
 
     if (!customer) {
@@ -56,17 +51,6 @@ export async function PUT(request: Request) {
     const updatedCustomer = await db.user.update({
       where: { id: customer.id },
       data: updateData,
-    });
-
-    await (
-      await supabase
-    ).auth.updateUser({
-      data: {
-        first_name: firstName,
-        last_name: lastName,
-        phoneNumber: phoneNumber,
-        username: username,
-      },
     });
 
     return NextResponse.json(

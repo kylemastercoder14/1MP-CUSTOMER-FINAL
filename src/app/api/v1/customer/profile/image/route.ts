@@ -1,30 +1,23 @@
-// app/api/v1/customer/profile/image/route.ts
-
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
-import { v4 as uuidv4 } from "uuid";
+import { useUser } from "@/hooks/use-user";
+import { uploadFile, deleteFile } from "@/lib/upload-s3";
 
 export async function PUT(request: Request) {
   try {
-    const supabase = createClient();
-    const {
-      data: { session },
-      error: sessionError,
-    } = await (await supabase).auth.getSession();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (sessionError || !session) {
+    if (!userId) {
       return NextResponse.json(
         { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
       );
     }
 
-    const supabaseUserId = session.user.id;
-
-    // Fetch the existing customer from your DB to get their current image URL
+    // Fetch the existing customer
     const customer = await db.user.findUnique({
-      where: { authId: supabaseUserId },
+      where: { id: userId },
       select: { id: true, image: true },
     });
 
@@ -35,7 +28,7 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Get the image file from FormData
+    // Parse form data
     const formData = await request.formData();
     const profileImageFile = formData.get("profileImage") as File | null;
 
@@ -46,13 +39,14 @@ export async function PUT(request: Request) {
       );
     }
 
-    // Basic file validation (match client-side)
+    // Validate file
     if (profileImageFile.size > 5 * 1024 * 1024) {
       return NextResponse.json(
         { message: "File size exceeds 5MB.", code: "FILE_TOO_LARGE" },
         { status: 400 }
       );
     }
+
     if (!["image/jpeg", "image/png"].includes(profileImageFile.type)) {
       return NextResponse.json(
         {
@@ -63,58 +57,25 @@ export async function PUT(request: Request) {
       );
     }
 
-    const fileExt = profileImageFile.name.split(".").pop();
-    const fileName = `${supabaseUserId}_${uuidv4()}.${fileExt}`; // Unique filename per user
-    const filePath = `customers/${fileName}`; // Path in Supabase storage bucket
+    // Create unique filename
+    const folder = "customers";
 
-    const { data: uploadData, error: uploadError } = await (
-      await supabase
-    ).storage
-      .from("customers")
-      .upload(filePath, profileImageFile, {
-        cacheControl: "3600",
-        upsert: false,
-        contentType: profileImageFile.type,
-      });
+    // ✅ Upload to AWS S3
+    const { url: imageUrl } = await uploadFile(profileImageFile, folder);
 
-    if (uploadError) {
-      console.error("Supabase image upload error:", uploadError);
-      return NextResponse.json(
-        {
-          message: "Failed to upload profile image.",
-          code: "IMAGE_UPLOAD_FAILED",
-        },
-        { status: 500 }
-      );
-    }
-
-    const { data: publicUrlData } = (await supabase).storage
-      .from("customers")
-      .getPublicUrl(uploadData.path);
-
-    const imageUrl = publicUrlData.publicUrl;
-
-    // Delete old profile picture if it exists and is different from the new one
+    // 🗑️ Delete old image if exists
     if (customer.image) {
       try {
-        const oldPathSegments = customer.image.split("customers/").pop();
-        if (oldPathSegments) {
-          // This removes just the filename, assuming it's directly under 'customers/' or 'customers/profile-pictures/'
-          // Adjust 'customers/' if your path structure is different.
-          const pathToDelete = `customers/${oldPathSegments.split("/").pop()}`; // Adjust if your paths are nested
-          const { error: deleteError } = await (await supabase).storage
-            .from("customers")
-            .remove([pathToDelete]);
-          if (deleteError) {
-            console.warn("Failed to delete old profile image:", deleteError);
-          }
+        const oldKey = customer.image.split(".amazonaws.com/").pop();
+        if (oldKey) {
+          await deleteFile(oldKey);
         }
-      } catch (delError) {
-        console.warn("Error processing old image path for deletion:", delError);
+      } catch (error) {
+        console.warn("Failed to delete old profile image:", error);
       }
     }
 
-    // Update the user's image URL in your database
+    // 💾 Update user record in DB
     const updatedUser = await db.user.update({
       where: { id: customer.id },
       data: { image: imageUrl },

@@ -9,15 +9,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { Plus, Grip, Trash, LoaderIcon } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import { uploadFile, deleteFile } from "@/lib/upload-s3";
 
 type FileState = {
   id: string;
   url: string;
+  key?: string; // S3 key for deletion
   isUploading: boolean;
   isBlob?: boolean;
   file?: File;
-  path?: string;
 };
 
 type Props = {
@@ -26,7 +26,6 @@ type Props = {
   className?: string;
   disabled?: boolean;
   maxImages: number;
-  bucket?: string;
   folder?: string;
   allowVideo?: boolean;
 };
@@ -37,13 +36,11 @@ const MultipleImageUpload = ({
   defaultValues = [],
   disabled,
   maxImages,
-  bucket = "vendors",
-  folder,
+  folder = "uploads",
   allowVideo = false,
 }: Props) => {
   const [files, setFiles] = useState<FileState[]>([]);
   const [isMounted, setIsMounted] = useState(false);
-  const supabase = createClient();
 
   useEffect(() => {
     setIsMounted(true);
@@ -58,45 +55,6 @@ const MultipleImageUpload = ({
       );
     }
   }, [defaultValues]);
-
-  const uploadToSupabase = useCallback(
-    async (file: File, fileId: string) => {
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
-      const filePath = folder ? `${folder}/${fileName}` : fileName;
-
-      try {
-        setFiles((prevFiles) =>
-          prevFiles.map((f) =>
-            f.id === fileId ? { ...f, isUploading: true } : f
-          )
-        );
-
-        const { data, error } = await supabase.storage
-          .from(bucket)
-          .upload(filePath, file, {
-            cacheControl: "3600",
-            upsert: false,
-            contentType: file.type,
-          });
-
-        if (error) throw error;
-        if (!data) throw new Error("Upload failed: No data returned");
-
-        const {
-          data: { publicUrl },
-        } = supabase.storage.from(bucket).getPublicUrl(data.path);
-
-        if (!publicUrl) throw new Error("Could not generate public URL");
-
-        return { url: publicUrl, path: data.path };
-      } catch (error) {
-        console.error("Upload error:", error);
-        throw error;
-      }
-    },
-    [bucket, folder, supabase]
-  );
 
   const updateParent = useCallback(
     (updatedFiles: FileState[]) => {
@@ -113,12 +71,14 @@ const MultipleImageUpload = ({
       const toastId = toast.loading(`Uploading ${file.name}...`);
 
       try {
-        const { url, path } = await uploadToSupabase(file, fileId);
+        const { url, key } = await uploadFile(file, folder, (progress) => {
+          console.log(`${file.name} progress:`, progress);
+        });
 
         setFiles((prevFiles) => {
           const updated = prevFiles.map((f) =>
             f.id === fileId
-              ? { ...f, url, path, isUploading: false, isBlob: false }
+              ? { ...f, url, key, isUploading: false, isBlob: false }
               : f
           );
           updateParent(updated);
@@ -138,7 +98,7 @@ const MultipleImageUpload = ({
         toast.error(`Failed to upload ${file.name}`, { id: toastId });
       }
     },
-    [uploadToSupabase, updateParent]
+    [updateParent, folder]
   );
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -160,7 +120,6 @@ const MultipleImageUpload = ({
     onDrop: async (acceptedFiles) => {
       if (!isMounted || disabled) return;
 
-      // Validate files
       const sizeErrors = acceptedFiles.filter(
         (file) => file.size > 20 * 1024 * 1024
       );
@@ -173,7 +132,6 @@ const MultipleImageUpload = ({
         return;
       }
 
-      // Create previews with unique IDs and keep file reference
       const newFiles = acceptedFiles.map((file) => ({
         id: `file-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         url: URL.createObjectURL(file),
@@ -182,15 +140,12 @@ const MultipleImageUpload = ({
         file,
       }));
 
-      // Add preview files to state
       setFiles((prevFiles) => [...prevFiles, ...newFiles]);
 
-      // Process uploads in parallel with proper error handling
       await Promise.allSettled(
-        newFiles.map((newFile) => processFileUpload(newFile.file, newFile.id))
+        newFiles.map((newFile) => processFileUpload(newFile.file!, newFile.id))
       );
 
-      // Clean up blob URLs after all uploads are processed
       newFiles.forEach((file) => {
         if (file.isBlob) {
           URL.revokeObjectURL(file.url);
@@ -209,27 +164,17 @@ const MultipleImageUpload = ({
         return;
       }
 
-      // Clean up blob URLs
       if (fileToRemove.isBlob) {
         URL.revokeObjectURL(fileToRemove.url);
       }
 
-      // Delete from Supabase if it was uploaded
-      if (fileToRemove.path) {
+      if (fileToRemove.key) {
         try {
-          const { error } = await supabase.storage
-            .from(bucket)
-            .remove([fileToRemove.path]);
-
-          if (error) {
-            console.error("Error deleting file:", error);
-            toast.error("Failed to delete file from storage");
-            return;
-          }
+          await deleteFile(fileToRemove.key);
+          toast.success("File deleted from S3");
         } catch (error) {
           console.error("Error deleting file:", error);
-          toast.error("Failed to delete file from storage");
-          return;
+          toast.error("Failed to delete file from S3");
         }
       }
 
@@ -239,7 +184,7 @@ const MultipleImageUpload = ({
         return updatedFiles;
       });
     },
-    [files, bucket, supabase, updateParent]
+    [files, updateParent]
   );
 
   const handleDragEnd = useCallback(
@@ -257,7 +202,6 @@ const MultipleImageUpload = ({
     [updateParent]
   );
 
-  // Clean up blob URLs on unmount
   useEffect(() => {
     return () => {
       files.forEach((file) => {

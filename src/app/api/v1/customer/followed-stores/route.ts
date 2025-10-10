@@ -1,49 +1,21 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
 import db from "@/lib/db";
+import { useUser } from "@/hooks/use-user";
 
-async function getAuthUser() {
-  const supabase = createClient();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await (await supabase).auth.getSession();
+export async function GET() {
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-  if (sessionError || !session) {
-    return {
-      error: NextResponse.json(
+    if (!userId) {
+      return NextResponse.json(
         { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
-      ),
-    };
-  }
-
-  const supabaseUserId = session.user.id;
-  const user = await db.user.findUnique({
-    where: { authId: supabaseUserId },
-    select: { id: true },
-  });
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { message: "User profile not found.", code: "USER_NOT_FOUND" },
-        { status: 404 }
-      ),
-    };
-  }
-
-  return { user };
-}
-
-// GET route to fetch the user's invoice info
-export async function GET(request: Request) {
-  try {
-    const { user, error } = await getAuthUser();
-    if (error) return error;
+      );
+    }
 
     const followedStores = await db.followStore.findMany({
-      where: { userId: user.id },
+      where: { userId },
       include: {
         vendor: {
           include: {

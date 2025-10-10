@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import MultipleImageUpload from "@/components/globals/multiple-image-upload";
-import { useUser } from "@/hooks/use-user";
+import { User } from '@prisma/client';
 
 const formSchema = z.object({
   role: z.string().min(1, { message: "Role is required" }),
@@ -40,8 +40,7 @@ const formSchema = z.object({
   attachments: z.array(z.string()).optional(),
 });
 
-const Client = () => {
-  const { customer, user } = useUser();
+const Client = ({user}: {user: User | null}) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const type = searchParams.get("type") || "";
@@ -113,8 +112,8 @@ const Client = () => {
                 <div className="space-y-2">
                   <FormLabel>Login Name</FormLabel>
                   <p>
-                    {customer?.firstName ||
-                      customer?.lastName ||
+                    {user?.firstName ||
+                      user?.lastName ||
                       user?.email?.split("@")[0] ||
                       "User"}
                   </p>
@@ -249,7 +248,7 @@ const Client = () => {
                             field.onChange(urls)
                           }
                           disabled={isSubmitting}
-                          bucket="reports"
+                          folder="assets/reports"
                           defaultValues={field.value
                             ?.map((file: File | string) => {
                               if (typeof file === "string") return file;
