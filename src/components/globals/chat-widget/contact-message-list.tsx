@@ -8,9 +8,9 @@ import { MessageSeenTracker } from "@/components/globals/chat-widget/message-see
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/use-user";
 import { ProductWithProps } from "@/types";
 import { calculateDiscountPrice, getDiscountInfo } from "@/lib/utils";
+import { useUserClient } from "../../../hooks/use-user-client";
 
 interface MessageListProps {
   messages: any[];
@@ -18,8 +18,7 @@ interface MessageListProps {
 
 const MessageList = ({ messages }: MessageListProps) => {
   const router = useRouter();
-  const { customer } = useUser();
-  const currentUserId = customer?.id;
+  const { loading, user } = useUserClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -122,10 +121,12 @@ const MessageList = ({ messages }: MessageListProps) => {
     );
   };
 
+  if (loading) return null;
+
   return (
     <div className="space-y-2 px-2 overflow-y-auto max-h-[calc(100vh-200px)]">
       {messages.map((message) => {
-        const isCurrentUser = message.senderUserId === currentUserId;
+        const isCurrentUser = message.senderUserId === user?.id;
         const isSeen = !!message.seenAt;
         const seenByCount = message.seenBy?.length || 0;
         const isAutoReply = message.isAutoReply;
