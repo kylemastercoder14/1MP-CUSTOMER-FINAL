@@ -1,51 +1,30 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-import { createClient } from "@/lib/supabase/server"; // Using Supabase for session management
 import db from "@/lib/db"; // Your Prisma client instance
 import { createPayment } from "@/lib/xendit";
 import { sendReceiptEmail } from "@/actions";
+import { useUser } from "@/hooks/use-user";
 
 // Define the POST handler for the API route
 export async function POST(req: NextRequest) {
   try {
-    // Initialize Supabase client for authentication
-    const supabase = createClient();
-    const {
-      data: { session },
-      error: sessionError,
-    } = await (await supabase).auth.getSession();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (sessionError || !session || !session.user) {
+    if (!userId) {
       return NextResponse.json(
         { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
       );
     }
 
-    const userData = session.user; // Get user data from session
-
-    // --- IMPORTANT: Log userData.id to inspect its value ---
-    console.log("User ID from session:", userData.id);
-
-    // Add an explicit check for userData.id
-    if (!userData.id) {
-      console.error("User ID is missing from session data.");
-      return NextResponse.json(
-        {
-          message: "User ID is missing. Cannot place order.",
-          code: "USER_ID_MISSING",
-        },
-        { status: 400 }
-      );
-    }
-
     const user = await db.user.findUnique({
-      where: { authId: userData.id },
+      where: { id: userId },
     });
 
     if (!user) {
-      console.error("User not found in database for authId:", userData.id);
+      console.error("User not found in database");
       return NextResponse.json(
         { message: "User not found.", code: "USER_NOT_FOUND" },
         { status: 404 }
@@ -147,7 +126,7 @@ export async function POST(req: NextRequest) {
         // Prepare data for Xendit invoice creation
         const xenditPayload = {
           external_id: orderNumber, // Use orderNumber as external ID for Xendit
-          payer_email: userData.email || undefined, // Optional: User's email for Xendit invoice
+          payer_email: user.email || undefined, // Optional: User's email for Xendit invoice
           description: `Order #${orderNumber} from OneMarket`,
           amount: cartSummary.total,
           currency: "PHP", // Assuming Philippine Peso, adjust if needed
@@ -181,7 +160,8 @@ export async function POST(req: NextRequest) {
     // --- Create the main order in the database ---
     const order = await db.order.create({
       data: {
-        totalAmount: cartSummary.total,
+        totalAmount: cartSummary.subtotal,
+        discountAmount: cartSummary.totalDiscount,
         orderNumber: orderNumber,
         vehicleType: vehicleType,
         addressId: shippingAddressId,
@@ -239,7 +219,7 @@ export async function POST(req: NextRequest) {
       );
 
       await sendReceiptEmail(
-        userData.email as string,
+        user.email as string,
         order.orderNumber,
         formattedDate,
         address.fullName as string, // Assuming address has fullName

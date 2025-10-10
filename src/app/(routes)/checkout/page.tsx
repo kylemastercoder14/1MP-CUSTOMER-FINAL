@@ -31,7 +31,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 
 import useCart, { DeliveryOptionType } from "@/hooks/use-cart";
-import { useUser } from "@/hooks/use-user";
 import InvoiceForm from "@/components/forms/invoice-form";
 import { InvoiceWithAddress } from "@/types";
 
@@ -52,7 +51,6 @@ const CheckoutPage = () => {
     vendorDeliveryOptions, // Destructure new state
     setVendorDeliveryOption, // Destructure new action
   } = useCart();
-  const { user: supabaseUser, loading: userLoading } = useUser();
 
   const [invoiceOpen, setInvoiceOpen] = useState(false);
   const [invoiceData, setInvoiceData] = useState<InvoiceWithAddress | null>(
@@ -75,16 +73,8 @@ const CheckoutPage = () => {
     {}
   );
 
-  // --- Authentication/Redirect check ---
-  useEffect(() => {
-    if (!userLoading && !supabaseUser) {
-      router.push("/sign-in");
-    }
-  }, [userLoading, supabaseUser, router]);
-
   // --- Fetch Default Address ---
   const fetchDefaultAddress = useCallback(async () => {
-    if (!supabaseUser || userLoading) return;
     setAddressLoading(true);
     try {
       const response = await fetch("/api/v1/customer/addresses", {
@@ -112,7 +102,7 @@ const CheckoutPage = () => {
     } finally {
       setAddressLoading(false);
     }
-  }, [supabaseUser, userLoading]);
+  }, []);
 
   useEffect(() => {
     fetchDefaultAddress();
@@ -120,7 +110,6 @@ const CheckoutPage = () => {
 
   // --- Fetch Invoice Data ---
   const fetchInvoiceData = useCallback(async () => {
-    if (!supabaseUser || userLoading) return;
     try {
       const response = await fetch("/api/v1/customer/invoices", {
         method: "GET",
@@ -140,7 +129,7 @@ const CheckoutPage = () => {
       console.error("Error fetching invoice data:", err);
       // toast.error(err.message || "An error occurred while loading invoice.");
     }
-  }, [supabaseUser, userLoading]);
+  }, []);
 
   useEffect(() => {
     fetchInvoiceData();
@@ -165,18 +154,6 @@ const CheckoutPage = () => {
     [items, selectedItems]
   );
 
-  // If there are no selected items, redirect to cart or homepage
-  useEffect(() => {
-    if (!userLoading && items.length > 0 && selectedItems.length === 0) {
-      toast.warning("No items selected for checkout. Redirecting to cart.");
-      router.push("/shopping-cart");
-    }
-    if (!userLoading && items.length === 0 && selectedItems.length === 0) {
-      toast.info("Your cart is empty. Redirecting to homepage.");
-      router.push("/");
-    }
-  }, [selectedItems.length, items.length, userLoading, router]);
-
   const handleVendorVoucherApply = async (
     vendorId: string,
     vendorPromoCodes: PromoCode[]
@@ -189,7 +166,14 @@ const CheckoutPage = () => {
       }));
       return;
     }
-    const validation = await validateVoucher(vendorId, code, vendorPromoCodes);
+
+    // ✅ Only use approved promo codes
+    const approvedCodes = vendorPromoCodes.filter(
+      (promo) => promo.adminApprovalStatus === "Approved"
+    );
+
+    const validation = await validateVoucher(vendorId, code, approvedCodes);
+
     if (!validation.valid) {
       setVoucherErrors((prev) => ({
         ...prev,
@@ -197,6 +181,15 @@ const CheckoutPage = () => {
       }));
       return;
     }
+
+    if (validation.voucher?.adminApprovalStatus !== "Approved") {
+      setVoucherErrors((prev) => ({
+        ...prev,
+        [vendorId]: "Voucher is not approved for use",
+      }));
+      return;
+    }
+
     if (validation.voucher) {
       applyVendorVoucher(vendorId, validation.voucher);
       setVendorVoucherInputs((prev) => ({ ...prev, [vendorId]: "" }));
@@ -307,16 +300,12 @@ const CheckoutPage = () => {
   const cartSummary = calculateCartTotal();
 
   // --- Conditional Render based on User Loading and Authentication ---
-  if (userLoading || addressLoading) {
+  if (addressLoading) {
     return (
       <div className="min-h-screen bg-[#f5f5f5] flex items-center justify-center pt-[140px] pb-20">
         <Loader2 className="animate-spin h-16 w-16 text-[#800020]" />
       </div>
     );
-  }
-
-  if (!supabaseUser) {
-    return null;
   }
 
   if (items.length === 0) {
@@ -556,13 +545,6 @@ const CheckoutPage = () => {
                   <span className="font-semibold text-lg">
                     Select payment method
                   </span>
-                  <Button
-                    variant="link"
-                    size="sm"
-                    className="px-0 py-0 h-auto text-[#800020] hover:text-[#800020]"
-                  >
-                    View all methods {">"}
-                  </Button>
                 </div>
                 <RadioGroup
                   value={selectedPaymentMethod}
@@ -624,7 +606,9 @@ const CheckoutPage = () => {
                 <div className="mt-2 space-y-2">
                   {Object.keys(selectedItemsByVendor).map((vendorId) => {
                     const vendor = selectedItemsByVendor[vendorId][0];
-                    const vendorPromoCodes = vendor.vendor?.promoCode || [];
+                    const vendorPromoCodes = (
+                      vendor.vendor?.promoCode || []
+                    ).filter((code) => code.adminApprovalStatus === "Approved");
                     const vendorVoucher = vendorVouchers[vendorId];
                     return (
                       <div key={vendorId}>
@@ -632,7 +616,8 @@ const CheckoutPage = () => {
                           <span className="font-medium">
                             {vendor.vendorName || "Vendor"} Voucher:
                           </span>
-                          {vendorVoucher ? (
+                          {vendorVoucher &&
+                          vendorVoucher.adminApprovalStatus === "Approved" ? (
                             <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded text-xs text-green-600">
                               <span>{vendorVoucher.code}</span>
                               <Button
@@ -655,7 +640,7 @@ const CheckoutPage = () => {
                                     [vendorId]: e.target.value,
                                   })
                                 }
-                                className="h-8 w-32 text-xs"
+                                className="h-8 w-40 text-xs"
                               />
                               <Button
                                 variant="outline"
@@ -716,14 +701,16 @@ const CheckoutPage = () => {
                       ₱{cartSummary.subtotal.toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      Total Discount
-                    </span>
-                    <span className="font-medium text-green-600">
-                      -₱{cartSummary.totalDiscount.toFixed(2)}
-                    </span>
-                  </div>
+                  {cartSummary.totalDiscount > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Total Discount
+                      </span>
+                      <span className="font-medium text-green-600">
+                        -₱{cartSummary.totalDiscount.toFixed(2)}
+                      </span>
+                    </div>
+                  )}
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Shipping Fee</span>
                     <span className="font-medium">
@@ -735,7 +722,10 @@ const CheckoutPage = () => {
                 <div className="flex justify-between text-base font-semibold">
                   <span>Total</span>
                   <span className="text-lg text-[#800020]">
-                    ₱{cartSummary.total.toFixed(2)}
+                    ₱
+                    {(cartSummary.total + cartSummary.totalShippingFee).toFixed(
+                      2
+                    )}
                   </span>
                 </div>
               </div>

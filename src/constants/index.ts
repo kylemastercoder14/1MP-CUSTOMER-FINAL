@@ -100,7 +100,7 @@ export const footerSections = [
     links: [
       { name: "Help Center", href: "/help-center" },
       { name: "Check order status", href: "/orders" },
-      { name: "Refunds", href: "/refunds" },
+      { name: "Refunds", href: "/1-market-philippines-policy/refundPolicy" },
       { name: "Report abuse", href: "/report-abuse" },
     ],
   },
@@ -118,14 +118,17 @@ export const footerSections = [
     links: [
       {
         name: "Start selling",
-        href: "https://selleronemarketphilippines.vercel.app/sign-in",
+        href: "https://seller.onemarketphilippines.com",
       },
       {
         name: "Seller Central",
-        href: "https://1-mp-educational-hub.vercel.app/en",
+        href: "https://education.onemarketphilippines.com/en/topic/getting-started",
       },
       { name: "Become a Verified Seller", href: "/become-a-verified-seller" },
-      { name: "Download the app for sellers", href: "/sellers-app" },
+      {
+        name: "Download the app for sellers",
+        href: "https://play.google.com/store/games?device=windows&pli=1",
+      },
     ],
   },
   {
@@ -204,10 +207,10 @@ export const tabContent: Record<TabKey, string[]> = {
   "My Account": [
     "What can I do if I forgot my password?",
     "Why cannot I receive the SMS verification code?",
-    "How can I register an account on Alibaba.com?",
+    "How can I register an account on 1 Market Philippines?",
     "What can I do if my account was deactivated?",
     "Why cannot I receive the Email verification code?",
-    "Complaint reporting portal for Thailand users",
+    "Complaint reporting portal for users",
   ],
   Products: [
     "How to search for products effectively?",

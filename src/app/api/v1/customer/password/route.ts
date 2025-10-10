@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
 import bcrypt from "bcryptjs";
-import { createClient } from "@/lib/supabase/server";
+import { cookies } from "next/headers";
+import * as jose from "jose";
 
 export async function POST(request: Request) {
   try {
@@ -24,7 +25,6 @@ export async function POST(request: Request) {
     }
 
     const normalizedEmail = email.toLowerCase();
-    const supabase = createClient();
 
     // Check if user exists in your User table
     const existingUser = await db.user.findUnique({
@@ -35,120 +35,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "User not found." }, { status: 404 });
     }
 
-    // Check if email is already registered in Supabase Auth
-    // We'll try to sign in first to check if the auth user exists
-    const { data: signInData, error: signInError } = await (
-      await supabase
-    ).auth.signInWithPassword({
-      email: normalizedEmail,
-      password: password,
-    });
-
-    let authUserId = existingUser.authId;
-
-    if (signInError) {
-      // If sign in fails, check if it's because of invalid credentials or user doesn't exist
-      if (signInError.message.includes("Invalid login credentials")) {
-        // User exists in auth but password is wrong - check if they exist in other schema
-        const existingVendor = await db.vendor.findUnique({
-          where: { email: normalizedEmail },
-        });
-
-        if (existingVendor && existingVendor.authId) {
-          return NextResponse.json(
-            {
-              error:
-                "This email is already registered as a vendor account. Please use a different email or contact support.",
-            },
-            { status: 409 }
-          );
-        }
-
-        // User might exist in auth but not linked properly, try to sign up
-        const { data: signUpData, error: signUpError } = await (
-          await supabase
-        ).auth.signUp({
-          email: normalizedEmail,
-          password: password,
-        });
-
-        if (signUpError) {
-          if (signUpError.message.includes("User already registered")) {
-            return NextResponse.json(
-              {
-                error:
-                  "This email is already registered. Please use the sign-in option or contact support.",
-              },
-              { status: 409 }
-            );
-          }
-          return NextResponse.json(
-            { error: `Registration error: ${signUpError.message}` },
-            { status: 400 }
-          );
-        }
-
-        if (signUpData.user) {
-          authUserId = signUpData.user.id;
-        }
-      } else {
-        // Other sign in errors - user probably doesn't exist in auth, create them
-        const { data: signUpData, error: signUpError } = await (
-          await supabase
-        ).auth.signUp({
-          email: normalizedEmail,
-          password: password,
-        });
-
-        if (signUpError) {
-          if (signUpError.message.includes("User already registered")) {
-            // Double-check if this email belongs to a vendor
-            const existingVendor = await db.vendor.findUnique({
-              where: { email: normalizedEmail },
-            });
-
-            if (existingVendor) {
-              return NextResponse.json(
-                {
-                  error:
-                    "This email is already registered as a vendor account. Please use a different email or contact support.",
-                },
-                { status: 409 }
-              );
-            }
-          }
-          return NextResponse.json(
-            { error: `Registration error: ${signUpError.message}` },
-            { status: 400 }
-          );
-        }
-
-        if (signUpData.user) {
-          authUserId = signUpData.user.id;
-        }
-      }
-    } else {
-      // Sign in was successful, user already exists in auth
-      if (signInData.user) {
-        authUserId = signInData.user.id;
-
-        // Check if this auth user is linked to a vendor account
-        const existingVendor = await db.vendor.findFirst({
-          where: { authId: signInData.user.id },
-        });
-
-        if (existingVendor) {
-          return NextResponse.json(
-            {
-              error:
-                "This email is already registered as a vendor account. Please use a different email or contact support.",
-            },
-            { status: 409 }
-          );
-        }
-      }
-    }
-
     // Hash the password for database storage
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -156,25 +42,29 @@ export async function POST(request: Request) {
     const updatedUser = await db.user.update({
       where: { email: normalizedEmail },
       data: {
-        authId: authUserId,
         password: hashedPassword,
       },
     });
 
-    // Create a fresh session
-    const { data: sessionData, error: sessionError } = await (
-      await supabase
-    ).auth.signInWithPassword({
-      email: normalizedEmail,
-      password: password,
-    });
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const alg = "HS256";
 
-    if (sessionError) {
-      return NextResponse.json(
-        { error: "Failed to create session after registration." },
-        { status: 500 }
-      );
-    }
+    const jwt = await new jose.SignJWT({})
+      .setProtectedHeader({ alg })
+      .setExpirationTime("72h")
+      .setSubject(existingUser.id.toString())
+      .sign(secret);
+
+    (
+      await // Set the cookie with the JWT
+      cookies()
+    ).set("1MP-Authorization", jwt, {
+      httpOnly: true, // Set to true for security
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      maxAge: 60 * 60 * 24 * 3, // Cookie expiration (3 days in seconds)
+      sameSite: "strict", // Adjust according to your needs
+      path: "/", // Adjust path as needed
+    });
 
     const userResponse = {
       id: updatedUser.id,
@@ -186,12 +76,6 @@ export async function POST(request: Request) {
     return NextResponse.json(
       {
         user: userResponse,
-        session: {
-          accessToken: sessionData.session?.access_token,
-          refreshToken: sessionData.session?.refresh_token,
-          expiresAt: sessionData.session?.expires_at,
-          expiresIn: 60000,
-        },
       },
       { status: 200 }
     );

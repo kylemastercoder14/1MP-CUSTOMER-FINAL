@@ -6,19 +6,19 @@ import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import CategoriesDropdown from "./categories-dropdown";
 import WhiteHeader from "./white-header";
-import { useUser } from "@/hooks/use-user";
 import useCart from "@/hooks/use-cart";
 import { useRouter } from "next/navigation";
 import NavUser from "./nav-user";
 import FeaturedSelectionsDropdown from "./featured-selection-dropdown";
 import PurchaseProtectionsDropdown from "./purchase-protection-dropdown";
 import SearchContainer from './search-container';
+import { useUserClient } from '@/hooks/use-user-client';
 
 type DropdownType = "categories" | "featured" | "purchaseProtection" | null;
 
 const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
   const router = useRouter();
-  const { customer, loading, user } = useUser();
+  const { loading, user } = useUserClient();
   const { items } = useCart();
   const [isAtTop, setIsAtTop] = React.useState(true);
   const [showSearch, setShowSearch] = React.useState(false);
@@ -140,9 +140,9 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                           }
                           isHomepage={isHomepage}
                           customer={{
-                            firstName: customer?.firstName ?? undefined,
-                            lastName: customer?.lastName ?? undefined,
-                            image: customer?.image ?? undefined,
+                            firstName: user?.firstName ?? undefined,
+                            lastName: user?.lastName ?? undefined,
+                            image: user?.image ?? undefined,
                             email: user.email ?? undefined,
                           }}
                           user={user}
@@ -209,7 +209,7 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                         Help Center
                       </Link>
                       <Link
-                        href="/"
+                        href="/become-a-verified-seller"
                         className="hover:text-[#800020] cursor-pointer"
                       >
                         Become a seller
@@ -232,7 +232,7 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                   items={items.length}
                   loading={loading}
                   user={user}
-                  customer={customer}
+                  customer={user}
                 />
               </motion.header>
             )}
@@ -273,9 +273,9 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                   isHomepage={false}
                   isCategoriesOpen={isMobileMenuOpen}
                   customer={{
-                    firstName: customer?.firstName ?? undefined,
-                    lastName: customer?.lastName ?? undefined,
-                    image: customer?.image ?? undefined,
+                    firstName: user?.firstName ?? undefined,
+                    lastName: user?.lastName ?? undefined,
+                    image: user?.image ?? undefined,
                     email: user.email ?? undefined,
                   }}
                   user={user}

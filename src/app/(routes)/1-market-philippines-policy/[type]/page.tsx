@@ -7,7 +7,7 @@ import PolicyContent from "./policy-content";
 // The Page component receives the dynamic parameters from the URL directly as a prop
 const Page = async ({ params }: { params: Promise<{ type: string }> }) => {
   const { type } = await params;
-  const formattedType = type.toLowerCase().replace(/ /g, "-");
+  const formattedType = type.replace(/([a-z])([A-Z])/g, "$1 $2");
 
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
@@ -19,7 +19,7 @@ const Page = async ({ params }: { params: Promise<{ type: string }> }) => {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl capitalize md:text-5xl font-bold mb-4">
-                    {type}
+                    {formattedType}
                   </h1>
                   <p className="max-w-3xl text-lg mb-6">
                     Learn about the policies and regulations that govern the

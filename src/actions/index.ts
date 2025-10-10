@@ -1,8 +1,9 @@
 "use server";
 
-import nodemailer from "nodemailer";
 import { OrderConfirmationEmailHTML } from "@/components/email-template/automated-receipt";
 import db from "@/lib/db";
+import { cookies } from "next/headers";
+import { sendMail } from "@/lib/email";
 
 export const sendReceiptEmail = async (
   email: string,
@@ -16,36 +17,25 @@ export const sendReceiptEmail = async (
   shippingCost: number,
   total: number
 ) => {
-  const htmlContent = await OrderConfirmationEmailHTML({
-    orderNumber,
-    orderDate,
-    customerName,
-    shippingAddress,
-    items,
-    subtotal,
-    discountAmount,
-    shippingCost,
-    total,
-  });
-
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: "onemarketphilippines2025@gmail.com",
-      pass: "vrbscailgpflucvn",
-    },
-  });
-
-  const message = {
-    from: "onemarketphilippines2025@gmail.com",
-    to: email,
-    subject: "Order Automated Receipt",
-    text: `Your order number is ${orderNumber}`,
-    html: htmlContent,
-  };
-
   try {
-    await transporter.sendMail(message);
+    const htmlContent = await OrderConfirmationEmailHTML({
+      orderNumber,
+      orderDate,
+      customerName,
+      shippingAddress,
+      items,
+      subtotal,
+      discountAmount,
+      shippingCost,
+      total,
+    });
+
+    await sendMail(
+      email,
+      `Order Automated Receipt`,
+      `Your order number is ${orderNumber}`,
+      htmlContent
+    );
 
     return { success: "Email has been sent." };
   } catch (error) {
@@ -74,4 +64,8 @@ export const getProductsBySellerId = async (sellerId: string) => {
     console.error("Error fetching products:", error);
     return { error: "Failed to fetch products" };
   }
+};
+
+export const signOut = async () => {
+  (await cookies()).set("1MP-Authorization", "", { maxAge: 0, path: "/" });
 };

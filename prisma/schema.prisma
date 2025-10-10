@@ -3,17 +3,65 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 model Admin {
+  id              String  @id @default(cuid())
+  email           String
+  password        String
+  image           String?
+  tax             Float? // 20%
+  companyNumber   String?
+  region          String?
+  province        String?
+  municipality    String?
+  barangay        String?
+  companyAddress  String?
+  zipCode         String?
+  gmailSmtp       String?
+  appPasswordSmtp String?
+  darkLogo        String?
+  lightLogo       String?
+  companyName     String?
+  companyTagLine  String?
+  refundableDays  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Policies {
+  id                             String   @id @default(cuid())
+  legalNotice                    String?
+  productListingPolicy           String?
+  intellectualPropertyProtection String?
+  privacyPolicy                  String?
+  termsOfUse                     String?
+  integrityCompliance            String?
+  refundPolicy                   String?
+  createdAt                      DateTime @default(now())
+  updatedAt                      DateTime @updatedAt
+}
+
+model CompanyHours {
+  id        String  @id @default(cuid())
+  day       String
+  timeStart String?
+  timeEnd   String?
+  isOpen    Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Faqs {
   id       String  @id @default(cuid())
-  authId   String? @unique
-  email    String
-  password String
-  image    String?
+  topic    String
+  question String
+  answer   String
+  isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -21,7 +69,6 @@ model Admin {
 
 model User {
   id              String    @id @default(cuid())
-  authId          String?   @unique // Supabase auth user ID
   username        String?   @unique
   firstName       String?
   lastName        String?
@@ -34,6 +81,8 @@ model User {
   phoneNumber     String?
   gender          String?
   dateOfBirth     String?
+
+  isActive Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -48,6 +97,7 @@ model User {
   invoiceInfo  InvoiceInfo[]
   conversation Conversation[]
   followStore  FollowStore[]
+  ticket       Ticket[]
 }
 
 model Address {
@@ -77,7 +127,6 @@ model Address {
 
 model Vendor {
   id                     String    @id @default(uuid())
-  authId                 String?   @unique // Supabase auth user ID
   name                   String?
   email                  String    @unique
   image                  String?
@@ -100,8 +149,8 @@ model Vendor {
 
   businessType String? // Food, NonFood, Service, Digital
 
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
   lastActiveAt DateTime?
 
   categorySlug String?
@@ -124,6 +173,9 @@ model Vendor {
   participantConversations ParticipantConversation[]
   sentMessages             Message[]
   followStore              FollowStore[]
+  campaigns                Campaign[]
+  ticket                   Ticket[]
+  campaignProduct          CampaignProduct[]
 }
 
 model VendorAddress {
@@ -305,6 +357,8 @@ model Product {
   productView      ProductView[]
   like             Like[]
   message          Message[]
+  campaigns        Campaign[]
+  campaignProduct  CampaignProduct[]
 }
 
 model NutritionalFact {
@@ -387,8 +441,9 @@ model ProductVariant {
   updatedAt DateTime @updatedAt
 
   // Relations
-  productId String
-  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  productId            String
+  product              Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
+  campaignVariantStock CampaignVariantStock[]
 }
 
 model ProductDiscount {
@@ -398,14 +453,17 @@ model ProductDiscount {
   endDate   String
   type      String
   value     Float
-  status    String   @default("Active")
+  status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  adminApprovalStatus String @default("Pending")
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
-  products Product[]
+  products  Product[]
+  orderItem OrderItem[]
 
   @@index([vendorId])
 }
@@ -417,14 +475,17 @@ model NewArrivalDiscount {
   endDate   String
   type      String
   value     Float
-  status    String   @default("Active")
+  status    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  adminApprovalStatus String @default("Pending")
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
 
-  products Product[]
+  products  Product[]
+  orderItem OrderItem[]
 
   @@index([vendorId])
 }
@@ -438,13 +499,17 @@ model Coupon {
   discountAmount    Float?
   minimumSpend      Float?
   claimableQuantity Int
+  claimedQuantity   Int      @default(0)
   status            String   @default("Active")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  claimedQuantity   Int      @default(0)
+
+  adminApprovalStatus String @default("Pending")
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  orderItem OrderItem[]
 
   @@index([vendorId])
 }
@@ -459,13 +524,17 @@ model PromoCode {
   discountAmount    Float?
   minimumSpend      Float?
   claimableQuantity Int
+  claimedQuantity   Int      @default(0)
   status            String   @default("Active")
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-  claimedQuantity   Int      @default(0)
+
+  adminApprovalStatus String @default("Pending")
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  orderItem OrderItem[]
 
   @@index([vendorId])
 }
@@ -480,8 +549,14 @@ model Order {
   vehicleType     String?
   deliveryFee     Float?
   totalAmount     Float
+  discountAmount  Float?
   createdAt       DateTime @default(now())
   updatedAt       DateTime @updatedAt
+
+  processingAt     DateTime?
+  outForDeliveryAt DateTime?
+  deliveredAt      DateTime?
+  cancelledAt      DateTime?
 
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -508,6 +583,16 @@ model OrderItem {
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  productDiscountId    String?
+  newArrivalDiscountId String?
+  couponId             String?
+  promoCodeId          String?
+
+  productDiscount    ProductDiscount?    @relation(fields: [productDiscountId], references: [id])
+  newArrivalDiscount NewArrivalDiscount? @relation(fields: [newArrivalDiscountId], references: [id])
+  coupon             Coupon?             @relation(fields: [couponId], references: [id])
+  promoCode          PromoCode?          @relation(fields: [promoCodeId], references: [id])
 }
 
 model InvoiceInfo {
@@ -599,23 +684,11 @@ model News {
 model NewsSection {
   id       String @id @default(cuid())
   newsId   String
-  news     News   @relation(fields: [newsId], references: [id])
+  news     News   @relation(fields: [newsId], references: [id], onDelete: Cascade)
   heading  String
   content  String
   order    Int
   anchorId String @unique
-}
-
-model Policies {
-  id                             String   @id @default(cuid())
-  legalNotice                    String?
-  productListingPolicy           String?
-  intellectualPropertyProtection String?
-  privacyPolicy                  String?
-  termsOfUse                     String?
-  integrityCompliance            String?
-  createdAt                      DateTime @default(now())
-  updatedAt                      DateTime @updatedAt
 }
 
 model ProductView {
@@ -727,6 +800,95 @@ model PageView {
   platform  String
   count     Int      @default(0)
   ip        String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Campaign {
+  id                    String   @id @default(cuid())
+  title                 String
+  details               String
+  criteria              String
+  campaignStartDate     DateTime
+  campaignEndDate       DateTime
+  registrationStartDate DateTime
+  registrationEndDate   DateTime
+  type                  String
+  value                 Float
+
+  images String[]
+  banner String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  products        Product[]
+  vendors         Vendor[]
+  campaignProduct CampaignProduct[]
+}
+
+model CampaignProduct {
+  id String @id @default(uuid())
+
+  // Campaign-specific pricing (if different from regular price)
+  campaignPrice      Float?
+  discountPercentage Float? // Calculated field: (retail - campaign) / retail * 100
+  status             String @default("Pending")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  campaignId String
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  vendorId String
+  vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  variantStocks CampaignVariantStock[]
+}
+
+model CampaignVariantStock {
+  id String @id @default(uuid())
+
+  campaignStock Int // The stock allocated for this variant in the campaign
+  soldCount     Int @default(0) // Track how many sold during campaign
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  campaignProductId String
+  campaignProduct   CampaignProduct @relation(fields: [campaignProductId], references: [id], onDelete: Cascade)
+
+  // For products with variants
+  productVariantId String?
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id], onDelete: Cascade)
+}
+
+model Ticket {
+  id           String   @id @default(cuid())
+  topic        String
+  details      String
+  specifyIssue String
+  attachments  String[]
+  status       String   @default("Open") // Open, Resolved
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  vendorId String?
+  vendor   Vendor? @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+}
+
+model Revenue {
+  id     String @id @default(cuid())
+  amount Float
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }

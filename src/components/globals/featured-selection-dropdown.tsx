@@ -67,10 +67,10 @@ const FeaturedSelectionsDropdown = ({
                   Campaign
                 </Link>
                 <Link
-                  href="/categories-catalog"
+                  href="/product-listings"
                   className="text-base hover:text-[#800020]"
                 >
-                  Categories catalog
+                  Product listings
                 </Link>
                 <Link
                   href="/services-offered"

@@ -3,9 +3,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/use-user";
-import { Loader2, Plus, Edit, Trash2 } from "lucide-react";
+import { Plus, Edit, Trash2 } from "lucide-react";
 import { Address as AddressType } from "@prisma/client";
 import { toast } from "sonner";
 import { Card, CardContent } from "@/components/ui/card";
@@ -32,9 +30,6 @@ import {
 } from "@/components/ui/alert-dialog";
 
 const Page = () => {
-  const router = useRouter();
-  const { loading, user: supabaseUser, error } = useUser();
-
   const [addresses, setAddresses] = useState<AddressType[]>([]);
   const [addressesLoading, setAddressesLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -46,20 +41,8 @@ const Page = () => {
     null
   );
 
-  useEffect(() => {
-    if (!loading && !supabaseUser) {
-      router.push("/sign-in");
-    }
-
-    if (!loading && error) {
-      console.error("Error in useUser hook, redirecting to sign-in:", error);
-      router.push("/sign-in");
-    }
-  }, [loading, supabaseUser, error, router]);
-
   // --- Fetch Addresses ---
   const fetchAddresses = useCallback(async () => {
-    if (!supabaseUser) return;
     setAddressesLoading(true);
     try {
       const response = await fetch("/api/v1/customer/addresses", {
@@ -86,7 +69,7 @@ const Page = () => {
     } finally {
       setAddressesLoading(false);
     }
-  }, [supabaseUser]);
+  }, []);
 
   useEffect(() => {
     fetchAddresses();
@@ -164,18 +147,6 @@ const Page = () => {
     fetchAddresses();
   }, [fetchAddresses]);
 
-  if (loading) {
-    return (
-      <div className="h-full bg-white flex items-center justify-center pb-20">
-        <Loader2 className="animate-spin h-16 w-16 text-[#800020]" />
-      </div>
-    );
-  }
-
-  if (!supabaseUser) {
-    return null;
-  }
-
   return (
     <div className="flex flex-col gap-1">
       <div className="flex items-center justify-between mb-4">
@@ -191,7 +162,7 @@ const Page = () => {
               <Plus className="w-4 h-4" /> Add New Address
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-7xl">
+          <DialogContent className="!max-w-4xl">
             <DialogHeader>
               <DialogTitle>
                 {editingAddress ? "Edit Address" : "Add New Address"}

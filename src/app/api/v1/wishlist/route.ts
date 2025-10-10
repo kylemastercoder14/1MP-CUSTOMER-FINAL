@@ -1,21 +1,11 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
+import { useUser } from "@/hooks/use-user";
 
 export async function POST(request: Request) {
   try {
-    const supabase = createClient();
-    const {
-      data: { session },
-      error: sessionError,
-    } = await (await supabase).auth.getSession();
-
-    if (sessionError || !session) {
-      return NextResponse.json(
-        { success: false, message: "Authentication required." },
-        { status: 401 }
-      );
-    }
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
     const { productId } = await request.json();
 
@@ -27,7 +17,7 @@ export async function POST(request: Request) {
     }
 
     const user = await db.user.findUnique({
-      where: { authId: session?.user.id },
+      where: { id: userId },
     });
 
     if (!user) {

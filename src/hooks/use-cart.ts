@@ -32,12 +32,14 @@ interface VendorVoucher {
   code: string;
   discountAmount: number;
   discountType: "Percentage Off" | "Fixed Price";
+  adminApprovalStatus: string;
 }
 
 interface VendorCoupon {
   name: string;
   discountAmount: number;
   type: "Percentage Off" | "Fixed Price";
+  adminApprovalStatus: string;
 }
 
 // Define delivery option types for consistency
@@ -394,14 +396,14 @@ const useCart = create(
         const coupon = get().vendorCoupons[vendorId];
         let discount = 0;
 
-        if (voucher) {
+        if (voucher && voucher.adminApprovalStatus === "Approved") {
           discount =
             voucher.discountType === "Percentage Off"
               ? subtotal * (voucher.discountAmount / 100)
               : Math.min(voucher.discountAmount, subtotal);
         }
 
-        if (coupon) {
+        if (coupon && coupon.adminApprovalStatus === "Approved") {
           const couponDiscount =
             coupon.type === "Percentage Off"
               ? subtotal * (coupon.discountAmount / 100)
@@ -442,7 +444,7 @@ const useCart = create(
           grandSubtotal += vendorTotal.subtotal;
           grandDiscount += vendorTotal.discount;
           grandShippingFee += vendorTotal.shippingFee;
-          grandTotal += vendorTotal.total + vendorTotal.shippingFee; // Add vendor's shipping fee to their total
+          grandTotal += vendorTotal.total;
         });
 
         return {
@@ -463,6 +465,7 @@ const useCart = create(
           (pc) =>
             pc.code === trimmedCode &&
             pc.status === "Ongoing" &&
+            pc.adminApprovalStatus === "Approved" &&
             new Date(pc.startDate) <= new Date() &&
             new Date(pc.endDate) >= new Date()
         );
@@ -493,6 +496,7 @@ const useCart = create(
             code: promoCode.code,
             discountAmount: promoCode.discountAmount ?? 0,
             discountType: promoCode.type as "Percentage Off" | "Fixed Price",
+            adminApprovalStatus: promoCode.adminApprovalStatus,
           },
         };
       },

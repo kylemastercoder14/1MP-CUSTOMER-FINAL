@@ -9,6 +9,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import Link from "next/link";
@@ -318,23 +319,33 @@ const Client = () => {
                 <BreadcrumbItem>
                   <BreadcrumbLink asChild>
                     <Link
-                      href="/components"
+                      href={`/search-products?categories=${categories}`}
                       className="capitalize text-[#800020] hover:text-[#800020]"
                     >
-                      {formatText(categories)}
+                      {product?.category?.name}
                     </Link>
                   </BreadcrumbLink>
                 </BreadcrumbItem>
+                {subcategories && (
+                  <>
+                    <BreadcrumbSeparator />
+                    <BreadcrumbItem>
+                      <BreadcrumbLink asChild>
+                        <Link
+                          href={`/search-products?categories=${categories}&subcategories=${subcategories}`}
+                          className="capitalize text-[#800020] hover:text-[#800020]"
+                        >
+                          {product?.subCategory?.name}
+                        </Link>
+                      </BreadcrumbLink>
+                    </BreadcrumbItem>
+                  </>
+                )}
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                  <BreadcrumbLink asChild>
-                    <Link
-                      href="/components"
-                      className="capitalize text-[#800020] hover:text-[#800020]"
-                    >
-                      {formatText(subcategories)}
-                    </Link>
-                  </BreadcrumbLink>
+                  <BreadcrumbPage>
+                    {product?.name || "Product Name"}
+                  </BreadcrumbPage>
                 </BreadcrumbItem>
               </BreadcrumbList>
             </Breadcrumb>
@@ -535,7 +546,7 @@ const Client = () => {
                   onClick={handleLike}
                 >
                   <Heart
-                    className={`h-4 w-4 -mb-2 ${isLiked ? 'fill-red-500 text-red-500' : ''}`}
+                    className={`h-4 w-4 -mb-2 ${isLiked ? "fill-red-500 text-red-500" : ""}`}
                   />
                   Like ({likeCount}) {/* Display like count */}
                 </Button>

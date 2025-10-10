@@ -3,27 +3,22 @@
 
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
+import { useUser } from "@/hooks/use-user";
 
 export async function GET(request: Request) {
   try {
-    const supabase = createClient();
-    const {
-      data: { session },
-      error: sessionError,
-    } = await (await supabase).auth.getSession();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (sessionError || !session) {
+    if (!userId) {
       return NextResponse.json(
         { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
       );
     }
 
-    const supabaseUserId = session.user.id;
-
     const user = await db.user.findUnique({
-      where: { authId: supabaseUserId },
+      where: { id: userId },
       select: { id: true },
     });
 
@@ -57,22 +52,18 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabase = createClient();
-    const {
-      data: { session },
-      error: sessionError,
-    } = await (await supabase).auth.getSession();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (sessionError || !session) {
+    if (!userId) {
       return NextResponse.json(
         { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
       );
     }
 
-    const supabaseUserId = session.user.id;
     const user = await db.user.findUnique({
-      where: { authId: supabaseUserId },
+      where: { id: userId },
       select: { id: true },
     });
 
@@ -174,22 +165,18 @@ export async function POST(request: Request) {
 // For PUT (updating an existing address)
 export async function PUT(request: Request) {
   try {
-    const supabase = createClient();
-    const {
-      data: { session },
-      error: sessionError,
-    } = await (await supabase).auth.getSession();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (sessionError || !session) {
+    if (!userId) {
       return NextResponse.json(
         { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
       );
     }
 
-    const supabaseUserId = session.user.id;
     const user = await db.user.findUnique({
-      where: { authId: supabaseUserId },
+      where: { id: userId },
       select: { id: true },
     });
 
@@ -284,22 +271,18 @@ export async function PUT(request: Request) {
 // For DELETE (removing an address)
 export async function DELETE(request: Request) {
   try {
-    const supabase = createClient();
-    const {
-      data: { session },
-      error: sessionError,
-    } = await (await supabase).auth.getSession();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
 
-    if (sessionError || !session) {
+    if (!userId) {
       return NextResponse.json(
         { message: "Authentication required.", code: "UNAUTHENTICATED" },
         { status: 401 }
       );
     }
 
-    const supabaseUserId = session.user.id;
     const user = await db.user.findUnique({
-      where: { authId: supabaseUserId },
+      where: { id: userId },
       select: { id: true },
     });
 

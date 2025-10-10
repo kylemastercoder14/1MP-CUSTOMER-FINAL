@@ -12,7 +12,7 @@ const Page = () => {
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
         <Header />
-        <div className="w-full lg:h-[500px] h-auto bg-zinc-200 relative overflow-hidden flex items-center">
+        <div className="w-full lg:h-[500px] h-auto bg-zinc-200 relative pt-28 overflow-hidden flex items-center">
           {/* Main Container: Flexbox for responsive layout */}
           <div className="flex flex-col lg:flex-row items-center justify-center w-full px-10 lg:px-20 lg:mt-0 mt-14 py-10 lg:py-0">
             {/* Content Section - text and description */}

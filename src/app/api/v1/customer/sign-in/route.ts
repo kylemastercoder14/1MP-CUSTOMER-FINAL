@@ -1,7 +1,8 @@
-import { createClient } from "@/lib/supabase/server";
+import * as jose from "jose";
 import db from "@/lib/db";
 import bcrypt from "bcryptjs";
 import { NextResponse } from "next/server";
+import { cookies } from "next/headers";
 
 export async function POST(request: Request) {
   try {
@@ -42,6 +43,7 @@ export async function POST(request: Request) {
     }
 
     const passwordValid = await bcrypt.compare(password, customer.password);
+
     if (!passwordValid) {
       return NextResponse.json(
         {
@@ -64,27 +66,25 @@ export async function POST(request: Request) {
       );
     }
 
-    const supabase = createClient();
-    const {
-      data: { session },
-      error: supabaseError,
-    } = await (
-      await supabase
-    ).auth.signInWithPassword({
-      email,
-      password,
-    });
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const alg = "HS256";
 
-    if (supabaseError) {
-      return NextResponse.json(
-        {
-          message: "Failed to sign in with Supabase.",
-          status: 500,
-          error: "SUPABASE_SIGN_IN_ERROR",
-        },
-        { status: 500 }
-      );
-    }
+    const jwt = await new jose.SignJWT({})
+      .setProtectedHeader({ alg })
+      .setExpirationTime("72h")
+      .setSubject(customer.id.toString())
+      .sign(secret);
+
+    (
+      await // Set the cookie with the JWT
+      cookies()
+    ).set("1MP-Authorization", jwt, {
+      httpOnly: true, // Set to true for security
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      maxAge: 60 * 60 * 24 * 3, // Cookie expiration (3 days in seconds)
+      sameSite: "strict", // Adjust according to your needs
+      path: "/", // Adjust path as needed
+    });
 
     const responseData = {
       customer: {
@@ -94,11 +94,6 @@ export async function POST(request: Request) {
         lastName: customer.lastName,
         image: customer.image,
         createdAt: customer.createdAt,
-      },
-      session: {
-        accessToken: session?.access_token,
-        refreshToken: session?.refresh_token,
-        expiresIn: session?.expires_in,
       },
     };
 

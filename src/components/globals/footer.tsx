@@ -1,9 +1,16 @@
+"use client";
+
 import React from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowUp } from "lucide-react";
 import Image from "next/image";
-import { footerSections, paymentMethods, policies, socialIcons } from "@/constants";
+import {
+  footerSections,
+  paymentMethods,
+  policies,
+  socialIcons,
+} from "@/constants";
 
 const Footer = () => {
   const scrollToTop = () => {
@@ -25,6 +32,7 @@ const Footer = () => {
                   <li key={linkIndex}>
                     <Link
                       href={link.href}
+                      target='_blank'
                       className="text-sm text-gray-600 hover:text-[#800020] hover:underline transition-colors"
                     >
                       {link.name}
@@ -113,19 +121,28 @@ const Footer = () => {
         {/* Policies */}
         <div className="mt-4">
           <div className="flex flex-wrap gap-2 text-sm text-gray-600">
-            {policies.map((policy, index) => (
-              <span key={index}>
-                <Link
-                  href={`/1-market-philippines-policy/${policy.toLowerCase().replace(/ /g, "-")}`}
-                  className="hover:text-[#800020] hover:underline transition-colors"
-                >
-                  {policy}
-                </Link>
-                {index < policies.length - 1 && (
-                  <span className="mx-2 text-gray-400">|</span>
-                )}
-              </span>
-            ))}
+            {policies.map((policy, index) => {
+              const camelCasePolicy = policy
+                .toLowerCase()
+                .replace(/(?:^\w|[A-Z]|\b\w)/g, (word, i) =>
+                  i === 0 ? word.toLowerCase() : word.toUpperCase()
+                )
+                .replace(/\s+/g, "");
+
+              return (
+                <span key={index}>
+                  <Link
+                    href={`/1-market-philippines-policy/${camelCasePolicy}`}
+                    className="hover:text-[#800020] hover:underline transition-colors"
+                  >
+                    {policy}
+                  </Link>
+                  {index < policies.length - 1 && (
+                    <span className="mx-2 text-gray-400">|</span>
+                  )}
+                </span>
+              );
+            })}
           </div>
         </div>
 

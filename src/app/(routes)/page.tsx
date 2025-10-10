@@ -111,7 +111,6 @@ export default function Homepage() {
   }, []);
   return (
     <div className="min-h-screen">
-      {/* Hero Section */}
       <section className="relative hero-background">
         {/* Header */}
         <Header isHomepage />
@@ -146,7 +145,6 @@ export default function Homepage() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-10 lg:py-20 bg-[#3a190b]">
         <div className="lg:px-20 px-10">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">

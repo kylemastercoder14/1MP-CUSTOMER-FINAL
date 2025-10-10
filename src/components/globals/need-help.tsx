@@ -6,7 +6,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useChat } from "@ai-sdk/react";
 import { Vendor } from "@prisma/client";
 import useRoutes from "@/hooks/use-routes";
-import { useUser } from "@/hooks/use-user";
 import ContactSeller from "@/components/globals/chat-widget/contact-seller";
 import AskAi from "@/components/globals/chat-widget/ask-ai";
 import Feedback from "@/components/globals/chat-widget/feedback";
@@ -16,12 +15,13 @@ import { Button } from "@/components/ui/button";
 import { IoMdChatbubbles } from "react-icons/io";
 import { X } from "lucide-react";
 import { SellerWithLastMessage } from "@/types";
+import { useUserClient } from '@/hooks/use-user-client';
 
 const NeedHelp = () => {
   const [isOpen, setIsOpen] = useState(false);
   const routes = useRoutes();
   const { sellerId, close } = useContactSeller();
-  const { customer } = useUser();
+  const { user: customer } = useUserClient();
   const [activeTab, setActiveTab] = useState("Contact Seller");
   const [showWidget, setShowWidget] = useState(false);
   const widgetRef = useRef<HTMLDivElement>(null);

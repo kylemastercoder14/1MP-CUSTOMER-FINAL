@@ -34,6 +34,7 @@ import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import FlashDealsSkeletonCarousel from "@/components/globals/flash-deal-skeleton";
 import ProductCard from "@/components/globals/product-card";
+import { useRouter } from 'next/navigation';
 
 interface ProductsByCategory {
   [category: string]: ProductWithProps[];
@@ -69,6 +70,7 @@ const EmptyProductsMessage = () => (
 );
 
 const Page = () => {
+  const router = useRouter();
   const [api, setApi] = React.useState<CarouselApi>();
   const [current, setCurrent] = React.useState(0);
   const [count, setCount] = React.useState(0);
@@ -307,67 +309,8 @@ const Page = () => {
         </div>
         <section className="py-20 px-20">
           <div className="grid lg:grid-cols-12 grid-cols-1 gap-5">
-            <div className="lg:col-span-2">
-              <Card className="bg-transparent">
-                <CardHeader>
-                  <CardTitle>Browse History</CardTitle>
-                  <CardDescription>
-                    Products you have recently viewed
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid lg:grid-cols-2 grid-cols-1">
-                    {/* Assuming browse history is static or handled elsewhere */}
-                    <div className="relative w-full h-24">
-                      <Image
-                        src="https://s.alicdn.com/@sc04/kf/H38ec44cb65854431b2a0c02ef9b96fc6h.jpg_220x220.jpg"
-                        alt="Product"
-                        fill
-                        className="size-full object-cover rounded-md"
-                      />
-                      <div className="bg-gradient-to-r from-white/80 to-zinc-100 text-xs font-medium px-1.5 py-1 rounded-full absolute top-2 right-2">
-                        ₱120
-                      </div>
-                    </div>
-                    <div className="relative w-full h-24">
-                      <Image
-                        src="https://s.alicdn.com/@sc04/kf/H38ec44cb65854431b2a0c02ef9b96fc6h.jpg_220x220.jpg"
-                        alt="Product"
-                        fill
-                        className="size-full object-cover rounded-md"
-                      />
-                      <div className="bg-gradient-to-r from-white/80 to-zinc-100 text-xs font-medium px-1.5 py-1 rounded-full absolute top-2 right-2">
-                        ₱69
-                      </div>
-                    </div>
-                    <div className="relative w-full h-24">
-                      <Image
-                        src="https://s.alicdn.com/@sc04/kf/H38ec44cb65854431b2a0c02ef9b96fc6h.jpg_220x220.jpg"
-                        alt="Product"
-                        fill
-                        className="size-full object-cover rounded-md"
-                      />
-                      <div className="bg-gradient-to-r from-white/80 to-zinc-100 text-xs font-medium px-1.5 py-1 rounded-full absolute top-2 right-2">
-                        ₱1,250
-                      </div>
-                    </div>
-                    <div className="relative w-full h-24">
-                      <Image
-                        src="https://s.alicdn.com/@sc04/kf/H38ec44cb65854431b2a0c02ef9b96fc6h.jpg_220x220.jpg"
-                        alt="Product"
-                        fill
-                        className="size-full object-cover rounded-md"
-                      />
-                      <div className="bg-gradient-to-r from-white/80 to-zinc-100 text-xs font-medium px-1.5 py-1 rounded-full absolute top-2 right-2">
-                        ₱547
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
             {categories.map((category) => (
-              <div className="lg:col-span-2" key={category}>
+              <div className="lg:col-span-3" key={category}>
                 <Card>
                   <CardHeader>
                     <CardTitle>Keep looking for</CardTitle>
@@ -423,7 +366,7 @@ const Page = () => {
                 </Card>
               </div>
             ))}
-            <div className="lg:col-span-4">
+            <div className="lg:col-span-3">
               <div className="relative w-full overflow-hidden rounded-md">
                 <Carousel
                   opts={{
@@ -533,7 +476,7 @@ const Page = () => {
                   </div>
                 </div>
 
-                <Button className="bg-white/30 rounded-full hover:bg-white/20 mb-6 w-fit">
+                <Button onClick={() => router.push("/on-time-shipping")} className="bg-white/30 rounded-full hover:bg-white/20 mb-6 w-fit">
                   Explore now
                 </Button>
 
@@ -642,7 +585,7 @@ const Page = () => {
                   </div>
                 </div>
 
-                <Button className="bg-white/30 rounded-full hover:bg-white/20 mb-6 w-fit">
+                <Button onClick={() => router.push("/after-sales-protection")} className="bg-white/30 rounded-full hover:bg-white/20 mb-6 w-fit">
                   Explore now
                 </Button>
 

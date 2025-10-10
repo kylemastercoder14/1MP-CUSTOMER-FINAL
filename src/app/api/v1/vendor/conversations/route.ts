@@ -1,45 +1,11 @@
 import { NextResponse } from "next/server";
 import { getSellersWithConversations } from "@/hooks/use-get-conversation";
-import { createClient } from "@/lib/supabase/server";
-import db from "@/lib/db";
+import { useUser } from "@/hooks/use-user";
 
-async function getAuthUser() {
-  const supabase = createClient();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await (await supabase).auth.getSession();
-
-  if (sessionError || !session) {
-    return {
-      error: NextResponse.json(
-        { message: "Authentication required.", code: "UNAUTHENTICATED" },
-        { status: 401 }
-      ),
-    };
-  }
-
-  const supabaseUserId = session.user.id;
-  const user = await db.user.findUnique({
-    where: { authId: supabaseUserId },
-    select: { id: true },
-  });
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { message: "User profile not found.", code: "USER_NOT_FOUND" },
-        { status: 404 }
-      ),
-    };
-  }
-
-  return { user };
-}
-
-export async function GET(request: Request) {
+export async function GET() {
   try {
-    const { user } = await getAuthUser();
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { user } = await useUser();
 
     if (!user) {
       return NextResponse.json(

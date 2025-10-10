@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import Footer from "@/components/globals/footer";
 import Header from "@/components/globals/header";
 import {
@@ -11,11 +11,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { ACCOUNT_LINKS } from "@/constants";
 import Link from "next/link";
-import { useUser } from "@/hooks/use-user";
-import { Loader2 } from "lucide-react";
 
 interface BreadcrumbItemType {
   label: string;
@@ -39,19 +37,6 @@ const PATH_SEGMENT_MAP: Record<string, string> = {
 
 const UserLayout = ({ children }: { children: React.ReactNode }) => {
   const pathname = usePathname();
-  const router = useRouter();
-  const { loading, user: supabaseUser, error } = useUser();
-
-  useEffect(() => {
-    if (!loading && !supabaseUser) {
-      router.push("/sign-in");
-    }
-
-    if (!loading && error) {
-      console.error("Error in useUser hook, redirecting to sign-in:", error);
-      router.push("/sign-in");
-    }
-  }, [loading, supabaseUser, error, router]);
 
   const breadcrumbItems = useMemo(() => {
     const items: BreadcrumbItemType[] = [{ label: "Home", href: "/" }];
@@ -100,18 +85,6 @@ const UserLayout = ({ children }: { children: React.ReactNode }) => {
     return items;
   }, [pathname]);
 
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center pt-[140px] pb-20">
-        <Loader2 className="animate-spin h-16 w-16 text-[#800020]" />
-      </div>
-    );
-  }
-
-  if (!supabaseUser) {
-    return null;
-  }
   return (
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">

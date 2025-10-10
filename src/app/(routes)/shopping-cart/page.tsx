@@ -20,7 +20,6 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useRouter } from "next/navigation";
-import { useUser } from "@/hooks/use-user";
 import { toast } from "sonner";
 
 const Page = () => {
@@ -47,7 +46,7 @@ const Page = () => {
     validateVoucher,
   } = useCart();
 
-  const { user: supabaseUser, loading: userLoading } = useUser(); // Get user info to conditionally fetch address
+  // const { user: supabaseUser, loading: userLoading } = useUserClient(); // Get user info to conditionally fetch address
 
   const [vendorVoucherInputs, setVendorVoucherInputs] = useState<
     Record<string, string>
@@ -123,12 +122,12 @@ const Page = () => {
       name: coupon.name,
       discountAmount: coupon.discountAmount ?? 0,
       type: coupon.type as "Percentage Off" | "Fixed Price",
+      adminApprovalStatus: coupon.adminApprovalStatus,
     });
   };
 
   // --- Fetch Default Address ---
   const fetchDefaultAddress = useCallback(async () => {
-    if (!supabaseUser || userLoading) return;
     setAddressLoading(true);
     try {
       const response = await fetch("/api/v1/customer/addresses", {
@@ -158,7 +157,7 @@ const Page = () => {
     } finally {
       setAddressLoading(false);
     }
-  }, [supabaseUser, userLoading]); // Depend on supabaseUser and userLoading
+  }, []);
 
   useEffect(() => {
     fetchDefaultAddress();
@@ -193,8 +192,22 @@ const Page = () => {
             </div>
 
             {Object.entries(itemsByVendor).map(([vendorId, vendorItems]) => {
-              const vendorPromoCodes = vendorItems[0].vendor?.promoCode || [];
-              const vendorCouponsList = vendorItems[0].vendor?.coupon || [];
+              const vendorPromoCodes =
+                vendorItems[0]?.vendor?.promoCode?.filter(
+                  (promo) =>
+                    promo.adminApprovalStatus === "Approved" &&
+                    promo.status === "Ongoing" &&
+                    new Date(promo.startDate) <= new Date() &&
+                    new Date(promo.endDate) >= new Date()
+                ) || [];
+              const vendorCouponsList =
+                vendorItems[0]?.vendor?.coupon?.filter(
+                  (coupon) =>
+                    coupon.adminApprovalStatus === "Approved" &&
+                    coupon.status === "Ongoing" &&
+                    new Date(coupon.startDate) <= new Date() &&
+                    new Date(coupon.endDate) >= new Date()
+                ) || [];
               const isVendorFullySelected = isVendorSelected(vendorId);
               const vendorSelectedCount = vendorItems.filter((item) =>
                 selectedItems.includes(item.id)
@@ -260,23 +273,21 @@ const Page = () => {
                               <h4 className="text-sm font-medium">
                                 Available Coupons
                               </h4>
-                              {vendorCouponsList.length > 0 ? (
-                                vendorCouponsList.map(
-                                  (coupon: {
-                                    name: string;
-                                    id: string;
-                                    startDate: Date;
-                                    endDate: Date;
-                                    type: string;
-                                    discountAmount: number | null;
-                                    minimumSpend: number | null;
-                                    claimableQuantity: number;
-                                    claimedQuantity: number;
-                                    status: string;
-                                    createdAt: Date;
-                                    updatedAt: Date;
-                                    vendorId: string;
-                                  }) => (
+
+                              {vendorCouponsList &&
+                              vendorCouponsList.length > 0 ? (
+                                vendorCouponsList
+                                  // ✅ Only show coupons that are approved and currently active
+                                  .filter(
+                                    (coupon) =>
+                                      coupon.adminApprovalStatus ===
+                                        "Approved" &&
+                                      coupon.status === "Ongoing" &&
+                                      new Date(coupon.startDate) <=
+                                        new Date() &&
+                                      new Date(coupon.endDate) >= new Date()
+                                  )
+                                  .map((coupon) => (
                                     <div
                                       key={coupon.id}
                                       className="flex items-center justify-between p-2 text-xs border rounded-sm cursor-pointer hover:bg-gray-50"
@@ -302,8 +313,7 @@ const Page = () => {
                                         Apply
                                       </Button>
                                     </div>
-                                  )
-                                )
+                                  ))
                               ) : (
                                 <p className="text-xs text-muted-foreground">
                                   No coupons available
@@ -313,7 +323,9 @@ const Page = () => {
                           </PopoverContent>
                         </Popover>
                       )}
-                      {vendorVoucher ? (
+
+                      {vendorVoucher &&
+                      vendorVoucher.adminApprovalStatus === "Approved" ? (
                         <div className="flex items-center gap-1 bg-green-50 px-2 py-1 rounded text-xs text-green-600">
                           <span>{vendorVoucher.code}</span>
                           <Button
@@ -396,29 +408,26 @@ const Page = () => {
                             ₱{item.discountedPrice.toFixed(2)}
                           </p>
                           <div className="flex items-center gap-1">
-                            {/* TODO: Work with save item */}
-                            <Button variant="ghost" size="sm">
-                              <Heart className="w-4 h-4" />
-                              Save Item
-                            </Button>
                             <Button
                               variant="ghost"
-                              size="icon"
                               onClick={() => removeItem(item.id)}
                             >
                               <Trash2 className="w-4 h-4" />
+                              Remove Item
                             </Button>
                           </div>
                         </div>
                         <div className="w-[15%]">
                           <QuantityInput
                             quantity={item.quantity}
-                            setQuantity={(q) =>
-                              updateQuantity(
-                                item.id,
-                                typeof q === "number" ? q : item.quantity
-                              )
-                            }
+                            setQuantity={(newQuantity) => {
+                              const value =
+                                typeof newQuantity === "function"
+                                  ? newQuantity(item.quantity) // manually handle functional form
+                                  : newQuantity;
+
+                              updateQuantity(item.id, value);
+                            }}
                           />
                         </div>
                       </div>
@@ -431,18 +440,21 @@ const Page = () => {
                       <span>Subtotal:</span>
                       <span>₱{vendorTotal.subtotal.toFixed(2)}</span>
                     </div>
-                    {vendorVoucher && (
+
+                    {vendorVoucher?.adminApprovalStatus === "Approved" && (
                       <div className="flex justify-between text-green-600">
                         <span>Voucher Discount:</span>
                         <span>-₱{vendorTotal.discount.toFixed(2)}</span>
                       </div>
                     )}
-                    {vendorCoupon && (
+
+                    {vendorCoupon?.adminApprovalStatus === "Approved" && (
                       <div className="flex justify-between text-blue-600">
                         <span>Coupon Discount:</span>
                         <span>-₱{vendorCoupon.discountAmount.toFixed(2)}</span>
                       </div>
                     )}
+
                     <div className="flex justify-between font-medium">
                       <span>Vendor Total:</span>
                       <span>₱{vendorTotal.total.toFixed(2)}</span>
@@ -520,6 +532,9 @@ const Page = () => {
                   {Object.keys(itemsByVendor).map((vendorId) => {
                     const vendor = itemsByVendor[vendorId][0];
                     const vendorTotal = calculateVendorTotal(vendorId);
+                    const vendorVoucher = vendorVouchers[vendorId];
+                    const vendorCoupon = vendorCoupons[vendorId];
+
                     return (
                       <div key={vendorId} className="border-b pb-2">
                         <div className="flex justify-between text-sm">
@@ -528,14 +543,18 @@ const Page = () => {
                           </span>
                           <span>₱{vendorTotal.total.toFixed(2)}</span>
                         </div>
-                        {vendorVouchers[vendorId] && (
+
+                        {/* ✅ Show only approved voucher */}
+                        {vendorVoucher?.adminApprovalStatus === "Approved" && (
                           <div className="text-xs text-green-600">
-                            Voucher: {vendorVouchers[vendorId].code}
+                            Voucher: {vendorVoucher.code}
                           </div>
                         )}
-                        {vendorCoupons[vendorId] && (
+
+                        {/* ✅ Show only approved coupon */}
+                        {vendorCoupon?.adminApprovalStatus === "Approved" && (
                           <div className="text-xs text-blue-600">
-                            Coupon: {vendorCoupons[vendorId].name}
+                            Coupon: {vendorCoupon.name}
                           </div>
                         )}
                       </div>
@@ -557,21 +576,29 @@ const Page = () => {
                         .toFixed(2)}
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">
-                      Total Discount
-                    </span>
-                    <span className="font-medium text-green-600">
-                      -₱
-                      {Object.keys(itemsByVendor)
-                        .reduce(
-                          (sum, vendorId) =>
-                            sum + calculateVendorTotal(vendorId).discount,
-                          0
-                        )
-                        .toFixed(2)}
-                    </span>
-                  </div>
+
+                  {Object.keys(itemsByVendor).reduce(
+                    (sum, vendorId) =>
+                      sum + calculateVendorTotal(vendorId).discount,
+                    0
+                  ) > 0 && (
+                    <div className="flex justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Total Discount
+                      </span>
+                      <span className="font-medium text-green-600">
+                        -₱
+                        {Object.keys(itemsByVendor)
+                          .reduce(
+                            (sum, vendorId) =>
+                              sum + calculateVendorTotal(vendorId).discount,
+                            0
+                          )
+                          .toFixed(2)}
+                      </span>
+                    </div>
+                  )}
+
                   <div className="flex justify-between">
                     <span className="text-sm text-muted-foreground">
                       Shipping Fee
@@ -581,13 +608,18 @@ const Page = () => {
                 </div>
 
                 <Separator className="my-3" />
+
                 <div className="flex justify-between">
                   <span className="font-medium">Total</span>
                   <span className="font-medium text-lg text-[#800020]">
                     ₱{calculateCartTotal().total.toFixed(2)}
                   </span>
                 </div>
-                <Button onClick={() => router.push("/checkout")} className="w-full mt-4 lg:mb-0 mb-4 bg-[#800020] hover:bg-[#800020]/90">
+
+                <Button
+                  onClick={() => router.push("/checkout")}
+                  className="w-full mt-4 lg:mb-0 mb-4 bg-[#800020] hover:bg-[#800020]/90"
+                >
                   Proceed to Checkout ({selectedItems.length})
                 </Button>
               </div>

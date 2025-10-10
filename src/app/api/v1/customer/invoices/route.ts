@@ -2,8 +2,8 @@
 
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
 import { z } from "zod";
+import { useUser } from "@/hooks/use-user";
 
 const invoiceSchema = z.object({
   companyName: z.string().optional(),
@@ -11,48 +11,21 @@ const invoiceSchema = z.object({
   addressId: z.string().cuid(),
 });
 
-async function getAuthUser() {
-  const supabase = createClient();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await (await supabase).auth.getSession();
-
-  if (sessionError || !session) {
-    return {
-      error: NextResponse.json(
-        { message: "Authentication required.", code: "UNAUTHENTICATED" },
-        { status: 401 }
-      ),
-    };
-  }
-
-  const supabaseUserId = session.user.id;
-  const user = await db.user.findUnique({
-    where: { authId: supabaseUserId },
-    select: { id: true },
-  });
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { message: "User profile not found.", code: "USER_NOT_FOUND" },
-        { status: 404 }
-      ),
-    };
-  }
-
-  return { user };
-}
-
 // GET route to fetch the user's invoice info
 export async function GET(request: Request) {
   try {
-    const { user, error } = await getAuthUser();
-    if (error) return error;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Authentication required.", code: "UNAUTHENTICATED" },
+        { status: 401 }
+      );
+    }
 
     const invoice = await db.invoiceInfo.findFirst({
-      where: { userId: user.id },
+      where: { userId },
       include: {
         address: true,
         user: true,
@@ -75,8 +48,15 @@ export async function GET(request: Request) {
 // POST route to create new invoice info
 export async function POST(request: Request) {
   try {
-    const { user, error } = await getAuthUser();
-    if (error) return error;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Authentication required.", code: "UNAUTHENTICATED" },
+        { status: 401 }
+      );
+    }
 
     const body = await request.json();
     const validatedBody = invoiceSchema.safeParse(body);
@@ -95,7 +75,7 @@ export async function POST(request: Request) {
 
     // Check if the user already has an invoice info record
     const existingInvoice = await db.invoiceInfo.findFirst({
-      where: { userId: user.id },
+      where: { userId },
     });
 
     if (existingInvoice) {
@@ -112,7 +92,7 @@ export async function POST(request: Request) {
     // Create a new invoice info record
     const newInvoice = await db.invoiceInfo.create({
       data: {
-        userId: user.id,
+        userId: userId,
         companyName: companyName,
         tinId: tinId,
         addressId: addressId,
@@ -143,8 +123,15 @@ export async function POST(request: Request) {
 // PUT route to update an existing invoice info record
 export async function PUT(request: Request) {
   try {
-    const { user, error } = await getAuthUser();
-    if (error) return error;
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Authentication required.", code: "UNAUTHENTICATED" },
+        { status: 401 }
+      );
+    }
 
     const body = await request.json();
     const validatedBody = invoiceSchema.safeParse(body);
@@ -163,7 +150,7 @@ export async function PUT(request: Request) {
 
     // Find the existing invoice info record
     const existingInvoice = await db.invoiceInfo.findFirst({
-      where: { userId: user.id },
+      where: { userId },
     });
 
     if (!existingInvoice) {
