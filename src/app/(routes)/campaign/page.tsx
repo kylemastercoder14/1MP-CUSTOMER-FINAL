@@ -1,18 +1,15 @@
 "use client";
 
-import React from "react";
-import Header from "@/components/globals/header";
-import Footer from "@/components/globals/footer";
+import React, { Suspense } from "react";
+import Client from "./client";
+
+export const dynamic = "force-dynamic"; // ⬅ prevents static prerendering
 
 const Page = () => {
   return (
-    <div className="min-h-screen bg-[#f5f5f5]">
-      <div className="relative">
-        <Header />
-        <section>{/* Campaign */}</section>
-      </div>
-      <Footer />
-    </div>
+    <Suspense fallback={<div>Loading...</div>}>
+      <Client />
+    </Suspense>
   );
 };
 

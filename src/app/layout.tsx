@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Karla } from "next/font/google";
-import "./globals.css";
 import { Toaster } from "sonner";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 import { VisitorTracker } from "@/components/globals/visitor-tracker";
+import "./globals.css";
 
 const geistKarla = Karla({
   variable: "--font-geist-karla",
