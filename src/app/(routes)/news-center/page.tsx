@@ -1,7 +1,9 @@
 "use client";
 
-import React, { Suspense } from 'react'
-import Client from './client';
+import React, { Suspense } from "react";
+import Client from "./client";
+
+export const dynamic = "force-dynamic"; // ⬅ prevents static prerendering
 
 const Page = () => {
   return (
@@ -9,6 +11,6 @@ const Page = () => {
       <Client />
     </Suspense>
   );
-}
+};
 
-export default Page
+export default Page;
