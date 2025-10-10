@@ -1,12 +1,13 @@
-import React, { Suspense } from 'react'
-import Client from './client'
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
 
-const Page = () => {
-  return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <Client />
-    </Suspense>
-  )
-}
+import React, { Suspense } from "react";
+import Client from "./client";
 
-export default Page
+const Page = () => (
+  <Suspense fallback={<div>Loading...</div>}>
+    <Client />
+  </Suspense>
+);
+
+export default Page;
