@@ -1,50 +1,17 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
-
-// Helper function to get authenticated user (from your previous code)
-async function getAuthUser() {
-  const supabase = createClient();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await (await supabase).auth.getSession();
-
-  if (sessionError || !session) {
-    return {
-      error: NextResponse.json(
-        { message: "Authentication required.", code: "UNAUTHENTICATED" },
-        { status: 401 }
-      ),
-    };
-  }
-
-  const supabaseUserId = session.user.id;
-  const user = await db.user.findUnique({
-    where: { authId: supabaseUserId },
-    select: { id: true },
-  });
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { message: "User profile not found.", code: "USER_NOT_FOUND" },
-        { status: 404 }
-      ),
-    };
-  }
-
-  return { user };
-}
+import { useUser } from "@/hooks/use-user";
 
 export async function POST(request: Request) {
   try {
-    const { user, error: authError } = await getAuthUser();
-    if (authError) {
-      return authError;
-    }
-    if (!user || !user.id) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Authentication required.", code: "UNAUTHENTICATED" },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
@@ -63,7 +30,7 @@ export async function POST(request: Request) {
     }
 
     const conversation = await db.conversation.findFirst({
-      where: { userId: user.id, vendorId: sellerId },
+      where: { userId: userId, vendorId: sellerId },
     });
 
     if (!conversation) {
@@ -75,7 +42,7 @@ export async function POST(request: Request) {
       data: {
         body: "", // No text body for product messages
         conversation: { connect: { id: conversation.id } },
-        senderUser: { connect: { id: user.id } },
+        senderUser: { connect: { id: userId } },
         product: { connect: { id: productId } }, // Connect to the product
       },
       include: {

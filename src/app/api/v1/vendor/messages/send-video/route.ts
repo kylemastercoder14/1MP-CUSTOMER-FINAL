@@ -1,51 +1,18 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
-import { uploadFileToSupabase } from "@/lib/upload";
-
-// Helper function to get authenticated user (from your previous code)
-async function getAuthUser() {
-  const supabase = createClient();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await (await supabase).auth.getSession();
-
-  if (sessionError || !session) {
-    return {
-      error: NextResponse.json(
-        { message: "Authentication required.", code: "UNAUTHENTICATED" },
-        { status: 401 }
-      ),
-    };
-  }
-
-  const supabaseUserId = session.user.id;
-  const user = await db.user.findUnique({
-    where: { authId: supabaseUserId },
-    select: { id: true },
-  });
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { message: "User profile not found.", code: "USER_NOT_FOUND" },
-        { status: 404 }
-      ),
-    };
-  }
-
-  return { user };
-}
+import { useUser } from "@/hooks/use-user";
+import { uploadFile } from "@/lib/upload-s3";
 
 export async function POST(request: Request) {
   try {
-    const { user, error: authError } = await getAuthUser();
-    if (authError) {
-      return authError;
-    }
-    if (!user || !user.id) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Authentication required.", code: "UNAUTHENTICATED" },
+        { status: 401 }
+      );
     }
 
     const formData = await request.formData();
@@ -58,32 +25,54 @@ export async function POST(request: Request) {
       });
     }
 
-    // Upload the video file
-    const uploadResult = await uploadFileToSupabase(
-      videoFile,
-      "customers",
-      "messages"
-    );
-
-    if (!uploadResult || !uploadResult.url) {
-      throw new Error("Image upload failed");
+    // ✅ Validate video file
+    if (videoFile.size > 50 * 1024 * 1024) {
+      // 50MB limit
+      return NextResponse.json(
+        { message: "Video file exceeds 50MB limit.", code: "FILE_TOO_LARGE" },
+        { status: 400 }
+      );
     }
 
+    const allowedVideoTypes = [
+      "video/mp4",
+      "video/quicktime",
+      "video/webm",
+      "video/x-matroska",
+    ];
+    if (!allowedVideoTypes.includes(videoFile.type)) {
+      return NextResponse.json(
+        { message: "Unsupported video format.", code: "INVALID_FILE_TYPE" },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Upload video to AWS S3
+    const { url: videoUrl } = await uploadFile(
+      videoFile,
+      "messages" // Folder in your S3 bucket for chat messages
+    );
+
+    if (!videoUrl) {
+      throw new Error("Video upload to S3 failed.");
+    }
+
+    // ✅ Find the existing conversation
     const conversation = await db.conversation.findFirst({
-      where: { userId: user.id, vendorId: sellerId },
+      where: { userId, vendorId: sellerId },
     });
 
     if (!conversation) {
       return new NextResponse("Conversation not found", { status: 404 });
     }
 
-    // Create user's message with video URL
+    // ✅ Create the message record in the database
     const message = await db.message.create({
       data: {
-        body: "", // No text body for video messages
+        body: "", // No text content for video message
         conversation: { connect: { id: conversation.id } },
-        senderUser: { connect: { id: user.id } },
-        video: uploadResult.url, // Store video URL
+        senderUser: { connect: { id: userId } },
+        video: videoUrl, // Store AWS S3 video URL
       },
       include: {
         senderUser: true,
@@ -92,7 +81,7 @@ export async function POST(request: Request) {
       },
     });
 
-    // Update last message time
+    // ✅ Update conversation timestamp
     await db.conversation.update({
       where: { id: conversation.id },
       data: { lastMessageAt: new Date() },

@@ -1,51 +1,18 @@
 import { NextResponse } from "next/server";
 import db from "@/lib/db";
-import { createClient } from "@/lib/supabase/server";
-import { uploadFileToSupabase } from "@/lib/upload";
-
-// Helper function to get authenticated user (from your previous code)
-async function getAuthUser() {
-  const supabase = createClient();
-  const {
-    data: { session },
-    error: sessionError,
-  } = await (await supabase).auth.getSession();
-
-  if (sessionError || !session) {
-    return {
-      error: NextResponse.json(
-        { message: "Authentication required.", code: "UNAUTHENTICATED" },
-        { status: 401 }
-      ),
-    };
-  }
-
-  const supabaseUserId = session.user.id;
-  const user = await db.user.findUnique({
-    where: { authId: supabaseUserId },
-    select: { id: true },
-  });
-
-  if (!user) {
-    return {
-      error: NextResponse.json(
-        { message: "User profile not found.", code: "USER_NOT_FOUND" },
-        { status: 404 }
-      ),
-    };
-  }
-
-  return { user };
-}
+import { useUser } from "@/hooks/use-user";
+import { uploadFile } from "@/lib/upload-s3";
 
 export async function POST(request: Request) {
   try {
-    const { user, error: authError } = await getAuthUser();
-    if (authError) {
-      return authError;
-    }
-    if (!user || !user.id) {
-      return new NextResponse("Unauthorized", { status: 401 });
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const { userId } = await useUser();
+
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Authentication required.", code: "UNAUTHENTICATED" },
+        { status: 401 }
+      );
     }
 
     const formData = await request.formData();
@@ -58,32 +25,47 @@ export async function POST(request: Request) {
       });
     }
 
-    // Upload the image file
-    const uploadResult = await uploadFileToSupabase(
-      imageFile,
-      "customers",
-      "messages"
-    );
-
-    if (!uploadResult || !uploadResult.url) {
-      throw new Error("Image upload failed");
+    // ✅ Validate file
+    if (imageFile.size > 5 * 1024 * 1024) {
+      return NextResponse.json(
+        { message: "Image size exceeds 5MB limit.", code: "FILE_TOO_LARGE" },
+        { status: 400 }
+      );
     }
 
+    if (!["image/jpeg", "image/png", "image/webp"].includes(imageFile.type)) {
+      return NextResponse.json(
+        { message: "Invalid image type.", code: "INVALID_FILE_TYPE" },
+        { status: 400 }
+      );
+    }
+
+    // ✅ Upload image to AWS S3
+    const { url: imageUrl } = await uploadFile(
+      imageFile,
+      "messages" // S3 folder for message images
+    );
+
+    if (!imageUrl) {
+      throw new Error("Image upload to S3 failed");
+    }
+
+    // ✅ Find or verify the conversation
     const conversation = await db.conversation.findFirst({
-      where: { userId: user.id, vendorId: sellerId },
+      where: { userId, vendorId: sellerId },
     });
 
     if (!conversation) {
       return new NextResponse("Conversation not found", { status: 404 });
     }
 
-    // Create user's message with image
+    // ✅ Create a new message entry in the database
     const message = await db.message.create({
       data: {
-        body: "", // No text body for image messages
+        body: "", // Empty because this is an image message
         conversation: { connect: { id: conversation.id } },
-        senderUser: { connect: { id: user.id } },
-        image: uploadResult.url,
+        senderUser: { connect: { id: userId } },
+        image: imageUrl, // Store S3 image URL
       },
       include: {
         senderUser: true,
@@ -92,7 +74,7 @@ export async function POST(request: Request) {
       },
     });
 
-    // Update last message time
+    // ✅ Update the conversation’s last message timestamp
     await db.conversation.update({
       where: { id: conversation.id },
       data: { lastMessageAt: new Date() },
