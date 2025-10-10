@@ -1,3 +1,6 @@
+export const dynamic = "force-dynamic";
+export const fetchCache = "force-no-store";
+
 import React, { Suspense } from "react";
 import Client from "./client";
 import { useUser } from "@/hooks/use-user";
