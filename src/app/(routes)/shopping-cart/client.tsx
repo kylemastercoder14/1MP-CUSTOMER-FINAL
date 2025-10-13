@@ -618,6 +618,7 @@ const Client = () => {
 
                 <Button
                   onClick={() => router.push("/checkout")}
+                  disabled={selectedItems.length === 0}
                   className="w-full mt-4 lg:mb-0 mb-4 bg-[#800020] hover:bg-[#800020]/90"
                 >
                   Proceed to Checkout ({selectedItems.length})

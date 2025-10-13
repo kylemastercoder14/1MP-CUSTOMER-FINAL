@@ -126,6 +126,35 @@ model Address {
   @@index([userId])
 }
 
+model Rider {
+  id                 String    @id @default(uuid())
+  name               String?
+  email              String    @unique
+  password           String
+  vehicleType        String?
+  gender             String?
+  dateOfBirth        String?
+  phoneNumber        String?
+  licenseNumber      String?
+  plateNumber        String?
+  vehicleOwnerShip   String?
+  licenseIdImg       String?
+  certRegImg         String?
+  officialReceiptImg String?
+  vehicleBackImg     String?
+  profileImg         String?
+  otpCode            String?
+  otpExpiresAt       DateTime?
+  onDuty             Boolean   @default(true)
+  isEmailVerified    Boolean   @default(false)
+  adminApproval      String    @default("Pending") // Pending, Under Review, Approved, Rejected
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  orderItems OrderItem[]
+}
+
 model Vendor {
   id                     String    @id @default(uuid())
   name                   String?
@@ -542,18 +571,20 @@ model PromoCode {
 }
 
 model Order {
-  id              String   @id @default(uuid())
-  orderNumber     String   @unique
-  status          String   @default("Pending") // Pending, Processing, Out For Delivery, Delivered, Cancelled, Returned
-  paymentStatus   String   @default("Pending")
+  id              String  @id @default(uuid())
+  orderNumber     String  @unique
+  status          String  @default("Pending") // Pending, Processing, Out For Delivery, Delivered, Cancelled, Returned
+  paymentStatus   String  @default("Pending")
   xenditInvoiceId String?
   paymentMethod   String
-  vehicleType     String?
-  deliveryFee     Float?
-  totalAmount     Float
-  discountAmount  Float?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+
+  totalAmount    Float
+  discountAmount Float?
+  deliveryFee    Float?
+  vehicleType    String?
+  remarks        String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   processingAt     DateTime?
   shippedAt        DateTime?
@@ -572,9 +603,11 @@ model Order {
 }
 
 model OrderItem {
-  id        String   @id @default(cuid())
-  quantity  Int
-  price     Float
+  id       String @id @default(cuid())
+  quantity Int
+  price    Float
+
+  status    String   @default("Pending") // Pending, Accepted, PickedUp, OnTheWay, Delivered, Cancelled
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -586,6 +619,9 @@ model OrderItem {
 
   vendorId String
   vendor   Vendor @relation(fields: [vendorId], references: [id], onDelete: Cascade)
+
+  riderId String?
+  rider   Rider?  @relation(fields: [riderId], references: [id], onDelete: SetNull)
 
   productDiscountId    String?
   newArrivalDiscountId String?

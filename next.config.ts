@@ -25,6 +25,7 @@ const nextConfig: NextConfig = {
       "i.ytimg.com",
       "down-zl-ph.img.susercontent.com",
       "one-market-phil.s3.us-east-1.amazonaws.com",
+      "one-market-philippines.s3.ap-southeast-2.amazonaws.com",
     ],
   },
   eslint: {

@@ -38,7 +38,7 @@ const Client = () => {
   return (
     <div className="min-h-screen">
       <Header />
-      <div className="flex flex-col items-center h-screen justify-center bg-gray-50 px-4">
+      <div className="flex flex-col my-20 pt-10 items-center h-screen justify-center px-4">
         <CheckCircle className="text-green-500 w-16 h-16 mb-4" />
         <h1 className="text-2xl font-semibold text-gray-800">
           Thank you for your purchase!
@@ -50,7 +50,7 @@ const Client = () => {
           <span className="font-semibold">#{order.orderNumber}</span>
         </p>
 
-        <div className="mt-8 bg-white rounded-xl shadow-md w-full max-w-md">
+        <div className="mt-8 bg-white rounded-xl shadow-md w-full max-w-xl">
           <div className="border-b px-6 py-4">
             <h2 className="font-semibold text-lg">Order Summary</h2>
           </div>

@@ -81,7 +81,7 @@ const RecommendedProducts = ({
 
   if (productLoading) {
     return (
-      <div className="lg:grid-cols-4 grid grid-cols-1 gap-4 mb-5">
+      <div className="lg:grid-cols-5 grid grid-cols-1 gap-4 mb-5">
         {[...Array(limit)].map((_, index) => ( // Use limit for skeleton count
           <Card
             key={index}
@@ -113,7 +113,7 @@ const RecommendedProducts = ({
   }
 
   return (
-    <div className="lg:grid-cols-4 grid grid-cols-1 gap-4 mb-5">
+    <div className="lg:grid-cols-5 grid grid-cols-1 gap-4 mb-5">
       {products.map((product) => {
         const price =
           product.variants.length > 0

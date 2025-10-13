@@ -47,10 +47,7 @@ interface VendorCoupon {
 }
 
 // Define delivery option types for consistency
-export type DeliveryOptionType =
-  | "motorcycle-delivery"
-  | "bicycle-delivery"
-  | "standard"; // "standard" is generic
+export type DeliveryOptionType = "Motorcycle" | "Bicycle";
 
 interface CartStore {
   items: CartItem[];
@@ -233,7 +230,7 @@ const useCart = create(
           vendorCoupons: {},
           vendorDeliveryOptions: {
             // Default to motorcycle for buy now
-            [newItem.vendorId]: "motorcycle-delivery",
+            [newItem.vendorId]: "Motorcycle",
           },
         });
       },
@@ -424,9 +421,9 @@ const useCart = create(
         // Get shipping fee based on selected option for this vendor
         const deliveryOption = get().vendorDeliveryOptions[vendorId];
         let shippingFee = 0;
-        if (deliveryOption === "motorcycle-delivery") {
+        if (deliveryOption === "Motorcycle") {
           shippingFee = 40.0;
-        } else if (deliveryOption === "bicycle-delivery") {
+        } else if (deliveryOption === "Bicycle") {
           shippingFee = 30.0;
         }
         // else if (deliveryOption === "standard") { shippingFee = 38.00; } // If you still have a generic standard
@@ -524,7 +521,7 @@ const useCart = create(
             [...new Set(state.items.map((item) => item.vendorId))].forEach(
               (vendorId) => {
                 if (!state.vendorDeliveryOptions[vendorId]) {
-                  initialDeliveryOptions[vendorId] = "motorcycle-delivery"; // Default option
+                  initialDeliveryOptions[vendorId] = "Motorcycle"; // Default option
                 }
               }
             );
