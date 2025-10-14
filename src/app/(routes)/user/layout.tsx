@@ -89,7 +89,7 @@ const UserLayout = ({ children }: { children: React.ReactNode }) => {
     <div className="min-h-screen bg-[#f5f5f5]">
       <div className="relative">
         <Header />
-        <section className="px-20 py-32">
+        <section className="lg:px-80 px-10 py-32">
           <Breadcrumb>
             <BreadcrumbList className="text-base">
               {breadcrumbItems.map((item, index) => (

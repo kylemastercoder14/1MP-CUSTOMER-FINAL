@@ -369,7 +369,7 @@ const Client = () => {
   const getGridClasses = () => {
     switch (viewMode) {
       case "grid4":
-        return "lg:grid-cols-4 grid-cols-1";
+        return "lg:grid-cols-3 grid-cols-1";
       case "grid2":
         return "lg:grid-cols-2 grid-cols-1";
       case "grid1":
@@ -384,7 +384,7 @@ const Client = () => {
       <div className="relative">
         <Header />
       </div>
-      <div className="px-20 pb-20 pt-[140px]">
+      <div className="lg:px-80 px-10 pb-20 pt-[140px]">
         <Breadcrumb>
           <BreadcrumbList className="text-base">
             <BreadcrumbItem>
@@ -539,7 +539,7 @@ const Client = () => {
           </CardContent>
         </Card>
         <div className="grid mt-5 lg:grid-cols-10 grid-cols-1 gap-5">
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-3">
             <Card className="rounded-sm py-3 px-1">
               <CardContent>
                 <div className="flex flex-col">
@@ -589,7 +589,7 @@ const Client = () => {
               </CardContent>
             </Card>
           </div>
-          <div className="lg:col-span-8">
+          <div className="lg:col-span-7">
             <div className={`grid ${getGridClasses()} gap-4`}>
               {productLoading ? (
                 // Show skeleton loaders while loading

@@ -68,7 +68,7 @@ const Client = () => {
 	return (
 	  <div className="min-h-screen bg-[#f5f5f5]">
 		<Header />
-		<section className="px-5 md:px-20 pb-20 pt-40 flex items-center justify-center">
+		<section className="px-5 lg:px-80 pb-20 pt-40 flex items-center justify-center">
 		  <Loader2 className="size-4 animate-spin mr-2" />
 		  <p className="text-gray-600">Loading news articles...</p>
 		</section>
@@ -81,7 +81,7 @@ const Client = () => {
 	return (
 	  <div className="min-h-screen bg-[#f5f5f5]">
 		<Header />
-		<section className="px-5 md:px-20 pb-20 pt-36 flex items-center justify-center">
+		<section className="px-5 lg:px-80 pb-20 pt-36 flex items-center justify-center">
 		  <p className="text-red-600">Error: {error}</p>
 		</section>
 		<Footer />
@@ -126,8 +126,8 @@ const Client = () => {
 	<div className="min-h-screen bg-[#f5f5f5] flex flex-col">
 	  <div className="relative flex-grow">
 		<Header />
-		<section className="px-5 lg:px-20 lg:pb-20 pb-10 lg:pt-36 pt-20">
-		  <div className="flex flex-col md:flex-row items-center justify-between mb-10">
+		<section className="px-5 lg:px-80 lg:pb-20 pb-10 lg:pt-36 pt-20">
+		  <div className="flex flex-col items-start gap-5 mb-10">
 			<div>
 			  <h2 className="text-4xl font-semibold tracking-tight">
 				1 Market Philippines Reads

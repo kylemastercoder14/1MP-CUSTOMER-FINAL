@@ -192,7 +192,7 @@ const Client = () => {
           </div>
 
           <div className="absolute inset-0 flex items-center">
-            <div className="mt-28 mx-auto px-20 w-full">
+            <div className="mt-28 mx-auto lg:px-80 px-20 w-full">
               <div className="flex items-center justify-between">
                 {/* Left side - Title and description */}
                 <div className="flex-1">
@@ -239,7 +239,7 @@ const Client = () => {
             <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-white to-transparent transform -skew-x-12 animate-pulse"></div>
           </div>
         </div>
-        <section className="py-16 px-20">
+        <section className="py-16 lg:px-80 px-20">
           {categoriesLoading ? (
             <CategorySkeleton />
           ) : (
@@ -294,7 +294,7 @@ const Client = () => {
               {/* Products Display Section */}
               <div className="space-y-2">
                 {loading ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {[...Array(10)].map((_, i) => (
                       <SkeletonCard key={i} />
                     ))}
@@ -302,7 +302,7 @@ const Client = () => {
                 ) : products.length === 0 ? (
                   <NoProductsFound />
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {products.map((product) => {
                       const price =
                         product.variants.length > 0

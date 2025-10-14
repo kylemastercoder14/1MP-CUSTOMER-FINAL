@@ -93,7 +93,7 @@ const Client = () => {
       </div>
 
       {/* Main Content */}
-      <div className="lg:px-20 px-10 lg:py-8 py-6">
+      <div className="lg:px-80 px-10 lg:py-8 py-6">
         {/* Breadcrumbs */}
         <Breadcrumb>
           <BreadcrumbList>
@@ -158,7 +158,7 @@ const Client = () => {
                 />
               </div>
               <h3 className="font-semibold text-lg mb-1 mt-2">Get the APP</h3>
-              <p className="text-gray-600">Download 1 Market Philippines APP</p>
+              <p className="text-gray-600">Download 1 Market Philippines</p>
             </div>
 
             {/* Logistics */}

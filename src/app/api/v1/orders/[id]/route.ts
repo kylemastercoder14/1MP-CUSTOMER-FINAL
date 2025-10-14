@@ -14,12 +14,15 @@ export async function GET(
         orderItem: {
           include: {
             product: true,
+            vendor: true,
           },
         },
         user: true,
         address: true,
       },
     });
+
+    console.log(order); // <--- log it
 
     if (!order) {
       return NextResponse.json({ message: "Order not found" }, { status: 404 });

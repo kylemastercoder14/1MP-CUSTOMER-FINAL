@@ -260,7 +260,7 @@ const Client = () => {
           </div>
 
           <div className="absolute inset-0 flex items-center">
-            <div className="px-20 mt-28 w-full">
+            <div className="lg:px-80 px-20 mt-28 w-full">
               <div className="flex items-center justify-between">
                 {/* Left side - Title and description */}
                 <div className="flex-1">
@@ -353,7 +353,7 @@ const Client = () => {
           </div>
         </div>
 
-        <section className="px-20 mx-auto py-10">
+        <section className="lg:px-80 px-20 mx-auto py-10">
           {/* Flash Deals Products */}
           {flashDealsLoading ? (
             <FlashDealsSkeletonCarousel />
@@ -375,7 +375,7 @@ const Client = () => {
                   return (
                     <CarouselItem
                       key={product.id}
-                      className="pl-1 md:basis-1/2 lg:basis-1/5"
+                      className="pl-1 md:basis-1/2 lg:basis-1/4"
                     >
                       <ProductCard
                         product={product}
@@ -421,11 +421,11 @@ const Client = () => {
                       <button
                         onClick={() => handleCategoryChange(null)}
                         className={`pt-2 pb-4 px-4 text-base font-medium whitespace-nowrap transition-colors border-b-[3px]
-						${
-              !selectedCategory
-                ? "text-gray-900 border-[#800020]"
-                : "text-gray-600 border-transparent"
-            }`}
+                        ${
+                          !selectedCategory
+                            ? "text-gray-900 border-[#800020]"
+                            : "text-gray-600 border-transparent"
+                        }`}
                       >
                         All
                       </button>
@@ -438,11 +438,11 @@ const Client = () => {
                         <button
                           onClick={() => handleCategoryChange(category)}
                           className={`pt-2 pb-4 px-4 text-base font-medium whitespace-nowrap transition-colors border-b-[3px]
-							${
-                selectedCategory?.id === category.id
-                  ? "text-gray-900 border-[#800020]"
-                  : "text-gray-600 border-transparent"
-              }`}
+                          ${
+                            selectedCategory?.id === category.id
+                              ? "text-gray-900 border-[#800020]"
+                              : "text-gray-600 border-transparent"
+                          }`}
                         >
                           {category.name}
                         </button>
@@ -457,7 +457,7 @@ const Client = () => {
               {/* Products Display Section */}
               <div className="space-y-2">
                 {loading ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {[...Array(10)].map((_, i) => (
                       <SkeletonCard key={i} />
                     ))}
@@ -465,7 +465,7 @@ const Client = () => {
                 ) : products.length === 0 ? (
                   <NoProductsFound />
                 ) : (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                     {products.map((product) => {
                       const price =
                         product.variants.length > 0

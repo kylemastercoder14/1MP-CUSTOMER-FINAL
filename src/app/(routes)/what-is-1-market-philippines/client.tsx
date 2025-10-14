@@ -238,7 +238,7 @@ const Client = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-white/80 to-white/20"></div>
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="lg:pl-40 pl-10 lg:mt-32 mt-0 text-black">
+            <div className="lg:pl-80 pl-10 lg:mt-32 mt-0 text-black">
               <div className="flex lg:flex-row flex-col-reverse lg:items-center lg:justify-between">
                 <div>
                   <h1 className="text-2xl md:text-5xl font-bold lg:mb-4 mb-2 lg:mt-0 mt-5">
@@ -250,7 +250,7 @@ const Client = () => {
                     stronger, more connected neighborhood!
                   </p>
                 </div>
-                <div className="relative lg:size-96 size-40 mt-10 lg:mt-0 lg:ml-80">
+                <div className="relative lg:size-96 size-40 mt-10 lg:mt-0 lg:ml-40">
                   <Image
                     src="/about.png"
                     alt="About 1MP"
@@ -263,7 +263,7 @@ const Client = () => {
           </div>
         </div>
         <section className="lg:py-20 py-10">
-          <div className="lg:px-20 px-10">
+          <div className="lg:px-80 px-10">
             <div
               id="mission-and-vision"
               className="grid lg:grid-cols-5 grid-cols-1 lg:gap-40 gap-10"
@@ -400,7 +400,7 @@ const Client = () => {
               </div>
             </div>
           </div>
-          <div className="lg:mt-20 lg:px-20 px-4 mt-14">
+          <div className="lg:mt-20 lg:px-80 px-4 mt-14">
             <h2 className="lg:text-4xl text-2xl font-bold text-center mb-4 text-gray-800">
               1 Market Philippines vs Major e-commerce platforms
             </h2>
@@ -591,7 +591,7 @@ const Client = () => {
               customers nationwide.
             </p>
           </div>
-          <div className="lg:mt-20 mt-10 lg:px-20 px-10">
+          <div className="lg:mt-20 mt-10 lg:px-80 px-10">
             <h2 className="text-4xl font-bold text-center mb-4 text-gray-800">
               Latest from 1 Market Philippines
             </h2>

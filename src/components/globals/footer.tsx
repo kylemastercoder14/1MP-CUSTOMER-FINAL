@@ -32,7 +32,7 @@ const Footer = () => {
                   <li key={linkIndex}>
                     <Link
                       href={link.href}
-                      target='_blank'
+                      target="_blank"
                       className="text-sm text-gray-600 hover:text-[#800020] hover:underline transition-colors"
                     >
                       {link.name}

@@ -70,7 +70,7 @@ const Client = () => {
 
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="lg:px-20 px-10 lg:mt-32 mt-20 text-white">
+            <div className="lg:px-80 px-10 lg:mt-32 mt-20 text-white">
               <div>
                 <h1 className="text-2xl md:text-5xl font-bold mb-4">
                   1 Market Philippines | Sitemap
@@ -85,7 +85,7 @@ const Client = () => {
             </div>
           </div>
         </div>
-        <section className="lg:py-16 py-10 lg:px-20 px-10">
+        <section className="lg:py-16 py-10 lg:px-80 px-10">
           <h1 className="text-4xl tracking-tighter font-bold">
             Product and Services Categories
           </h1>

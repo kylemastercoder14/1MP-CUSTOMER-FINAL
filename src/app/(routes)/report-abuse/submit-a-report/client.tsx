@@ -69,7 +69,7 @@ const Client = ({user}: {user: User | null}) => {
       </div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <section className="lg:px-20 px-10 lg:pt-36 pt-20 pb-10">
+          <section className="lg:px-80 px-10 lg:pt-36 pt-20 pb-10">
             <h2 className="text-2xl font-bold tracking-tight">
               Submit a Complaint
             </h2>

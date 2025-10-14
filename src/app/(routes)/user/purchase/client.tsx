@@ -54,7 +54,7 @@ const STATUS_ICONS = {
 // ─── STATUS LABEL MAP ───────────────────────────────────────────────
 const mapOrderStatus = (status: string): string => {
   const statusMap: Record<string, string> = {
-    All: "All Orders",
+    All: "All",
     Pending: "To Pay",
     Processing: "To Ship",
     "Out For Delivery": "To Receive",
@@ -73,6 +73,15 @@ export interface OrderWithOrderItem extends Order {
   })[];
 }
 
+interface GroupedByStatusAndVendor {
+  [status: string]: {
+    [vendorId: string]: {
+      vendor: Vendor | null;
+      orders: OrderWithOrderItem[];
+    };
+  };
+}
+
 const Client = () => {
   const router = useRouter();
   const [orders, setOrders] = useState<OrderWithOrderItem[]>([]);
@@ -85,7 +94,7 @@ const Client = () => {
     product: Product;
     orderItem: OrderItem;
   } | null>(null);
-  const [openVendors, setOpenVendors] = useState<Record<string, boolean>>({});
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   // ─── FETCH ORDERS ────────────────────────────────────────────────
   const fetchOrders = useCallback(async () => {
@@ -117,38 +126,48 @@ const Client = () => {
   // ─── FILTER ORDERS ───────────────────────────────────────────────
   const filteredOrders = useMemo(() => {
     let result = [...orders];
-    if (activeTab !== "All") result = result.filter((o) => o.status === activeTab);
+    if (activeTab !== "All")
+      result = result.filter((o) => o.status === activeTab);
 
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
       result = result.filter(
         (order) =>
           order.orderNumber.toLowerCase().includes(query) ||
-          order.orderItem.some((i) => i.product.name.toLowerCase().includes(query))
+          order.orderItem.some((i) =>
+            i.product.name.toLowerCase().includes(query)
+          )
       );
     }
 
     return result;
   }, [orders, activeTab, searchQuery]);
 
-  // ─── GROUP ORDER ITEMS BY VENDOR ─────────────────────────────────
-  const groupedOrders = useMemo(() => {
-    const grouped: Record<
-      string,
-      { vendor: Vendor | null; orderItems: (OrderItem & { product: Product })[]; order: Order }
-    > = {};
+  // ─── GROUP ORDERS BY STATUS, THEN BY VENDOR ────────────────────
+  const groupedByStatusAndVendor = useMemo(() => {
+    const grouped: GroupedByStatusAndVendor = {};
 
     filteredOrders.forEach((order) => {
-      order.orderItem.forEach((item) => {
-        const vendorId = item.vendor?.id || "unknown";
-        if (!grouped[vendorId]) {
-          grouped[vendorId] = {
-            vendor: item.vendor || null,
-            orderItems: [],
-            order,
+      if (!grouped[order.status]) {
+        grouped[order.status] = {};
+      }
+
+      const vendorIds = new Set(
+        order.orderItem.map((item) => item.vendor?.id || "unknown")
+      );
+
+      vendorIds.forEach((vendorId) => {
+        if (!grouped[order.status][vendorId]) {
+          const vendor =
+            order.orderItem.find(
+              (item) => (item.vendor?.id || "unknown") === vendorId
+            )?.vendor || null;
+          grouped[order.status][vendorId] = {
+            vendor,
+            orders: [],
           };
         }
-        grouped[vendorId].orderItems.push(item);
+        grouped[order.status][vendorId].orders.push(order);
       });
     });
 
@@ -182,17 +201,19 @@ const Client = () => {
     "bg-gray-100 text-gray-700";
 
   const getStatusIcon = (status: string) =>
-    STATUS_ICONS[status as keyof typeof STATUS_ICONS] || <Clock className="w-4 h-4" />;
+    STATUS_ICONS[status as keyof typeof STATUS_ICONS] || (
+      <Clock className="w-4 h-4" />
+    );
 
   const handleRateProduct = (product: Product, orderItem: OrderItem) => {
     setSelectedProduct({ product, orderItem });
     setRatingModalOpen(true);
   };
 
-  const toggleVendor = (vendorId: string) => {
-    setOpenVendors((prev) => ({
+  const toggleSection = (sectionId: string) => {
+    setOpenSections((prev) => ({
       ...prev,
-      [vendorId]: !prev[vendorId],
+      [sectionId]: !prev[sectionId],
     }));
   };
 
@@ -222,12 +243,15 @@ const Client = () => {
         onClose={() => setRatingModalOpen(false)}
       >
         {selectedProduct && (
-          <RatingForm selectedProduct={selectedProduct} onClose={() => setRatingModalOpen(false)} />
+          <RatingForm
+            selectedProduct={selectedProduct}
+            onClose={() => setRatingModalOpen(false)}
+          />
         )}
       </Modal>
 
       {/* ─── Tabs and Search ─── */}
-      <div className="flex flex-col lg:flex-row items-center justify-between gap-4">
+      <div className="flex flex-col items-start gap-4">
         <div className="w-full overflow-x-auto">
           <div className="min-w-max flex items-center gap-5 mb-3">
             {ORDER_STATUSES.map((status) => (
@@ -277,9 +301,15 @@ const Client = () => {
           <Loader2 className="size-10 animate-spin" />
           <p className="mt-3 text-muted-foreground">Loading your orders...</p>
         </div>
-      ) : Object.keys(groupedOrders).length === 0 ? (
+      ) : Object.keys(groupedByStatusAndVendor).length === 0 ? (
         <div className="flex flex-col items-center justify-center h-[30vh] mt-8">
-          <Image src="/icons/empty.svg" width={100} height={100} alt="Empty" priority />
+          <Image
+            src="/icons/empty.svg"
+            width={100}
+            height={100}
+            alt="Empty"
+            priority
+          />
           <p className="mt-1 text-muted-foreground">
             {searchQuery || activeTab !== "All"
               ? "No orders match your filter"
@@ -287,133 +317,224 @@ const Client = () => {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 gap-8 mt-8">
-          {Object.entries(groupedOrders).map(([vendorId, { vendor, orderItems, order }]) => {
-            const isOpen = openVendors[vendorId] ?? true;
-
-            return (
-              <div
-                key={vendorId}
-                className="border rounded-md shadow-sm hover:shadow-md transition-shadow"
-              >
-                {/* Vendor Header (Collapsible) */}
-                <div
-                  className="flex justify-between items-center p-4 bg-gray-50 cursor-pointer"
-                  onClick={() => toggleVendor(vendorId)}
-                >
+        <div className="space-y-6 mt-8">
+          {/* ─── STATUS SECTIONS ─── */}
+          {Object.entries(groupedByStatusAndVendor).map(
+            ([status, vendorGroups]) => (
+              <div key={status} className="space-y-4">
+                {/* Status Header */}
+                <div className="flex items-center gap-3 px-4">
                   <div className="flex items-center gap-2">
-                    <span className="font-semibold text-lg">
-                      {vendor?.name || "Unknown Vendor"}
-                    </span>
-                    {vendor?.id && (
-                      <Link
-                        href={`/vendor?id=${vendor.id}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="border text-xs text-zinc-500 px-2 py-1 flex items-center gap-1 hover:bg-gray-100"
-                      >
-                        <Store className="size-3.5" /> View Shop
-                      </Link>
-                    )}
+                    {getStatusIcon(status)}
+                    <h2 className="text-lg font-semibold">
+                      {mapOrderStatus(status)}
+                    </h2>
                   </div>
-                  {isOpen ? (
-                    <ChevronUp className="size-5 text-gray-600" />
-                  ) : (
-                    <ChevronDown className="size-5 text-gray-600" />
-                  )}
+                  <span className="text-sm text-muted-foreground">
+                    (
+                    {Object.values(vendorGroups).reduce(
+                      (sum, v) => sum + v.orders.length,
+                      0
+                    )}{" "}
+                    orders)
+                  </span>
                 </div>
 
-                {/* Collapsible Content */}
-                {isOpen && (
-                  <div className="p-4 space-y-4">
-                    {/* Order Header */}
-                    <div className="flex justify-between items-center">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Order #:</span>
-                        <span className="font-medium text-sm">{order.orderNumber}</span>
-                        <span className="text-sm text-muted-foreground">
-                          • {new Date(order.createdAt).toLocaleDateString()}
-                        </span>
-                      </div>
-                      <span
-                        className={`text-sm font-semibold uppercase px-2 py-1 rounded ${getStatusColor(
-                          order.status
-                        )}`}
-                      >
-                        <div className="flex items-center gap-1">
-                          {getStatusIcon(order.status)}
-                          {mapOrderStatus(order.status)}
-                        </div>
-                      </span>
-                    </div>
+                {/* ─── VENDOR GROUPS WITHIN STATUS ─── */}
+                <div className="space-y-4">
+                  {Object.entries(vendorGroups).map(
+                    ([vendorId, { vendor, orders: vendorOrders }]) => {
+                      const sectionId = `${status}-${vendorId}`;
+                      const isOpen = openSections[sectionId] ?? true;
 
-                    {/* Items */}
-                    <div className="space-y-4 mt-2">
-                      {orderItems.map((item) => (
-                        <div key={item.id} className="flex justify-between items-center">
-                          <div className="flex items-start gap-3">
-                            <div className="relative w-24 h-24">
-                              <Image
-                                src={item.product.images[0]}
-                                alt={item.product.name}
-                                fill
-                                className="rounded-md object-cover"
-                              />
-                            </div>
-                            <div className="flex flex-col">
-                              <p className="font-medium">{item.product.name}</p>
-                              <p className="text-sm text-muted-foreground mt-1">
-                                Quantity: {item.quantity}
-                              </p>
-                              {order.status === "Delivered" && (
-                                <div className="mt-2 flex gap-3">
-                                  <Link
-                                    href={`/products?slug=${item.product.slug}&categories=${item.product.categorySlug}&subcategories=${item.product.subCategorySlug}`}
-                                    className="text-xs text-burgundy hover:underline"
-                                  >
-                                    Buy Again
-                                  </Link>
-                                  <span
-                                    className="text-xs cursor-pointer text-burgundy hover:underline"
-                                    onClick={() => handleRateProduct(item.product, item)}
-                                  >
-                                    Rate Product
-                                  </span>
-                                </div>
+                      return (
+                        <div
+                          key={sectionId}
+                          className="border rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden"
+                        >
+                          {/* Vendor Header (Collapsible) */}
+                          <div
+                            className="flex justify-between items-center p-4 bg-gray-50 dark:bg-gray-900 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                            onClick={() => toggleSection(sectionId)}
+                          >
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-base">
+                                {vendor?.name || "Unknown Vendor"}
+                              </span>
+                              {vendor?.id && (
+                                <Link
+                                  href={`/vendor?id=${vendor.id}`}
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="border text-xs text-zinc-500 px-2 py-1 flex items-center gap-1 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                                >
+                                  <Store className="size-3.5" /> View Shop
+                                </Link>
                               )}
                             </div>
+                            {isOpen ? (
+                              <ChevronUp className="size-5 text-gray-600" />
+                            ) : (
+                              <ChevronDown className="size-5 text-gray-600" />
+                            )}
                           </div>
-                          <p className="text-sm font-semibold">
-                            ₱{(item.price * item.quantity).toFixed(2)}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
 
-                    {/* Vendor Footer */}
-                    <div className="flex justify-between items-center border-t pt-3 mt-3">
-                      <Button
-                        onClick={() =>
-                          router.push(`/user/purchase/?contact-seller=${vendor?.id}`)
-                        }
-                        size="sm"
-                      >
-                        Contact Vendor
-                      </Button>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Subtotal:</span>
-                        <p className="text-lg text-burgundy font-semibold">
-                          ₱
-                          {orderItems
-                            .reduce((sum, item) => sum + item.price * item.quantity, 0)
-                            .toFixed(2)}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                          {/* Collapsible Content */}
+                          {isOpen && (
+                            <div className="p-4 space-y-4 bg-white dark:bg-gray-950">
+                              {vendorOrders.map((order) => (
+                                <div
+                                  key={order.id}
+                                  className="border-t pt-4 first:border-t-0 first:pt-0"
+                                >
+                                  {/* Order Header */}
+                                  <div className="flex justify-between items-center mb-4">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <span className="text-sm text-muted-foreground">
+                                        Order #:
+                                      </span>
+                                      <span className="font-medium text-sm">
+                                        {order.orderNumber}
+                                      </span>
+                                      <span className="text-sm text-muted-foreground">
+                                        •{" "}
+                                        {new Date(
+                                          order.createdAt
+                                        ).toLocaleDateString()}
+                                      </span>
+                                    </div>
+                                    <span
+                                      className={`text-xs font-semibold uppercase px-3 py-1 rounded inline-flex items-center gap-1 ${getStatusColor(
+                                        status
+                                      )}`}
+                                    >
+                                      {getStatusIcon(status)}
+                                      {mapOrderStatus(status)}
+                                    </span>
+                                  </div>
+
+                                  {/* Items for this order */}
+                                  <div className="space-y-3">
+                                    {order.orderItem
+                                      .filter(
+                                        (item) =>
+                                          (item.vendor?.id || "unknown") ===
+                                          vendorId
+                                      )
+                                      .map((item) => (
+                                        <div
+                                          key={item.id}
+                                          className="flex justify-between items-start gap-3 bg-gray-50 dark:bg-gray-900 p-3 rounded"
+                                        >
+                                          <div className="flex items-start gap-3">
+                                            <div className="relative w-20 h-20">
+                                              <Image
+                                                src={item.product.images[0]}
+                                                alt={item.product.name}
+                                                fill
+                                                className="rounded-md object-cover"
+                                              />
+                                            </div>
+                                            <div className="flex flex-col">
+                                              <p className="font-medium text-sm">
+                                                {item.product.name}
+                                              </p>
+                                              <p className="text-xs text-muted-foreground mt-1">
+                                                Qty: {item.quantity}
+                                              </p>
+                                              {status === "Delivered" && (
+                                                <div className="mt-2 flex gap-3">
+                                                  <Link
+                                                    href={`/products?slug=${item.product.slug}&categories=${item.product.categorySlug}&subcategories=${item.product.subCategorySlug}`}
+                                                    className="text-xs text-burgundy hover:underline font-medium"
+                                                  >
+                                                    Buy Again
+                                                  </Link>
+                                                  <span
+                                                    className="text-xs cursor-pointer text-burgundy hover:underline font-medium"
+                                                    onClick={() =>
+                                                      handleRateProduct(
+                                                        item.product,
+                                                        item
+                                                      )
+                                                    }
+                                                  >
+                                                    Rate
+                                                  </span>
+
+                                                  {item.product
+                                                    .freeReplacementParts && (
+                                                    <span
+                                                      className="text-xs cursor-pointer text-burgundy hover:underline font-medium"
+                                                    >
+                                                      Apply for warranty service
+                                                    </span>
+                                                  )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          </div>
+                                          <p className="text-sm font-semibold whitespace-nowrap">
+                                            ₱
+                                            {(
+                                              item.price * item.quantity
+                                            ).toFixed(2)}
+                                          </p>
+                                        </div>
+                                      ))}
+                                  </div>
+
+                                  {/* Order Footer */}
+                                  <div className="flex justify-between items-center border-t mt-4 pt-3">
+                                    <div className="flex items-center gap-2">
+                                      <Button
+                                        onClick={() =>
+                                          router.push(
+                                            `/user/purchase/?contact-seller=${vendor?.id}`
+                                          )
+                                        }
+                                        size="sm"
+                                      >
+                                        Contact Seller
+                                      </Button>
+                                      {status === "Delivered" && (
+                                        <Button size="sm" variant="outline">
+                                          Apply for refund
+                                        </Button>
+                                      )}
+                                    </div>
+                                    <div className="text-right">
+                                      <p className="text-xs text-muted-foreground">
+                                        Subtotal
+                                      </p>
+                                      <p className="text-lg font-semibold text-burgundy">
+                                        ₱
+                                        {order.orderItem
+                                          .filter(
+                                            (item) =>
+                                              (item.vendor?.id || "unknown") ===
+                                              vendorId
+                                          )
+                                          .reduce(
+                                            (sum, item) =>
+                                              sum + item.price * item.quantity,
+                                            0
+                                          )
+                                          .toFixed(2)}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    }
+                  )}
+                </div>
               </div>
-            );
-          })}
+            )
+          )}
         </div>
       )}
     </>

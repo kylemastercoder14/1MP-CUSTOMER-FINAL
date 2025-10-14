@@ -42,7 +42,7 @@ interface ProductsByCategory {
 
 const categories = [
   "Fashion & Apparel",
-  "Jewelry & Accessories",
+  "Food & Beverages",
   "Arts, Crafts & Sewing",
 ];
 
@@ -293,7 +293,7 @@ const Client = () => {
 		  />
 		  {/* Content - Aligned to left */}
 		  <div className="absolute inset-0 flex items-center">
-			<div className="pl-40 mt-32 text-white">
+			<div className="lg:pl-80 pl-40 mt-32 text-white">
 			  <div className="flex items-center">
 				<h1 className="text-2xl md:text-4xl font-semibold">
 				  Promotions and Offers
@@ -307,7 +307,7 @@ const Client = () => {
 			</div>
 		  </div>
 		</div>
-		<section className="py-20 px-20">
+		<section className="py-20 lg:px-80 px-20">
 		  <div className="grid lg:grid-cols-12 grid-cols-1 gap-5">
 			{categories.map((category) => (
 			  <div className="lg:col-span-3" key={category}>
@@ -352,7 +352,7 @@ const Client = () => {
 								  className="size-full object-cover"
 								/>
 								<div className="bg-gradient-to-r from-white/80 to-zinc-100 text-xs font-medium px-1.5 py-1 rounded-full absolute top-2 right-2">
-								  ₱{discountPrice}
+								  ₱{discountPrice.toFixed(2)}
 								</div>
 							  </div>
 							);
@@ -480,7 +480,7 @@ const Client = () => {
 				  Explore now
 				</Button>
 
-				<div className="grid grid-cols-4 gap-3 flex-1">
+				<div className="grid lg:grid-cols-3 grid-cols-1 gap-3 flex-1">
 				  {isLoadingOnTimeDelivery ? (
 					Array.from({ length: 4 }).map((_, i) => (
 					  <SkeletonCard key={i} />
@@ -574,13 +574,13 @@ const Client = () => {
 				  <div className="flex text-white items-center gap-2">
 					<IconCircleCheckFilled className="size-4 text-white" />
 					<span className="font-medium text-sm">
-					  Free on-site installation
+					  Free installation
 					</span>
 				  </div>
 				  <div className="flex text-white items-center gap-2">
 					<IconCircleCheckFilled className="size-4 text-white" />
 					<span className="font-medium text-sm">
-					  Free repair, maintenance and support
+					  Free repair & support
 					</span>
 				  </div>
 				</div>
@@ -589,7 +589,7 @@ const Client = () => {
 				  Explore now
 				</Button>
 
-				<div className="grid grid-cols-4 gap-3 flex-1">
+				<div className="grid lg:grid-cols-3 grid-cols-1 gap-3 flex-1">
 				  {isLoadingAfterSalesProtection ? (
 					Array.from({ length: 4 }).map((_, i) => (
 					  <SkeletonCard key={i} />
@@ -699,7 +699,7 @@ const Client = () => {
 					return (
 					  <CarouselItem
 						key={product.id}
-						className="pl-1 md:basis-1/2 lg:basis-1/5"
+						className="pl-1 md:basis-1/2 lg:basis-1/4"
 					  >
 						<ProductCard
 						  product={product}
@@ -762,7 +762,7 @@ const Client = () => {
 					  return (
 						<CarouselItem
 						  key={product.id}
-						  className="pl-1 lg:basis-1/3"
+						  className="pl-1 lg:basis-1/2"
 						>
 						  <ProductCard
 							product={product}
@@ -823,7 +823,7 @@ const Client = () => {
 					  return (
 						<CarouselItem
 						  key={product.id}
-						  className="pl-1 lg:basis-1/3"
+						  className="pl-1 lg:basis-1/2"
 						>
 						  <ProductCard
 							product={product}

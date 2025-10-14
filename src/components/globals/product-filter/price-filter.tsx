@@ -43,7 +43,7 @@ const PriceFilter = ({ minPrice, maxPrice, onPriceRangeChange }: Props) => {
     <div className="flex items-center gap-2">
       <Input
         type="number"
-        placeholder="Min"
+        placeholder="1"
         value={localMinPrice}
         onChange={handleMinChange}
         onKeyDown={handleKeyDown}
@@ -52,7 +52,7 @@ const PriceFilter = ({ minPrice, maxPrice, onPriceRangeChange }: Props) => {
       <span>-</span>
       <Input
         type="number"
-        placeholder="Max"
+        placeholder="1000"
         value={localMaxPrice}
         onChange={handleMaxChange}
         onKeyDown={handleKeyDown}

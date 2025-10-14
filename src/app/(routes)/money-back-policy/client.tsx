@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
@@ -24,7 +25,7 @@ const Client = () => {
 
           {/* Content - Aligned to left */}
           <div className="absolute inset-0 flex items-center">
-            <div className="lg:px-20 px-10 lg:mt-32 mt-20 text-white">
+            <div className="lg:px-80 px-10 lg:mt-32 mt-20 text-white">
               <div>
                 <div className="flex items-center gap-2 mb-5">
                   <div className="rounded-full relative size-16">
@@ -49,7 +50,7 @@ const Client = () => {
             </div>
           </div>
         </div>
-        <div className="lg:py-16 pb-0 py-10 lg:px-20 px-10">
+        <div className="lg:py-16 pb-0 py-10 lg:px-80 px-10">
           <h2 className="text-4xl font-bold tracking-tighter">Refund policy</h2>
           <p className="text-xl mt-2">
             Claim refunds if orders haven't been shipped, are missing, or arrive
@@ -109,7 +110,9 @@ const Client = () => {
                   <p className="text-gray-600 mb-4">
                     Go to My orders {">"} Order details to apply.
                   </p>
-                  <div className="bg-zinc-200 p-6 h-96 rounded-lg shadow-sm border"></div>
+                  <div className="bg-white h-[400px] overflow-hidden rounded-lg max-w-3xl flex justify-center shadow-sm border">
+                    <img src="/money-back.png" alt='Money back policy' width={900} height={500} className='object-contain -mb-2' />
+                  </div>
                 </div>
               </div>
 

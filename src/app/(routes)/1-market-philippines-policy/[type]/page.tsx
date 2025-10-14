@@ -15,7 +15,7 @@ const Page = async ({ params }: { params: Promise<{ type: string }> }) => {
         <Header />
         <div className="w-full h-[500px] relative overflow-hidden bg-gradient-to-r from-blue-50 to-blue-100">
           <div className="absolute inset-0 flex items-center">
-            <div className="pl-40 mt-32 text-black">
+            <div className="pl-80 mt-32 text-black">
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-2xl capitalize md:text-5xl font-bold mb-4">
@@ -28,7 +28,7 @@ const Page = async ({ params }: { params: Promise<{ type: string }> }) => {
                     practices for businesses operating in this region.
                   </p>
                 </div>
-                <div className="relative size-[400px] ml-80">
+                <div className="relative size-[400px] ml-40">
                   <Image
                     src="/policy.png"
                     alt="Policy"

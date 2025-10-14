@@ -9,40 +9,40 @@ export async function GET(request: Request) {
     const subCategorySlug = searchParams.get("subCategory");
     const sortBy = searchParams.get("sortBy") || "soldCount";
 
-    let orderBy: { [key: string]: string } = {}; // Explicitly define orderBy type
     const where: any = { adminApprovalStatus: "Approved" };
+    let orderBy: Record<string, "asc" | "desc"> = {};
 
-    // Filter by category if provided
+    // ✅ Category & Subcategory filters
     if (categorySlug) {
       where.categorySlug = categorySlug;
     }
-
-    // Filter by subcategory if provided
     if (subCategorySlug) {
       where.subCategorySlug = subCategorySlug;
     }
 
-    // New condition for popularityScore
-    if (sortBy === "popularityScore") {
-      where.popularityScore = { gte: 100 };
-    }
-
-    // Set sorting
+    // ✅ Apply threshold filters based on sort type
     switch (sortBy) {
-      case "soldCount":
-        orderBy = { soldCount: "desc" };
-        break;
-      case "popularityScore": // New case for popularityScore
+      case "popularityScore":
+        where.popularityScore = { gte: 10 }; // only popular products
         orderBy = { popularityScore: "desc" };
         break;
-      case "bestReviewed":
-        // TODO: For now, we'll sort by createdAt as a placeholder
-        orderBy = { createdAt: "desc" };
+
+      case "averageRating":
+      case "bestReviewed": // alias
+        where.averageRating = { gte: 3.5 }; // only products with good ratings
+        orderBy = { averageRating: "desc" };
         break;
+
+      case "soldCount":
+        where.soldCount = { gte: 1 }; // only products with sales
+        orderBy = { soldCount: "desc" };
+        break;
+
       default:
         orderBy = { createdAt: "desc" };
     }
 
+    // ✅ Fetch products
     const products = await db.product.findMany({
       where,
       include: {
@@ -55,11 +55,14 @@ export async function GET(request: Request) {
       orderBy,
     });
 
-    return NextResponse.json(products);
+    return NextResponse.json({
+      success: true,
+      products,
+    });
   } catch (error) {
     console.error("Error fetching products:", error);
     return NextResponse.json(
-      { error: "Failed to fetch products" },
+      { success: false, error: "Failed to fetch products" },
       { status: 500 }
     );
   }

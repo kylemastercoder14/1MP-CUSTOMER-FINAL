@@ -17,7 +17,7 @@ import { ProductWithProps } from "@/types";
 import { useRouter } from "next/navigation";
 import ProductCard from "@/components/globals/product-card";
 import { calculateDiscountPrice, getDiscountInfo } from "@/lib/utils";
-import { IoRibbonSharp } from 'react-icons/io5';
+import { IoRibbonSharp } from "react-icons/io5";
 
 // Helper interface for grouped products
 interface GroupedSubCategory {
@@ -40,7 +40,7 @@ const Client = () => {
   const [products, setProducts] = useState<ProductWithProps[]>([]);
 
   const filters = [
-    { value: "soldCount", label: "Best Sellers" },
+    { value: "soldCount", label: "Best Seller" },
     { value: "popularityScore", label: "Most Popular" },
     { value: "bestReviewed", label: "Best Reviewed" },
   ];
@@ -114,7 +114,11 @@ const Client = () => {
 
         const response = await fetch(url);
         const data = await response.json();
-        setProducts(data);
+        if (data.success && Array.isArray(data.products)) {
+          setProducts(data.products);
+        } else {
+          setProducts([]);
+        }
       } catch (error) {
         console.error("Error fetching products:", error);
       } finally {
@@ -185,12 +189,12 @@ const Client = () => {
     }
 
     return (
-      <div className='mb-10'>
+      <div className="mb-10">
         <h2 className="text-xl font-semibold text-gray-800 mb-6">
           {subCategory.name}
         </h2>
         {/* Products are displayed side-by-side in a 3-column grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {products.map((product, index) => {
             const price =
               product.variants.length > 0
@@ -251,7 +255,7 @@ const Client = () => {
   // No Products Found Component
   const NoProductsFound = ({
     title = "No products found",
-    description = "Try selecting a different category",
+    description = "Try selecting a different filter",
   }) => (
     <div className="text-center py-12">
       <div className="flex flex-col items-center justify-center space-y-4">
@@ -355,7 +359,7 @@ const Client = () => {
           `}</style>
         </div>
 
-        <section className="py-16 px-20">
+        <section className="py-16 lg:px-80 px-20">
           {categoriesLoading ? (
             <CategorySkeleton />
           ) : (
@@ -427,7 +431,7 @@ const Client = () => {
               {/* Products Display Section */}
               <div className="space-y-2">
                 {loading ? (
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                  <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                     {[...Array(10)].map((_, i) => (
                       <SkeletonCard key={i} />
                     ))}

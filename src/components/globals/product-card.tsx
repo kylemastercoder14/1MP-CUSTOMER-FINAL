@@ -1,4 +1,3 @@
-
 "use client";
 
 import { DiscountInfo, ProductWithProps } from "@/types";
@@ -7,14 +6,15 @@ import Image from "next/image";
 import { SetStateAction, useState } from "react";
 import { Lens } from "@/components/animated-ui/lens";
 import { useRouter } from "next/navigation";
+import { Star } from "lucide-react";
 
 const ProductCard = ({
   product,
   price,
   discounts,
   hasDiscount,
-  viewMode,
   discountPrice,
+  viewMode,
   categories,
   subcategories,
   newArrival,
@@ -41,6 +41,41 @@ const ProductCard = ({
     setSelectedImageIndex(index);
   };
 
+  // ✅ Dynamic star renderer with full, half, and empty stars
+  const renderStars = (averageRating: number) => {
+    const stars = [];
+    for (let i = 1; i <= 5; i++) {
+      if (averageRating >= i) {
+        stars.push(
+          <Star
+            key={i}
+            className="w-3 h-3 inline-block text-yellow-500 mr-[1px]"
+            fill="oklch(79.5% 0.184 86.047)"
+          />
+        );
+      } else if (averageRating >= i - 0.5) {
+        stars.push(
+          <Star
+            key={i}
+            className="w-3 h-3 inline-block text-yellow-500 mr-[1px]"
+            fill="oklch(79.5% 0.184 86.047)"
+            style={{ clipPath: "inset(0 50% 0 0)" }}
+          />
+        );
+      } else {
+        stars.push(
+          <Star
+            key={i}
+            className="w-3 h-3 inline-block text-yellow-500 mr-[1px]"
+            fill="none"
+            stroke="oklch(79.5% 0.184 86.047)"
+          />
+        );
+      }
+    }
+    return stars;
+  };
+
   return (
     <Card
       onClick={() =>
@@ -56,15 +91,15 @@ const ProductCard = ({
       <CardContent
         className={`p-4 ${
           viewMode === "grid1" ? "flex flex-row gap-4 w-full" : ""
-        } ${
-          viewMode === "grid2" ? "flex flex-col" : ""
-        }`}
+        } ${viewMode === "grid2" ? "flex flex-col" : ""}`}
       >
-        {/* Product Image and Badges Container */}
+        {/* 🖼️ Product Image */}
         <Lens hovering={hovering} setHovering={setHovering}>
           <div
             className={`relative overflow-hidden rounded-sm bg-gray-100 ${
-              viewMode === "grid1" ? "h-36 w-36 flex-shrink-0" : "h-48 w-full mb-3" // Smaller fixed size for grid1
+              viewMode === "grid1"
+                ? "h-36 w-36 flex-shrink-0"
+                : "h-48 w-full mb-3"
             }`}
           >
             {product.images?.[selectedImageIndex] && (
@@ -75,7 +110,8 @@ const ProductCard = ({
                 className="object-cover transition-opacity duration-300"
               />
             )}
-            {/* Top product badge */}
+
+            {/* 🏅 Rank Badge */}
             {rank && rank >= 1 && rank <= 3 && (
               <div className="absolute top-2 left-2">
                 <div
@@ -83,52 +119,54 @@ const ProductCard = ({
                     rank === 1
                       ? "bg-gradient-to-br from-yellow-400 to-orange-500"
                       : rank === 2
-                      ? "bg-gradient-to-br from-gray-300 to-gray-500"
-                      : "bg-gradient-to-br from-orange-400 to-red-500"
+                        ? "bg-gradient-to-br from-gray-300 to-gray-500"
+                        : "bg-gradient-to-br from-orange-400 to-red-500"
                   }`}
                 >
                   #{rank}
                 </div>
               </div>
             )}
+
             {isTopRank && (
               <div className="absolute bottom-2 right-2">
-                <Image src="https://s.alicdn.com/@img/imgextra/i4/O1CN01GOxgdV1n1KmMe9jr8_!!6000000005029-2-tps-72-72.png" alt='Top Rank' width={60} height={60} />
+                <Image
+                  src="https://s.alicdn.com/@img/imgextra/i4/O1CN01GOxgdV1n1KmMe9jr8_!!6000000005029-2-tps-72-72.png"
+                  alt="Top Rank"
+                  width={60}
+                  height={60}
+                />
               </div>
             )}
-            {/* Discount Badges */}
+
+            {/* 💸 Discount Badge */}
             <div className="absolute top-2 right-2">
               <div className="flex items-center gap-1 mb-2 flex-wrap">
-                {discounts &&
-                  discounts.map((discount, index) => (
-                    <span
-                      key={index}
-                      className={`text-[8px] ${
-                        discount.type === "new-arrival"
-                          ? "bg-emerald-500"
-                          : discount.type === "product"
+                {discounts?.map((discount, index) => (
+                  <span
+                    key={index}
+                    className={`text-[8px] ${
+                      discount.type === "new-arrival"
+                        ? "bg-emerald-500"
+                        : discount.type === "product"
                           ? "bg-blue-500"
                           : "bg-[#800020]"
-                      } text-white px-2 py-1 rounded-full font-medium`}
-                    >
-                      {discount.discountType === "Percentage Off"
-                        ? `${discount.value}% OFF`
-                        : `SAVE ₱${discount.value}`}
-                    </span>
-                  ))}
+                    } text-white px-2 py-1 rounded-full font-medium`}
+                  >
+                    {discount.discountType === "Percentage Off"
+                      ? `${discount.value}% OFF`
+                      : `SAVE ₱${discount.value}`}
+                  </span>
+                ))}
               </div>
             </div>
           </div>
         </Lens>
 
-        {/* Product Details Container */}
-        <div
-          className={`${
-            viewMode === "grid1" ? "flex-1" : "" // Take remaining width in grid1
-          }`}
-        >
-          {/* Product Image Thumbnails */}
-          {product.images && product.images.length > 1 && (
+        {/* 📄 Product Info */}
+        <div className={`${viewMode === "grid1" ? "flex-1" : ""}`}>
+          {/* 🔄 Thumbnails */}
+          {product.images && (
             <div className="flex gap-1 mb-3 overflow-x-auto">
               {product.images.slice(0, 4).map((image, index) => (
                 <div
@@ -161,52 +199,35 @@ const ProductCard = ({
             </div>
           )}
 
-          {/* Product Name */}
-          <h3 className="font-medium text-sm mb-1 line-clamp-2 text-gray-800">
+          {/* 🏷️ Product Name */}
+          <h3 className="font-medium text-sm mb-1 line-clamp-1 text-gray-800">
             {product.name}
           </h3>
 
-          {/* Price Section */}
+          {/* 💰 Price */}
           <div className="flex items-center gap-2 mb-2">
             <span className="font-bold text-lg text-[#800020]">
               ₱{discountPrice.toFixed(2)}
             </span>
             {hasDiscount && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-400 line-through">
-                  ₱{price.toFixed(2)}
-                </span>
-                <span className="text-[10px] flex items-center gap-1 text-green-600 font-medium">
-                  {discounts &&
-                    discounts.some((d) => d.discountType === "Percentage Off") &&
-                    `Save ${discounts.reduce(
-                      (sum, d) =>
-                        d.discountType === "Percentage Off" ? sum + d.value : sum,
-                      0
-                    )}%`}
-                  {discounts &&
-                    discounts.some((d) => d.discountType === "Fixed Price") &&
-                    `Save ₱${discounts.reduce(
-                      (sum, d) =>
-                        d.discountType === "Fixed Price" ? sum + d.value : sum,
-                      0
-                    )}`}
-                </span>
-              </div>
+              <span className="text-xs text-gray-400 line-through">
+                ₱{price.toFixed(2)}
+              </span>
             )}
           </div>
 
-          {/* Sales and Rating */}
+          {/* ⭐ Sold + Rating */}
           <div className="flex items-center justify-between text-xs text-gray-500 mb-2">
             <span className="font-medium">{product.soldCount} sold</span>
-            <div className="flex items-center gap-1">
-              {/* You have static stars here, consider dynamic rendering based on product.averageRating */}
-              <div className="flex text-yellow-400">{"★".repeat(5)}</div>
-              <span className="text-gray-500">(256)</span>
+            <div className="flex items-center">
+              {renderStars(product.averageRating)}
+              <span className="text-gray-500 text-[10px] ml-1">
+                ({product.averageRating.toFixed(1)})
+              </span>
             </div>
           </div>
 
-          {/* Location */}
+          {/* 📍 Vendor + Tag */}
           <p className="text-xs text-gray-500 truncate">
             {product.vendor.name}
           </p>

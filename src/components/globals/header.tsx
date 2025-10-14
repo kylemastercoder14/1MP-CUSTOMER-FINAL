@@ -79,8 +79,8 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                 id="first"
                 className={
                   !openDropdown && isHomepage
-                    ? "bg-transparent text-white"
-                    : "bg-white text-black"
+                    ? "bg-transparent px-60 text-white"
+                    : "bg-white px-60 text-black"
                 }
                 initial={{ opacity: 1, y: 0 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -88,7 +88,7 @@ const Header = ({ isHomepage = false }: { isHomepage?: boolean }) => {
                 transition={{ duration: 0.3 }}
               >
                 {/* Top bar */}
-                <div className="bg-transparent px-4 pb-2 pt-4">
+                <div className="bg-transparent pb-2 pt-4">
                   <div className="px-20 flex justify-between items-center text-sm">
                     <Link href="/" className="flex items-center gap-3">
                       <div className="relative w-12 h-12">

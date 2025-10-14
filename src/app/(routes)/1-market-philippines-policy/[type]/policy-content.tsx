@@ -101,7 +101,7 @@ const PolicyContent = ({ type }: { type: string }) => {
   };
 
   return (
-    <section className="bg-white pb-20 pt-10 px-20">
+    <section className="bg-white pb-20 pt-10 lg:px-80 px-20">
       <Breadcrumb>
         <BreadcrumbList>
           <BreadcrumbItem>

@@ -1,17 +1,16 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import { v4 as uuidv4 } from "uuid";
-import db from "@/lib/db"; // Your Prisma client instance
+import db from "@/lib/db"; // Prisma client
 import { createPayment } from "@/lib/xendit";
 import { sendReceiptEmail } from "@/actions";
 import { useUser } from "@/hooks/use-user";
 
-// Define the POST handler for the API route
 export async function POST(req: NextRequest) {
   try {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
+    // Get authenticated user
     const { userId } = await useUser();
-
     if (!userId) {
       return NextResponse.json(
         { message: "Authentication required.", code: "UNAUTHENTICATED" },
@@ -19,32 +18,27 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const user = await db.user.findUnique({
-      where: { id: userId },
-    });
-
+    const user = await db.user.findUnique({ where: { id: userId } });
     if (!user) {
-      console.error("User not found in database");
       return NextResponse.json(
         { message: "User not found.", code: "USER_NOT_FOUND" },
         { status: 404 }
       );
     }
 
-    // Parse the JSON body from the incoming request
+    // Parse order data from frontend
     const orderData = await req.json();
-
-    // Destructure necessary data from the frontend payload
     const {
       shippingAddressId,
       paymentMethod,
-      vendorDeliveries, // Array of { vendorId, deliveryOption, shippingFee }
-      items, // Array of items selected for order
-      vendorTotals, // Array of { vendorId, subtotal, discount, total, voucherCode, couponName }
-      cartSummary, // Object containing total, totalDiscount, totalShippingFee
+      remarks,
+      vendorDeliveries,
+      items,
+      vendorTotals,
+      cartSummary,
     } = orderData;
 
-    // --- Basic Input Validation ---
+    // Basic validation
     if (
       !shippingAddressId ||
       !paymentMethod ||
@@ -57,6 +51,7 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
+
     if (
       !cartSummary.total ||
       typeof cartSummary.totalDiscount === "undefined" ||
@@ -68,36 +63,28 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // --- Data Transformation ---
-
-    // 1. Generate a unique order number
+    // Generate order number for Xendit
     const orderNumber = uuidv4();
-
-    // 2. Determine the overall vehicle type for the order
     const vehicleType =
-      vendorDeliveries?.[0]?.deliveryOption?.type || "Standard"; // Default to 'Standard' if not specified
+      vendorDeliveries?.[0]?.deliveryOption?.type || "Motorcycle";
 
-    // 3. Enrich order items with product 'name' and 'image'
+    // Enrich order items with product details
     const enrichedItems = await Promise.all(
       items.map(async (item: any) => {
         const product = await db.product.findUnique({
           where: { id: item.productId },
-          select: { name: true, images: true }, // Assuming 'images' is an array of strings
+          select: { name: true, images: true },
         });
-
-        if (!product) {
-          throw new Error(
-            `Product with ID ${item.productId} not found during order processing.`
-          );
-        }
+        if (!product)
+          throw new Error(`Product with ID ${item.productId} not found`);
 
         return {
           productId: item.productId,
           name: product.name,
-          image: product.images[0] || null, // Take the first image, or null if no images
+          image: product.images[0] || null,
           quantity: item.quantity,
-          sellerId: item.vendorId, // Map frontend 'vendorId' to backend 'sellerId'
-          price: item.priceAtPurchase, // Map frontend 'priceAtPurchase' to backend 'price'
+          sellerId: item.vendorId,
+          price: item.priceAtPurchase,
           productDiscountId: item.productDiscountId || null,
           newArrivalDiscountId: item.newArrivalDiscountId || null,
           couponId: item.couponId || null,
@@ -106,11 +93,10 @@ export async function POST(req: NextRequest) {
       })
     );
 
-    // 4. Collect applied coupon IDs
+    // Collect applied coupon IDs
     const voucherCodes = vendorTotals
       .map((vt: any) => vt.voucherCode)
       .filter(Boolean);
-
     let appliedCouponIds: string[] = [];
     if (voucherCodes.length > 0) {
       const coupons = await db.promoCode.findMany({
@@ -120,64 +106,26 @@ export async function POST(req: NextRequest) {
       appliedCouponIds = coupons.map((c) => c.id);
     }
 
-    // --- Conditional Payment Processing (Xendit vs. COD) ---
-    let paymentStatus = "Pending"; // Default status
-    let xenditInvoiceId: string | null = null;
-    let xenditInvoiceUrl: string | null = null;
-
-    if (paymentMethod === "Online Transaction") {
-      try {
-        // Prepare data for Xendit invoice creation
-        const xenditPayload = {
-          external_id: orderNumber, // Use orderNumber as external ID for Xendit
-          payer_email: user.email || undefined, // Optional: User's email for Xendit invoice
-          description: `Order #${orderNumber} from OneMarket`,
-          amount: cartSummary.total,
-          currency: "PHP", // Assuming Philippine Peso, adjust if needed
-          success_redirect_url: `${req.headers.get("origin")}/order-confirmation?orderId=${orderNumber}&paymentStatus=success`,
-          failure_redirect_url: `${req.headers.get("origin")}/checkout?status=failed&orderId=${orderNumber}`,
-        };
-
-        const xenditInvoice = await createPayment(xenditPayload);
-        xenditInvoiceId = xenditInvoice.id;
-        xenditInvoiceUrl = xenditInvoice.invoice_url;
-        paymentStatus = "Awaiting Payment"; // Update payment status for online transactions
-      } catch (xenditError: any) {
-        console.error("Xendit payment creation error:", xenditError);
-        return NextResponse.json(
-          {
-            message:
-              xenditError.message || "Failed to initiate online payment.",
-          },
-          { status: 500 }
-        );
-      }
-    } else if (paymentMethod === "Cash on Delivery") {
-      paymentStatus = "Pending"; // For COD, payment is pending until delivery
-    } else {
-      return NextResponse.json(
-        { message: "Invalid payment method." },
-        { status: 400 }
-      );
-    }
-
-    // --- Create the main order in the database ---
+    // Create order first
+    const paymentStatus =
+      paymentMethod === "Cash on Delivery" ? "Pending" : "Pending";
     const order = await db.order.create({
       data: {
         totalAmount: cartSummary.subtotal,
         discountAmount: cartSummary.totalDiscount,
-        orderNumber: orderNumber,
-        vehicleType: vehicleType,
+        orderNumber,
+        vehicleType,
         addressId: shippingAddressId,
-        paymentMethod: paymentMethod,
+        remarks,
+        paymentMethod,
         userId: user.id,
         deliveryFee: cartSummary.totalShippingFee,
-        paymentStatus: paymentStatus, // Set payment status based on transaction type
-        xenditInvoiceId: xenditInvoiceId, // Store Xendit invoice ID if applicable
+        paymentStatus,
+        xenditInvoiceId: null,
       },
     });
 
-    // Create order items with seller information
+    // Create order items
     await db.orderItem.createMany({
       data: enrichedItems.map((item) => ({
         productId: item.productId,
@@ -192,30 +140,57 @@ export async function POST(req: NextRequest) {
       })),
     });
 
-    // Handle coupons - decrement claimable quantity
+    // Decrement coupon claimable quantity
     if (appliedCouponIds.length > 0) {
       await Promise.all(
         appliedCouponIds.map((couponId) =>
           db.promoCode.update({
             where: { id: couponId },
-            data: { claimableQuantity: { decrement: 1 } }, // Decrement quantity
+            data: { claimableQuantity: { decrement: 1 } },
           })
         )
       );
     }
 
-    // Prepare and send email
+    // Handle online payment with Xendit
+    let xenditInvoiceId: string | null = null;
+    let xenditInvoiceUrl: string | null = null;
+
+    if (paymentMethod === "Online Transaction") {
+      try {
+        const xenditPayload = {
+          external_id: orderNumber,
+          payer_email: user.email || undefined,
+          description: `Order #${orderNumber} from OneMarket`,
+          amount: cartSummary.total,
+          currency: "PHP",
+          success_redirect_url: `${req.headers.get("origin")}/order-confirmation?orderId=${order.id}&paymentStatus=success`,
+          failure_redirect_url: `${req.headers.get("origin")}/checkout?status=failed&orderId=${order.id}`,
+        };
+
+        const xenditInvoice = await createPayment(xenditPayload);
+        xenditInvoiceId = xenditInvoice.id;
+        xenditInvoiceUrl = xenditInvoice.invoice_url;
+
+        // Update order with Xendit info
+        await db.order.update({
+          where: { id: order.id },
+          data: { xenditInvoiceId, paymentStatus: "Awaiting Payment" },
+        });
+      } catch (err: any) {
+        console.error("Xendit payment creation error:", err);
+        return NextResponse.json(
+          { message: err.message || "Failed to initiate online payment." },
+          { status: 500 }
+        );
+      }
+    }
+
+    // Send receipt email
     const address = await db.address.findUnique({
       where: { id: shippingAddressId },
     });
-
-    if (!address) {
-      // This should ideally not happen if addressId is valid, but good to check
-      console.warn(
-        `Address with ID ${shippingAddressId} not found for order ${order.id}. Email not sent.`
-      );
-      // Continue without sending email, or return an error if address is critical for order finalization
-    } else {
+    if (address) {
       const homeAddress = `${address.homeAddress}, ${address.barangay}, ${address.city}, ${address.province}, ${address.region}`;
       const formattedDate = new Date(order.createdAt).toLocaleDateString(
         "en-US",
@@ -230,11 +205,8 @@ export async function POST(req: NextRequest) {
         user.email as string,
         order.orderNumber,
         formattedDate,
-        address.fullName as string, // Assuming address has fullName
-        {
-          homeAddress,
-          zip: address.zipCode,
-        },
+        address.fullName as string,
+        { homeAddress, zip: address.zipCode },
         enrichedItems.map((item) => ({
           name: item.name,
           image: item.image,
@@ -244,36 +216,26 @@ export async function POST(req: NextRequest) {
         enrichedItems.reduce(
           (acc, item) => acc + item.price * item.quantity,
           0
-        ), // Subtotal
+        ),
         cartSummary.totalDiscount,
         cartSummary.totalShippingFee,
         cartSummary.total
       );
     }
 
-    // --- Final Response ---
-    if (paymentMethod === "Online Transaction" && xenditInvoiceUrl) {
-      // For online transactions, return the Xendit invoice URL for redirection
-      return NextResponse.json(
-        {
-          message: "Order initiated for online payment.",
-          orderId: order.id,
-          orderNumber: order.orderNumber,
-          invoiceUrl: xenditInvoiceUrl, // Frontend will redirect to this URL
-        },
-        { status: 200 }
-      );
-    } else {
-      // For Cash on Delivery, return success message
-      return NextResponse.json(
-        {
-          message: "Order placed successfully!",
-          orderId: order.id,
-          orderNumber: order.orderNumber,
-        },
-        { status: 200 }
-      );
-    }
+    // Final response
+    return NextResponse.json(
+      {
+        message:
+          paymentMethod === "Online Transaction"
+            ? "Order initiated for online payment."
+            : "Order placed successfully!",
+        orderId: order.id,
+        orderNumber: order.orderNumber,
+        invoiceUrl: xenditInvoiceUrl || null,
+      },
+      { status: 200 }
+    );
   } catch (error: any) {
     console.error("API Error placing order:", error);
     return NextResponse.json(

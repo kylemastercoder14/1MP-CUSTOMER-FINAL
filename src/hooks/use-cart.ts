@@ -350,7 +350,6 @@ const useCart = create(
             [vendorId]: voucher,
           },
         });
-        toast.success("Voucher applied");
       },
 
       applyVendorCoupon: (vendorId: string, coupon: VendorCoupon) => {
@@ -419,7 +418,8 @@ const useCart = create(
         }
 
         // Get shipping fee based on selected option for this vendor
-        const deliveryOption = get().vendorDeliveryOptions[vendorId];
+        const deliveryOption =
+          get().vendorDeliveryOptions[vendorId] || "Motorcycle";
         let shippingFee = 0;
         if (deliveryOption === "Motorcycle") {
           shippingFee = 40.0;

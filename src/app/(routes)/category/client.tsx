@@ -131,12 +131,7 @@ const Client = () => {
                         >
                           <div
                             key={subCategory.id}
-                            onClick={() =>
-                              router.push(
-                                `/category/sub-category?name=${subCategory.slug}`
-                              )
-                            }
-                            className="flex cursor-pointer flex-col items-center justify-center group"
+                            className="flex flex-col items-center justify-center group"
                           >
                             <div className="lg:size-20 size-16 relative rounded-full border group-hover:shadow-lg border-gray-200 bg-white flex items-center justify-center group-hover:scale-110">
                               <Image

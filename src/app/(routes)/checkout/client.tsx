@@ -33,6 +33,7 @@ import { Label } from "@/components/ui/label";
 import useCart, { DeliveryOptionType } from "@/hooks/use-cart";
 import InvoiceForm from "@/components/forms/invoice-form";
 import { InvoiceWithAddress } from "@/types";
+import { Textarea } from "@/components/ui/textarea";
 
 const Client = () => {
   const router = useRouter();
@@ -64,6 +65,7 @@ const Client = () => {
   // Removed selectedDeliveryOption from local state as it's now in useCart per vendor
   const [selectedPaymentMethod, setSelectedPaymentMethod] =
     useState("Online Transaction");
+  const [remarks, setRemarks] = useState("");
   const [isProcessingOrder, setIsProcessingOrder] = useState(false);
 
   const [vendorVoucherInputs, setVendorVoucherInputs] = useState<
@@ -232,6 +234,7 @@ const Client = () => {
       const orderData = {
         shippingAddressId: defaultAddress.id,
         paymentMethod: selectedPaymentMethod,
+        remarks: remarks,
         // Collect delivery option per vendor for backend
         vendorDeliveries: Object.keys(selectedItemsByVendor).map(
           (vendorId) => ({
@@ -250,7 +253,6 @@ const Client = () => {
             priceAtPurchase: item.discountedPrice,
             originalPrice: item.originalPrice,
             vendorId: item.vendorId,
-            // Include discount IDs - you'll need to fetch or store these in your cart
             productDiscountId: item.productDiscountId || null,
             newArrivalDiscountId: item.newArrivalDiscountId || null,
             couponId: item.couponId || null,
@@ -288,7 +290,17 @@ const Client = () => {
       const itemIdsToRemove = selectedItems;
       removeItems(itemIdsToRemove);
 
-      router.push(`/order-confirmation?orderId=${responseData.orderId}`);
+      // Check if this is an online transaction with invoiceUrl
+      if (
+        selectedPaymentMethod === "Online Transaction" &&
+        responseData.invoiceUrl
+      ) {
+        // Redirect to Xendit payment page
+        window.location.href = responseData.invoiceUrl;
+      } else {
+        // For COD, redirect to order confirmation
+        router.push(`/order-confirmation?orderId=${responseData.orderId}`);
+      }
     } catch (error: any) {
       console.error("Error placing order:", error);
       toast.error(
@@ -357,10 +369,10 @@ const Client = () => {
         <div className="relative">
           <Header />
         </div>
-        <div className="px-4 md:px-8 lg:px-20 pb-20 pt-[140px]">
+        <div className="px-4 md:px-8 lg:px-80 pb-20 pt-[140px]">
           <div className="grid lg:grid-cols-10 grid-cols-1 gap-3">
             {/* Left Section: Shipping Address, Packages, Delivery Options */}
-            <div className="lg:col-span-7 space-y-3">
+            <div className="lg:col-span-6 space-y-3">
               {/* Shipping Address */}
               <div className="bg-white border rounded-sm py-3 px-4">
                 <div className="flex items-center justify-between mb-2">
@@ -443,13 +455,13 @@ const Client = () => {
                       >
                         <div className="flex items-center p-3 border rounded-md cursor-pointer has-[:checked]:border-[#800020] has-[:checked]:bg-[#800020]/5">
                           <RadioGroupItem
-                            value="motorcycle-delivery"
-                            id={`motorcycle-delivery-${vendorId}`}
+                            value="Motorcycle"
+                            id={`Motorcycle-${vendorId}`}
                             className="mr-3"
                           />
                           <div className="flex-1">
                             <Label
-                              htmlFor={`motorcycle-delivery-${vendorId}`}
+                              htmlFor={`Motorcycle-${vendorId}`}
                               className="flex justify-between items-center w-full cursor-pointer"
                             >
                               <div className="flex flex-col">
@@ -469,13 +481,13 @@ const Client = () => {
                         </div>
                         <div className="flex items-center p-3 border rounded-md cursor-pointer has-[:checked]:border-[#800020] has-[:checked]:bg-[#800020]/5">
                           <RadioGroupItem
-                            value="bicycle-delivery"
-                            id={`bicycle-delivery-${vendorId}`}
+                            value="Bicycle"
+                            id={`Bicycle-${vendorId}`}
                             className="mr-3"
                           />
                           <div className="flex-1">
                             <Label
-                              htmlFor={`bicycle-delivery-${vendorId}`}
+                              htmlFor={`Bicycle-${vendorId}`}
                               className="flex justify-between items-center w-full cursor-pointer"
                             >
                               <div className="flex flex-col">
@@ -544,7 +556,7 @@ const Client = () => {
               )}
             </div>
 
-            <div className="lg:col-span-3 space-y-3">
+            <div className="lg:col-span-4 space-y-3">
               <div className="bg-white border rounded-sm py-3 px-4">
                 <div className="flex items-center justify-between mb-2">
                   <span className="font-semibold text-lg">
@@ -603,6 +615,19 @@ const Client = () => {
                     </div>
                   </div>
                 </RadioGroup>
+              </div>
+
+              <div className="bg-white border rounded-sm py-3 px-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="font-semibold text-lg">
+                    Remarks/Notes (optional)
+                  </span>
+                </div>
+                <Textarea
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                  placeholder="Add any notes or instructions for the seller or rider."
+                />
               </div>
 
               {/* Voucher Section */}

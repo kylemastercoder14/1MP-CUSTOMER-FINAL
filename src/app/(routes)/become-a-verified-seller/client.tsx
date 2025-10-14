@@ -14,7 +14,7 @@ const Client = () => {
 		<Header />
 		<div className="w-full lg:h-[500px] h-auto bg-zinc-200 relative pt-28 overflow-hidden flex items-center">
 		  {/* Main Container: Flexbox for responsive layout */}
-		  <div className="flex flex-col lg:flex-row items-center justify-center w-full px-10 lg:px-20 lg:mt-0 mt-14 py-10 lg:py-0">
+		  <div className="flex flex-col lg:flex-row items-center justify-center w-full px-10 lg:px-80 lg:mt-0 mt-14 py-10 lg:py-0">
 			{/* Content Section - text and description */}
 			<div className="flex-1 lg:text-left mb-8 lg:mb-0 lg:pr-10">
 			  <h1 className="text-2xl md:text-5xl font-bold mb-4">
@@ -42,7 +42,7 @@ const Client = () => {
 			</div>
 		  </div>
 		</div>
-		<section className="lg:py-16 py-10 pb-0 lg:px-20 px-10">
+		<section className="lg:py-16 py-10 pb-0 lg:px-80 px-10">
 		  {/* Hero Section */}
 		  <div className="mb-8">
 			<h1 className="text-4xl font-bold text-gray-900 mb-4">

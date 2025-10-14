@@ -124,8 +124,8 @@ export function CategoriesCarousel({ categories }: { categories: Category[] }) {
               ))}
             </CarouselContent>
           </div>
-          <CarouselPrevious className="absolute left-0 top-1/2 -translate-y-1/2 transform-none w-10 h-10 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 disabled:opacity-50" />
-          <CarouselNext className="absolute right-0 top-1/2 -translate-y-1/2 transform-none w-10 h-10 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 disabled:opacity-50" />
+          <CarouselPrevious className="absolute -left-10 top-1/2 -translate-y-1/2 transform-none w-10 h-10 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 disabled:opacity-50" />
+          <CarouselNext className="absolute -right-10 top-1/2 -translate-y-1/2 transform-none w-10 h-10 rounded-full bg-white border border-gray-200 shadow-sm hover:bg-gray-50 disabled:opacity-50" />
         </Carousel>
       </div>
     );

@@ -16,7 +16,6 @@ import Link from "next/link";
 import {
   calculateDiscountPrice,
   formatDiscountDateRange,
-  formatText,
   getDiscountInfo,
 } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
@@ -355,7 +354,7 @@ const Client = () => {
       <div className="relative">
         <Header />
       </div>
-      <div className="lg:px-20 lg:pb-20 px-5 pb-10 lg:pt-[140px] pt-20">
+      <div className="lg:px-80 lg:pb-20 px-5 pb-10 lg:pt-[140px] pt-20">
         <div className="grid lg:grid-cols-10 grid-cols-1 gap-5">
           <div className="lg:col-span-6 bg-white p-5 rounded-md border">
             <Breadcrumb>
@@ -479,7 +478,7 @@ const Client = () => {
               </span>{" "}
               |{" "}
               <span className="text-[#800020] font-normal">
-                More {formatText(subcategories)} Products
+                More {product?.subCategory?.name} Products
               </span>
             </span>
             {activeDiscount && (
@@ -570,7 +569,7 @@ const Client = () => {
             <span className="font-semibold text-lg mt-5">Quantity:</span>
             <QuantityInput quantity={quantity} setQuantity={setQuantity} />
             <div className="grid mt-5 lg:grid-cols-10 grid-cols-1 gap-3">
-              <div className="flex lg:col-span-8 items-center gap-2">
+              <div className="flex lg:col-span-7 items-center gap-2">
                 <Button
                   className="flex-1 border-[#800020] text-[#800020] hover:text-[#800020] hover:bg-[#800020]/10"
                   size="lg"
@@ -588,7 +587,7 @@ const Client = () => {
                   Add to Cart
                 </Button>
               </div>
-              <div className="flex items-center lg:col-span-2 gap-2">
+              <div className="flex items-center lg:col-span-3 gap-2">
                 <Button
                   className="flex text-muted-foreground hover:bg-transparent text-sm flex-col items-center"
                   variant="ghost"

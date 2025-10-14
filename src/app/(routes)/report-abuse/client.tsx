@@ -33,7 +33,7 @@ const Client = () => {
 	  <div className="relative">
 		<Header />
 	  </div>
-	  <section className="lg:px-20 px-10 lg:pt-36 pt-20 pb-10">
+	  <section className="lg:px-80 px-10 lg:pt-36 pt-20 pb-10">
 		<TabsComponent
 		  activeTab={activeTab}
 		  setActiveTab={setActiveTab}
