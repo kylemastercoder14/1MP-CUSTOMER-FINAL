@@ -472,7 +472,33 @@ const Client = () => {
                                   Motorcycle
                                 </span>
                                 <span className="text-xs text-muted-foreground">
-                                  Guaranteed by 45 minutes to 1 hour
+                                  Guaranteed by 15-30 minutes
+                                </span>
+                              </div>
+                              <CheckCircle2 className="size-5 text-[#800020] opacity-0 has-[:checked]:opacity-100 transition-opacity" />
+                            </Label>
+                          </div>
+                        </div>
+                        <div className="flex items-center p-3 border rounded-md cursor-pointer has-[:checked]:border-[#800020] has-[:checked]:bg-[#800020]/5">
+                          <RadioGroupItem
+                            value="Tricycle"
+                            id={`Tricycle-${vendorId}`}
+                            className="mr-3"
+                          />
+                          <div className="flex-1">
+                            <Label
+                              htmlFor={`Tricycle-${vendorId}`}
+                              className="flex justify-between items-center w-full cursor-pointer"
+                            >
+                              <div className="flex flex-col">
+                                <span className="text-base font-medium">
+                                  ₱40.00
+                                </span>
+                                <span className="text-sm text-muted-foreground">
+                                  Tricycle
+                                </span>
+                                <span className="text-xs text-muted-foreground">
+                                  Guaranteed by 15-30 minutes
                                 </span>
                               </div>
                               <CheckCircle2 className="size-5 text-[#800020] opacity-0 has-[:checked]:opacity-100 transition-opacity" />
@@ -498,7 +524,7 @@ const Client = () => {
                                   Bicycle
                                 </span>
                                 <span className="text-xs text-muted-foreground">
-                                  Guaranteed by 1-2 hours
+                                  Guaranteed by 30-45 minutes
                                 </span>
                               </div>
                               <CheckCircle2 className="size-5 text-[#800020] opacity-0 has-[:checked]:opacity-100 transition-opacity" />

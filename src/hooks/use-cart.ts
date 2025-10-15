@@ -47,7 +47,7 @@ interface VendorCoupon {
 }
 
 // Define delivery option types for consistency
-export type DeliveryOptionType = "Motorcycle" | "Bicycle";
+export type DeliveryOptionType = "Motorcycle" | "Tricycle" | "Bicycle";
 
 interface CartStore {
   items: CartItem[];
@@ -425,6 +425,8 @@ const useCart = create(
           shippingFee = 40.0;
         } else if (deliveryOption === "Bicycle") {
           shippingFee = 30.0;
+        } else if (deliveryOption === "Tricycle") {
+          shippingFee = 40.0;
         }
         // else if (deliveryOption === "standard") { shippingFee = 38.00; } // If you still have a generic standard
 
