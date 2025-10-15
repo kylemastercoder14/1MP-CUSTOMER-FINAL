@@ -451,7 +451,7 @@ const Client = () => {
                         onValueChange={(value: DeliveryOptionType) =>
                           setVendorDeliveryOption(vendorId, value)
                         }
-                        className="grid lg:grid-cols-3 grid-cols-1 gap-2"
+                        className="grid lg:grid-cols-2 grid-cols-1 gap-2"
                       >
                         <div className="flex items-center p-3 border rounded-md cursor-pointer has-[:checked]:border-[#800020] has-[:checked]:bg-[#800020]/5">
                           <RadioGroupItem
