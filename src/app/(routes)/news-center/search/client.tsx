@@ -130,7 +130,7 @@ const Client = () => {
 				{searchResults.map((news) => (
 				  <Link
 					key={news.id}
-					href={`/news/${news.id}`}
+					href={`/news-center/${news.id}`}
 					className="block group"
 				  >
 					<div className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden h-full flex flex-col">
